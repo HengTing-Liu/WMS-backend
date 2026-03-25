@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<project
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.abclonal.product</groupId>
+		<artifactId>wms-center</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>wms-center-service</artifactId>
+	<packaging>jar</packaging>
+
+    <dependencies>
+		<dependency>
+			<groupId>com.abclonal.product</groupId>
+			<artifactId>wms-center-dao</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.abclonal.product</groupId>
+			<artifactId>wms-center-domain</artifactId>
+		</dependency>
+        <dependency>
+            <groupId>com.abclonal.product</groupId>
+            <artifactId>wms-center-common</artifactId>
+        </dependency>
+        <!-- Spring Cloud OpenFeign -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <!-- 负载均衡 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
+
+        <!-- 服务发现 -->
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+
+        <!-- Spring Boot Starter -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.abclonal.product</groupId>
+            <artifactId>wms-center-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- SpringBoot Boot Redis -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- MyBatis-Plus 扩展 - 直接指定版本，不依赖父POM -->
+<!--        <dependency>-->
+<!--            <groupId>com.baomidou</groupId>-->
+<!--            <artifactId>mybatis-plus-extension</artifactId>-->
+<!--            <version>3.5.9</version>-->
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash; MyBatis-Plus 核心（有时扩展依赖会传递，但直接加上更保险） &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.baomidou</groupId>-->
+<!--            <artifactId>mybatis-plus-core</artifactId>-->
+<!--            <version>3.5.9</version>-->
+<!--        </dependency>-->
+
+
+
+
+<!--        &lt;!&ndash; Swagger 注解（如果代码中启用了enableSwagger） &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>io.swagger</groupId>-->
+<!--            <artifactId>swagger-annotations</artifactId>-->
+<!--            <version>1.6.2</version>-->
+<!--        </dependency>-->
+<!--        &lt;!&ndash; 或者使用 Swagger2 &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>io.springfox</groupId>-->
+<!--            <artifactId>springfox-swagger2</artifactId>-->
+<!--            <version>2.9.2</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+
+<!--        &lt;!&ndash; Lombok（如果启用了enableLombok） &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.projectlombok</groupId>-->
+<!--            <artifactId>lombok</artifactId>-->
+<!--            <version>1.18.24</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
+        <!-- Caffeine 本地缓存（用于元数据缓存） -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+    </dependencies>
+</project>

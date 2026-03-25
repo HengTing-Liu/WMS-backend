@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abclonal.product.service.permission.mapper.SysDataPermissionFieldMapper">
+    
+    <resultMap id="BaseResultMap" type="com.abclonal.product.service.permission.entity.SysDataPermissionField">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="tableCode" column="table_code" jdbcType="VARCHAR"/>
+        <result property="tableName" column="table_name" jdbcType="VARCHAR"/>
+        <result property="deptField" column="dept_field" jdbcType="VARCHAR"/>
+        <result property="warehouseField" column="warehouse_field" jdbcType="VARCHAR"/>
+        <result property="userField" column="user_field" jdbcType="VARCHAR"/>
+        <result property="companyField" column="company_field" jdbcType="VARCHAR"/>
+        <result property="enableDept" column="enable_dept" jdbcType="INTEGER"/>
+        <result property="enableWarehouse" column="enable_warehouse" jdbcType="INTEGER"/>
+        <result property="enableSelf" column="enable_self" jdbcType="INTEGER"/>
+        <result property="enableCompany" column="enable_company" jdbcType="INTEGER"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, table_code, table_name, dept_field, warehouse_field, user_field, company_field,
+        enable_dept, enable_warehouse, enable_self, enable_company, status, remark,
+        create_by, create_time, update_by, update_time
+    </sql>
+    
+    <!-- 根据ID查询配置 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_data_permission_field
+        WHERE id = #{id}
+    </select>
+    
+    <!-- 根据表编码查询配置 -->
+    <select id="selectByTableCode" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_data_permission_field
+        WHERE table_code = #{tableCode}
+        AND status = 0
+    </select>
+    
+    <!-- 查询所有配置 -->
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_data_permission_field
+        ORDER BY create_time DESC
+    </select>
+    
+    <!-- 查询启用的配置列表 -->
+    <select id="selectEnabled" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_data_permission_field
+        WHERE status = 0
+        ORDER BY create_time DESC
+    </select>
+    
+    <!-- 新增配置 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_data_permission_field (
+            table_code, table_name, dept_field, warehouse_field, user_field, company_field,
+            enable_dept, enable_warehouse, enable_self, enable_company, status, remark,
+            create_by, create_time, update_by, update_time
+        ) VALUES (
+            #{tableCode}, #{tableName}, #{deptField}, #{warehouseField}, #{userField}, #{companyField},
+            #{enableDept}, #{enableWarehouse}, #{enableSelf}, #{enableCompany}, #{status}, #{remark},
+            #{createBy}, NOW(), #{updateBy}, NOW()
+        )
+    </insert>
+    
+    <!-- 更新配置 -->
+    <update id="update">
+        UPDATE sys_data_permission_field
+        SET table_name = #{tableName},
+            dept_field = #{deptField},
+            warehouse_field = #{warehouseField},
+            user_field = #{userField},
+            company_field = #{companyField},
+            enable_dept = #{enableDept},
+            enable_warehouse = #{enableWarehouse},
+            enable_self = #{enableSelf},
+            enable_company = #{enableCompany},
+            status = #{status},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+    
+    <!-- 删除配置 -->
+    <delete id="deleteById">
+        DELETE FROM sys_data_permission_field WHERE id = #{id}
+    </delete>
+    
+    <!-- 批量删除配置 -->
+    <delete id="deleteByIds">
+        DELETE FROM sys_data_permission_field WHERE id IN
+        <foreach collection="array" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+    <!-- 检查表编码是否已存在 -->
+    <select id="checkTableCodeExists" resultType="int">
+        SELECT COUNT(*) FROM sys_data_permission_field WHERE table_code = #{tableCode}
+    </select>
+    
+</mapper>

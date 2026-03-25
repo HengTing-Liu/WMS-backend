@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.abclonal.product</groupId>
+    <artifactId>wms-center</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>wms-center</name>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.6</version>
+        <relativePath/>
+    </parent>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <spring-cloud.version>2021.0.5</spring-cloud.version>
+        <spring-cloud-alibaba.version>2021.0.5.0</spring-cloud-alibaba.version>
+        <mybatis-spring-boot.version>2.3.0</mybatis-spring-boot.version>
+        <druid.version>1.2.16</druid.version>
+        <mysql-connector.version>8.0.33</mysql-connector.version>
+        <lombok.version>1.18.30</lombok.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+        <mybatis-generator.version>1.4.1</mybatis-generator.version>
+        <mysql.version>8.0.33</mysql.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <fastjson2.version>2.0.34</fastjson2.version>
+        <rocketmq-spring.version>2.3.0</rocketmq-spring.version>
+        <xxl-job.version>2.4.1</xxl-job.version>
+        <com.google.guava.version>32.0.1-jre</com.google.guava.version>
+        <error_prone_annotations.version>2.18.0</error_prone_annotations.version>
+        <springdoc-openapi-ui.version>1.7.0</springdoc-openapi-ui.version>
+        <pagehelper-spring-boot-starter.version>1.4.6</pagehelper-spring-boot-starter.version>
+        <spring-boot-starter.version>2.7.6</spring-boot-starter.version>
+        <poi.version>4.1.2</poi.version>
+        <jjwt.version>0.9.1</jjwt.version>
+        <commons.io.version>2.19.0</commons.io.version>
+        <transmittable-thread-local.version>2.14.4</transmittable-thread-local.version>
+        <mapstruct.version>1.5.5.Final</mapstruct.version>
+<!--        <mybatis-plus.version>3.5.9</mybatis-plus.version>-->
+        <spring-boot.version>2.7.0</spring-boot.version>
+    </properties>
+
+    <modules>
+        <module>wms-center-api</module>
+        <module>wms-center-biz</module>
+        <module>wms-center-common</module>
+        <module>wms-center-dao</module>
+        <module>wms-center-domain</module>
+        <module>wms-center-service</module>
+        <module>wms-center-web</module>
+    </modules>
+
+    <dependencyManagement>
+        <!-- 其他模块的依赖管理 -->
+        <dependencies>
+            <!-- 模块依赖管理 -->
+            <dependency>
+                <groupId>com.abclonal.product</groupId>
+                <artifactId>wms-center-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity-engine-core</artifactId>
+                <version>2.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.abclonal.product</groupId>
+                <artifactId>wms-center-biz</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.abclonal.product</groupId>
+                <artifactId>wms-center-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.abclonal.product</groupId>
+                <artifactId>wms-center-dao</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.abclonal.product</groupId>
+                <artifactId>wms-center-domain</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.abclonal.product</groupId>
+                <artifactId>wms-center-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.abclonal.product</groupId>
+                <artifactId>wms-center-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${mybatis-spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql-connector.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-ui</artifactId>
+                <version>${springdoc-openapi-ui.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis.generator</groupId>
+                <artifactId>mybatis-generator-core</artifactId>
+                <version>${mybatis-generator.version}</version>
+            </dependency>
+
+<!--            <dependency>-->
+<!--                <groupId>com.baomidou</groupId>-->
+<!--                <artifactId>mybatis-plus-core</artifactId>-->
+<!--                <version>${mybatis-plus.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>com.baomidou</groupId>-->
+<!--                <artifactId>mybatis-plus-annotation</artifactId>-->
+<!--                <version>${mybatis-plus.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>com.baomidou</groupId>-->
+<!--                <artifactId>mybatis-plus-extension</artifactId>-->
+<!--                <version>${mybatis-plus.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>com.baomidou</groupId>-->
+<!--                <artifactId>mybatis-plus-boot-starter</artifactId>-->
+<!--                <version>${mybatis-plus.version}</version>-->
+<!--            </dependency>-->
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring-boot-starter.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>${fastjson2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-spring-boot-starter</artifactId>
+                <version>${rocketmq-spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.xuxueli</groupId>
+                <artifactId>xxl-job-core</artifactId>
+                <version>${xxl-job.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${com.google.guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>${error_prone_annotations.version}</version> <!-- 使用较新版本 -->
+            </dependency>
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>${pagehelper-spring-boot-starter.version}</version> <!-- 最新兼容版本 -->
+            </dependency>
+            <!-- excel工具 -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+
+            <!-- JWT -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+
+            <!-- io常用工具类 -->
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons.io.version}</version>
+            </dependency>
+
+            <!-- 线程传递值 -->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>transmittable-thread-local</artifactId>
+                <version>${transmittable-thread-local.version}</version>
+            </dependency>
+
+            <!-- MapStruct 核心 API -->
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${mapstruct.version}</version> <!-- 兼容 Spring Boot 2.7 -->
+            </dependency>
+
+            <!-- MapStruct 注解处理器（编译期生成实现类） -->
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-processor</artifactId>
+                <version>${mapstruct.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- AOP -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-aop</artifactId>
+            </dependency>
+
+            <!-- Caffeine 本地缓存 -->
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>2.9.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <distributionManagement>
+        <repository>
+            <id>nexus-releases</id>
+            <url>http://10.201.0.36:8081/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus-snapshots</id>
+            <url>http://10.201.0.36:8081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+</project>

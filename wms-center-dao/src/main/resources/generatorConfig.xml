@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <context id="MySQLTables" targetRuntime="MyBatis3">
+        <!-- 显式启用 XML 合并（防止重复生成） -->
+        <property name="mergeable" value="true"/>
+        <!-- 覆盖配置 -->
+        <property name="javaFileGenerator.skipIfExists" value="false"/>
+        <property name="xmlFileGenerator.skipIfExists" value="false"/>
+
+        <!-- 插件配置 -->
+        <plugin type="com.softwareloop.mybatis.generator.plugins.LombokPlugin">
+            <property name="hasLombok" value="true"/>
+        </plugin>
+
+        <commentGenerator>
+            <property name="suppressAllComments" value="false"/>
+        </commentGenerator>
+
+        <jdbcConnection
+                driverClass="com.mysql.cj.jdbc.Driver"
+                connectionURL="jdbc:mysql://39.96.205.153:3306/test?serverTimezone=Asia/Shanghai&amp;useSSL=false"
+                userId="test"
+                password="Test123!@#">
+        </jdbcConnection>
+
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <javaModelGenerator targetPackage="com.abclonal.product.dao.entity" targetProject="src/main/java"/>
+        <sqlMapGenerator targetPackage="mapper" targetProject="src/main/resources"/>
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.abclonal.product.dao.mapper" targetProject="src/main/java"/>
+
+<!--        <table tableName="test" domainObjectName="Test">-->
+<!--            <property name="override" value="true"/>-->
+<!--            <generatedKey column="id" sqlStatement="MySQL" identity="true"/>-->
+<!--        </table>-->
+<!--        <table tableName="employee" domainObjectName="Employee">-->
+<!--            <property name="override" value="true"/>-->
+<!--            <generatedKey column="id" sqlStatement="MySQL" identity="true"/>-->
+<!--        </table>-->
+                <table tableName="inv_qrcode" domainObjectName="QrCodeEntity">
+                    <property name="override" value="true"/>
+                    <generatedKey column="id" sqlStatement="MySQL" identity="true"/>
+                </table>
+
+    </context>
+</generatorConfiguration>
