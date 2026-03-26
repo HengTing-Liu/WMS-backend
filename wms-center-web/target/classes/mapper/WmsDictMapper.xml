@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abclonal.product.dao.mapper.WmsDictMapper">
+
+    <resultMap type="com.abclonal.product.dao.entity.WmsDict" id="WmsDictMap">
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="dictCode" column="dict_code" jdbcType="VARCHAR"/>
+        <result property="dictName" column="dict_name" jdbcType="VARCHAR"/>
+        <result property="dictType" column="dict_type" jdbcType="VARCHAR"/>
+        <result property="isEnabled" column="is_enabled" jdbcType="TINYINT"/>
+        <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, dict_code, dict_name, dict_type, is_enabled, is_deleted, remark,
+        create_by, create_time, update_by, update_time
+    </sql>
+
+    <!-- 查询单个 -->
+    <select id="queryById" resultMap="WmsDictMap">
+        select
+        <include refid="Base_Column_List"/>
+        from wms_dict
+        where id = #{id} and is_deleted = 0
+    </select>
+
+    <!-- 查询指定行数据 -->
+    <select id="queryAll" resultMap="WmsDictMap">
+        select
+        <include refid="Base_Column_List"/>
+        from wms_dict
+        <where>
+            is_deleted = 0
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="dictCode != null and dictCode != ''">
+                and dict_code = #{dictCode}
+            </if>
+            <if test="dictName != null and dictName != ''">
+                and dict_name like concat('%', #{dictName}, '%')
+            </if>
+            <if test="dictType != null and dictType != ''">
+                and dict_type = #{dictType}
+            </if>
+            <if test="isEnabled != null">
+                and is_enabled = #{isEnabled}
+            </if>
+        </where>
+        order by id asc
+    </select>
+
+    <!-- 统计总行数 -->
+    <select id="count" resultType="java.lang.Long">
+        select count(1) from wms_dict
+        <where>
+            is_deleted = 0
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="dictCode != null and dictCode != ''">
+                and dict_code = #{dictCode}
+            </if>
+            <if test="dictName != null and dictName != ''">
+                and dict_name like concat('%', #{dictName}, '%')
+            </if>
+            <if test="dictType != null and dictType != ''">
+                and dict_type = #{dictType}
+            </if>
+            <if test="isEnabled != null">
+                and is_enabled = #{isEnabled}
+            </if>
+        </where>
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into wms_dict(
+            dict_code, dict_name, dict_type, is_enabled, is_deleted, remark,
+            create_by, create_time, update_by, update_time
+        ) values (
+            #{dictCode}, #{dictName}, #{dictType},
+            <choose>
+                <when test="isEnabled != null">#{isEnabled}</when>
+                <otherwise>1</otherwise>
+            </choose>,
+            0, #{remark},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="update">
+        update wms_dict
+        <set>
+            <if test="dictCode != null and dictCode != ''">
+                dict_code = #{dictCode},
+            </if>
+            <if test="dictName != null and dictName != ''">
+                dict_name = #{dictName},
+            </if>
+            <if test="dictType != null and dictType != ''">
+                dict_type = #{dictType},
+            </if>
+            <if test="isEnabled != null">
+                is_enabled = #{isEnabled},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="updateBy != null and updateBy != ''">
+                update_by = #{updateBy},
+            </if>
+            update_time = now()
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 逻辑删除 -->
+    <update id="deleteById">
+        update wms_dict
+        set is_deleted = 1,
+            update_by = #{username},
+            update_time = now()
+        where id = #{id}
+    </update>
+
+    <!-- 切换状态 -->
+    <update id="toggleStatus">
+        update wms_dict
+        set is_enabled = #{isEnabled},
+            update_time = now()
+        where id = #{id} and is_deleted = 0
+    </update>
+
+    <!-- 查询所有（不分页） -->
+    <select id="listAll" resultMap="WmsDictMap">
+        select
+        <include refid="Base_Column_List"/>
+        from wms_dict
+        where is_deleted = 0
+        order by id asc
+    </select>
+
+    <!-- 校验字典编码唯一性 -->
+    <select id="checkDictCodeUnique" resultMap="WmsDictMap">
+        select
+        <include refid="Base_Column_List"/>
+        from wms_dict
+        where dict_code = #{dictCode} and is_deleted = 0
+        limit 1
+    </select>
+
+</mapper>
