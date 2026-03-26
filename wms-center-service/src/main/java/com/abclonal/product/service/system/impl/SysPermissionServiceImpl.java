@@ -1,93 +1,98 @@
 package com.abclonal.product.service.system.impl;
 
-import com.abclonal.product.common.constant.UserConstants;
-import com.abclonal.product.common.utils.StringUtils;
-
-import com.abclonal.product.dao.entity.SysRole;
-import com.abclonal.product.dao.entity.SysUser;
-import com.abclonal.product.service.system.ISysMenuService;
-import com.abclonal.product.service.system.ISysPermissionService;
-import com.abclonal.product.service.system.service.ISysRoleService;
+import com.abclonal.product.dao.entity.SysPermission;
+import com.abclonal.product.dao.mapper.sys.SysPermissionMapper;
+import com.abclonal.product.service.system.service.ISysPermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
- * 用户权限处理
- * 
- * @author ruoyi
+ * 权限管理表(SysPermission)表服务实现类
+ *
+ * @author backend
+ * @since 2026-03-26
  */
 @Service
-public class SysPermissionServiceImpl implements ISysPermissionService
-{
-    @Autowired
-    private ISysRoleService roleService;
+@Transactional(rollbackFor = Exception.class)
+public class SysPermissionServiceImpl implements ISysPermissionService {
 
     @Autowired
-    private ISysMenuService menuService;
+    private SysPermissionMapper sysPermissionMapper;
 
-    /**
-     * 获取角色数据权限
-     * 
-     * @param userId 用户Id
-     * @return 角色权限信息
-     */
+    // ==================== 查询方法 ====================
+
     @Override
-    public Set<String> getRolePermission(SysUser user)
-    {
-        Set<String> roles = new HashSet<String>();
-        // 管理员拥有所有权限
-        if (user.isAdmin())
-        {
-            roles.add("admin");
-        }
-        else
-        {
-            roles.addAll(roleService.selectRolePermissionByUserId(user.getUserId()));
-        }
-        return roles;
+    public SysPermission queryById(Long permissionId) {
+        return sysPermissionMapper.queryById(permissionId);
     }
 
-    /**
-     * 获取菜单数据权限
-     * 
-     * @param userId 用户Id
-     * @return 菜单权限信息
-     */
     @Override
-    public Set<String> getMenuPermission(SysUser user)
-    {
-        Set<String> perms = new HashSet<String>();
-        // 管理员拥有所有权限
-        if (user.isAdmin())
-        {
-            perms.add("*:*:*");
+    public List<SysPermission> queryByCondition(SysPermission permission) {
+        return sysPermissionMapper.queryAll(permission);
+    }
+
+    @Override
+    public List<SysPermission> listAll() {
+        return sysPermissionMapper.listAll();
+    }
+
+    @Override
+    public long count(SysPermission permission) {
+        return sysPermissionMapper.count(permission);
+    }
+
+    @Override
+    public boolean checkPermissionCodeUnique(String permissionCode) {
+        return sysPermissionMapper.checkPermissionCodeUnique(permissionCode) == null;
+    }
+
+    @Override
+    public boolean checkPermissionNameUnique(String permissionName, Long parentId) {
+        return sysPermissionMapper.checkPermissionNameUnique(permissionName, parentId) == null;
+    }
+
+    // ==================== 新增方法 ====================
+
+    @Override
+    public SysPermission insert(SysPermission permission) {
+        Date now = new Date();
+        if (permission.getCreateTime() == null) {
+            permission.setCreateTime(now);
         }
-        else
-        {
-            List<SysRole> roles = user.getRoles();
-            if (!CollectionUtils.isEmpty(roles))
-            {
-                // 多角色设置permissions属性，以便数据权限匹配权限
-                for (SysRole role : roles)
-                {
-                    if (StringUtils.equals(role.getStatus(), UserConstants.ROLE_NORMAL) && !role.isAdmin())
-                    {
-                        Set<String> rolePerms = menuService.selectMenuPermsByRoleId(role.getRoleId());
-                        role.setPermissions(rolePerms);
-                        perms.addAll(rolePerms);
-                    }
-                }
-            }
-            else
-            {
-                perms.addAll(menuService.selectMenuPermsByUserId(user.getUserId()));
-            }
+        if (permission.getUpdateTime() == null) {
+            permission.setUpdateTime(now);
         }
-        return perms;
+        if (permission.getDelFlag() == null) {
+            permission.setDelFlag("0");
+        }
+        if (permission.getStatus() == null) {
+            permission.setStatus("0");
+        }
+        sysPermissionMapper.insert(permission);
+        return permission;
+    }
+
+    // ==================== 修改方法 ====================
+
+    @Override
+    public int update(SysPermission permission) {
+        permission.setUpdateTime(new Date());
+        return sysPermissionMapper.update(permission);
+    }
+
+    // ==================== 删除方法 ====================
+
+    @Override
+    public boolean logicDeleteById(Long permissionId, String username) {
+        return sysPermissionMapper.deleteById(permissionId, username) > 0;
+    }
+
+    @Override
+    public void toggleStatus(Long permissionId, String status) {
+        sysPermissionMapper.toggleStatus(permissionId, status);
     }
 }
