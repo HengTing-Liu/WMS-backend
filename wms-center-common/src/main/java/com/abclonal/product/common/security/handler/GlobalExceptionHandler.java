@@ -17,6 +17,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
@@ -36,6 +37,7 @@ public class GlobalExceptionHandler
      * 权限码异常
      */
     @ExceptionHandler(NotPermissionException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     public AjaxResult handleNotPermissionException(NotPermissionException e, HttpServletRequest request)
     {
         String requestURI = request.getRequestURI();
@@ -47,6 +49,7 @@ public class GlobalExceptionHandler
      * 角色权限异常
      */
     @ExceptionHandler(NotRoleException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     public AjaxResult handleNotRoleException(NotRoleException e, HttpServletRequest request)
     {
         String requestURI = request.getRequestURI();
