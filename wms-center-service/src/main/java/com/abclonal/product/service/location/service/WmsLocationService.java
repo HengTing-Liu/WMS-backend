@@ -193,4 +193,19 @@ public interface WmsLocationService {
      * @return 已用容量
      */
     int sumChildrenUsedCapacity(Long parentId);
+
+    /**
+     * 查询所有库位（不分页）
+     *
+     * @return 库位列表
+     */
+    List<WmsLocation> listAll();
+
+    /**
+     * 切换库位使用状态
+     *
+     * @param id 主键
+     * @param enabled 是否启用：0=禁用，1=启用
+     */
+    void toggleStatus(Long id, Integer enabled);
 }

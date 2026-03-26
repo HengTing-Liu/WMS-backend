@@ -176,4 +176,20 @@ public interface WmsLocationMapper {
      * @return 已用容量
      */
     int sumChildrenUsedCapacity(@Param("parentId") Long parentId);
+
+    /**
+     * 查询所有库位（不分页）
+     *
+     * @return 库位列表
+     */
+    List<WmsLocation> listAll();
+
+    /**
+     * 切换库位使用状态
+     *
+     * @param id 主键
+     * @param isUse 是否使用：0=空闲，1=占用
+     * @return 影响行数
+     */
+    int toggleStatus(@Param("id") Long id, @Param("isUse") Integer isUse);
 }

@@ -204,4 +204,14 @@ public class WmsLocationServiceImpl implements WmsLocationService {
     public int sumChildrenUsedCapacity(Long parentId) {
         return wmsLocationMapper.sumChildrenUsedCapacity(parentId);
     }
+
+    @Override
+    public List<WmsLocation> listAll() {
+        return wmsLocationMapper.listAll();
+    }
+
+    @Override
+    public void toggleStatus(Long id, Integer enabled) {
+        wmsLocationMapper.toggleStatus(id, enabled);
+    }
 }

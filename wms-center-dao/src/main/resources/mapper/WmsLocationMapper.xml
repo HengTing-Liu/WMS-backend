@@ -567,4 +567,21 @@
         where parent_id = #{parentId} and is_deleted = 0
     </select>
 
+    <!-- 查询所有库位（不分页） -->
+    <select id="listAll" resultMap="WmsLocationMap">
+        select
+        <include refid="Base_Column_List"/>
+        from inv_location
+        where is_deleted = 0
+        order by location_sort_no asc
+    </select>
+
+    <!-- 切换库位使用状态 -->
+    <update id="toggleStatus">
+        update inv_location
+        set is_use = #{isUse},
+            update_time = now()
+        where id = #{id} and is_deleted = 0
+    </update>
+
 </mapper>
