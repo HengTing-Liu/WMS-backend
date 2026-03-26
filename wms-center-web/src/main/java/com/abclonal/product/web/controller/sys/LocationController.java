@@ -78,6 +78,19 @@ public class LocationController extends BaseController {
     }
 
     /**
+     * 编辑库位（ID在请求体中，前端兼容）
+     */
+    @Log(title = "库位档案", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("base:location:edit")
+    @PutMapping
+    public R<Void> updateBody(@Valid @RequestBody WmsLocationRequest request) {
+        if (request.getId() == null) {
+            return R.fail("库位ID不能为空");
+        }
+        return locationBiz.update(request.getId(), request);
+    }
+
+    /**
      * 删除库位
      */
     @Log(title = "库位档案", businessType = BusinessType.DELETE)
