@@ -27,7 +27,7 @@ public class CustomerController extends BaseController {
     /**
      * 分页查询客户列表
      */
-    @RequiresPermissions("base:customer:list")
+    @RequiresPermissions("wms:base:customer:list")
     @GetMapping("/list")
     public R<TableDataInfo> list(CustomerQueryRequest queryRequest) {
         startPage();
@@ -37,7 +37,7 @@ public class CustomerController extends BaseController {
     /**
      * 查询所有客户（不分页）
      */
-    @RequiresPermissions("base:customer:list")
+    @RequiresPermissions("wms:base:customer:list")
     @GetMapping("/listAll")
     public R listAll() {
         return customerBiz.listAll();
@@ -46,7 +46,7 @@ public class CustomerController extends BaseController {
     /**
      * 根据ID查询客户详情
      */
-    @RequiresPermissions("base:customer:list")
+    @RequiresPermissions("wms:base:customer:list")
     @GetMapping("/{id}")
     public R getById(@PathVariable Long id) {
         return customerBiz.queryById(id);
@@ -56,7 +56,7 @@ public class CustomerController extends BaseController {
      * 新增客户
      */
     @Log(title = "客户档案", businessType = BusinessType.INSERT)
-    @RequiresPermissions("base:customer:add")
+    @RequiresPermissions("wms:base:customer:add")
     @PostMapping
     public R create(@RequestBody @Valid CustomerRequest request) {
         return customerBiz.add(request);
@@ -66,7 +66,7 @@ public class CustomerController extends BaseController {
      * 编辑客户
      */
     @Log(title = "客户档案", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("base:customer:edit")
+    @RequiresPermissions("wms:base:customer:edit")
     @PutMapping("/{id}")
     public R update(@PathVariable Long id, @RequestBody @Valid CustomerRequest request) {
         return customerBiz.update(id, request);
@@ -76,7 +76,7 @@ public class CustomerController extends BaseController {
      * 删除客户
      */
     @Log(title = "客户档案", businessType = BusinessType.DELETE)
-    @RequiresPermissions("base:customer:delete")
+    @RequiresPermissions("wms:base:customer:delete")
     @DeleteMapping("/{id}")
     public R delete(@PathVariable Long id) {
         return customerBiz.delete(id);
@@ -86,7 +86,7 @@ public class CustomerController extends BaseController {
      * 切换客户状态
      */
     @Log(title = "客户档案", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("base:customer:edit")
+    @RequiresPermissions("wms:base:customer:edit")
     @PatchMapping("/{id}/status")
     public R toggleStatus(@PathVariable Long id, @RequestParam Integer enabled) {
         return customerBiz.toggleStatus(id, enabled);

@@ -33,7 +33,7 @@ public class WmsDictController extends BaseController {
     /**
      * 分页查询字典列表
      */
-    @RequiresPermissions("base:dict:list")
+    @RequiresPermissions("wms:base:dict:list")
     @GetMapping("/list")
     public R<TableDataInfo> list(WmsDictRequest queryRequest) {
         startPage();
@@ -43,7 +43,7 @@ public class WmsDictController extends BaseController {
     /**
      * 查询所有字典（不分页）
      */
-    @RequiresPermissions("base:dict:list")
+    @RequiresPermissions("wms:base:dict:list")
     @GetMapping("/listAll")
     public R<List<WmsDictResponse>> listAll() {
         return wmsDictBiz.listAll();
@@ -52,7 +52,7 @@ public class WmsDictController extends BaseController {
     /**
      * 根据ID查询字典详情
      */
-    @RequiresPermissions("base:dict:list")
+    @RequiresPermissions("wms:base:dict:list")
     @GetMapping("/{id}")
     public R<WmsDictResponse> getById(@PathVariable("id") Long id) {
         return wmsDictBiz.queryById(id);
@@ -62,7 +62,7 @@ public class WmsDictController extends BaseController {
      * 新增字典
      */
     @Log(title = "字典档案", businessType = BusinessType.INSERT)
-    @RequiresPermissions("base:dict:add")
+    @RequiresPermissions("wms:base:dict:add")
     @PostMapping
     public R<Long> create(@Valid @RequestBody WmsDictRequest request) {
         return wmsDictBiz.add(request);
@@ -72,7 +72,7 @@ public class WmsDictController extends BaseController {
      * 编辑字典
      */
     @Log(title = "字典档案", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("base:dict:edit")
+    @RequiresPermissions("wms:base:dict:edit")
     @PutMapping("/{id}")
     public R<Void> update(@PathVariable("id") Long id, @Valid @RequestBody WmsDictRequest request) {
         return wmsDictBiz.update(id, request);
@@ -82,7 +82,7 @@ public class WmsDictController extends BaseController {
      * 删除字典
      */
     @Log(title = "字典档案", businessType = BusinessType.DELETE)
-    @RequiresPermissions("base:dict:delete")
+    @RequiresPermissions("wms:base:dict:delete")
     @DeleteMapping("/{id}")
     public R<Void> delete(@PathVariable("id") Long id) {
         return wmsDictBiz.delete(id);
@@ -92,7 +92,7 @@ public class WmsDictController extends BaseController {
      * 切换字典状态
      */
     @Log(title = "字典档案", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("base:dict:edit")
+    @RequiresPermissions("wms:base:dict:edit")
     @PatchMapping("/{id}/status")
     public R<Void> toggleStatus(@PathVariable("id") Long id, @RequestParam("enabled") Integer enabled) {
         return wmsDictBiz.toggleStatus(id, enabled);

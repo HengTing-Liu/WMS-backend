@@ -27,7 +27,7 @@ public class WarehouseController extends BaseController {
     /**
      * 分页查询仓库列表
      */
-    @RequiresPermissions("base:warehouse:list")
+    @RequiresPermissions("wms:base:warehouse:list")
     @GetMapping("/list")
     public R<TableDataInfo> list(WarehouseQueryRequest queryRequest) {
         startPage();
@@ -37,7 +37,7 @@ public class WarehouseController extends BaseController {
     /**
      * 查询所有仓库（不分页）
      */
-    @RequiresPermissions("base:warehouse:list")
+    @RequiresPermissions("wms:base:warehouse:list")
     @GetMapping("/listAll")
     public R listAll() {
         return warehouseBiz.listAll();
@@ -46,7 +46,7 @@ public class WarehouseController extends BaseController {
     /**
      * 根据ID查询仓库详情
      */
-    @RequiresPermissions("base:warehouse:list")
+    @RequiresPermissions("wms:base:warehouse:list")
     @GetMapping("/{id}")
     public R getById(@PathVariable Long id) {
         return warehouseBiz.queryById(id);
@@ -56,7 +56,7 @@ public class WarehouseController extends BaseController {
      * 新增仓库
      */
     @Log(title = "仓库档案", businessType = BusinessType.INSERT)
-    @RequiresPermissions("base:warehouse:add")
+    @RequiresPermissions("wms:base:warehouse:add")
     @PostMapping
     public R create(@RequestBody @Valid WarehouseRequest request) {
         return warehouseBiz.add(request);
@@ -66,7 +66,7 @@ public class WarehouseController extends BaseController {
      * 编辑仓库
      */
     @Log(title = "仓库档案", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("base:warehouse:edit")
+    @RequiresPermissions("wms:base:warehouse:edit")
     @PutMapping("/{id}")
     public R update(@PathVariable Long id, @RequestBody @Valid WarehouseRequest request) {
         return warehouseBiz.update(id, request);
@@ -76,7 +76,7 @@ public class WarehouseController extends BaseController {
      * 删除仓库
      */
     @Log(title = "仓库档案", businessType = BusinessType.DELETE)
-    @RequiresPermissions("base:warehouse:delete")
+    @RequiresPermissions("wms:base:warehouse:delete")
     @DeleteMapping("/{id}")
     public R delete(@PathVariable Long id) {
         return warehouseBiz.delete(id);
@@ -86,7 +86,7 @@ public class WarehouseController extends BaseController {
      * 切换仓库状态
      */
     @Log(title = "仓库档案", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("base:warehouse:edit")
+    @RequiresPermissions("wms:base:warehouse:edit")
     @PatchMapping("/{id}/status")
     public R toggleStatus(@PathVariable Long id, @RequestParam Integer enabled) {
         return warehouseBiz.toggleStatus(id, enabled);

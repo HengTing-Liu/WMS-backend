@@ -33,7 +33,7 @@ public class WmsUserController extends BaseController {
     /**
      * 分页查询用户列表
      */
-    @RequiresPermissions("base:user:list")
+    @RequiresPermissions("wms:base:user:list")
     @GetMapping("/list")
     public R<TableDataInfo> list(WmsUserRequest queryRequest) {
         startPage();
@@ -43,7 +43,7 @@ public class WmsUserController extends BaseController {
     /**
      * 查询所有用户（不分页）
      */
-    @RequiresPermissions("base:user:list")
+    @RequiresPermissions("wms:base:user:list")
     @GetMapping("/listAll")
     public R<List<WmsUserResponse>> listAll() {
         return wmsUserBiz.listAll();
@@ -52,7 +52,7 @@ public class WmsUserController extends BaseController {
     /**
      * 根据ID查询用户详情
      */
-    @RequiresPermissions("base:user:list")
+    @RequiresPermissions("wms:base:user:list")
     @GetMapping("/{id}")
     public R<WmsUserResponse> getById(@PathVariable("id") Long id) {
         return wmsUserBiz.queryById(id);
@@ -62,7 +62,7 @@ public class WmsUserController extends BaseController {
      * 新增用户
      */
     @Log(title = "用户档案", businessType = BusinessType.INSERT)
-    @RequiresPermissions("base:user:add")
+    @RequiresPermissions("wms:base:user:add")
     @PostMapping
     public R<Long> create(@Valid @RequestBody WmsUserRequest request) {
         return wmsUserBiz.add(request);
@@ -72,7 +72,7 @@ public class WmsUserController extends BaseController {
      * 编辑用户
      */
     @Log(title = "用户档案", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("base:user:edit")
+    @RequiresPermissions("wms:base:user:edit")
     @PutMapping("/{id}")
     public R<Void> update(@PathVariable("id") Long id, @Valid @RequestBody WmsUserRequest request) {
         return wmsUserBiz.update(id, request);
@@ -82,7 +82,7 @@ public class WmsUserController extends BaseController {
      * 删除用户
      */
     @Log(title = "用户档案", businessType = BusinessType.DELETE)
-    @RequiresPermissions("base:user:delete")
+    @RequiresPermissions("wms:base:user:delete")
     @DeleteMapping("/{id}")
     public R<Void> delete(@PathVariable("id") Long id) {
         return wmsUserBiz.delete(id);
@@ -92,7 +92,7 @@ public class WmsUserController extends BaseController {
      * 切换用户状态
      */
     @Log(title = "用户档案", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("base:user:edit")
+    @RequiresPermissions("wms:base:user:edit")
     @PatchMapping("/{id}/status")
     public R<Void> toggleStatus(@PathVariable("id") Long id, @RequestParam("enabled") Integer enabled) {
         return wmsUserBiz.toggleStatus(id, enabled);

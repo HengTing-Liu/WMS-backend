@@ -26,7 +26,7 @@ public class WarehouseReceiverController extends BaseController {
     /**
      * 查询收货地址列表
      */
-    @RequiresPermissions("base:warehouseReceiver:list")
+    @RequiresPermissions("wms:base:warehouseReceiver:list")
     @GetMapping("/list")
     public R list(WarehouseReceiverQueryRequest queryRequest) {
         return warehouseReceiverBiz.list(queryRequest);
@@ -35,7 +35,7 @@ public class WarehouseReceiverController extends BaseController {
     /**
      * 根据ID查询收货地址详情
      */
-    @RequiresPermissions("base:warehouseReceiver:list")
+    @RequiresPermissions("wms:base:warehouseReceiver:list")
     @GetMapping("/{id}")
     public R getById(@PathVariable Long id) {
         return warehouseReceiverBiz.queryById(id);
@@ -46,7 +46,7 @@ public class WarehouseReceiverController extends BaseController {
      * Controller接收Request，调用Biz处理业务
      */
     @Log(title = "仓库收货信息", businessType = BusinessType.INSERT)
-    @RequiresPermissions("base:warehouseReceiver:add")
+    @RequiresPermissions("wms:base:warehouseReceiver:add")
     @PostMapping
     public R create(@RequestBody @Valid WarehouseReceiverRequest request) {
         return warehouseReceiverBiz.add(request);
@@ -57,7 +57,7 @@ public class WarehouseReceiverController extends BaseController {
      * Controller接收Request，调用Biz处理业务
      */
     @Log(title = "仓库收货信息", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("base:warehouseReceiver:edit")
+    @RequiresPermissions("wms:base:warehouseReceiver:edit")
     @PutMapping("/{id}")
     public R update(@PathVariable Long id, @RequestBody @Valid WarehouseReceiverRequest request) {
         return warehouseReceiverBiz.update(id, request);
@@ -67,7 +67,7 @@ public class WarehouseReceiverController extends BaseController {
      * 删除收货地址
      */
     @Log(title = "仓库收货信息", businessType = BusinessType.DELETE)
-    @RequiresPermissions("base:warehouseReceiver:delete")
+    @RequiresPermissions("wms:base:warehouseReceiver:delete")
     @DeleteMapping("/{id}")
     public R delete(@PathVariable Long id) {
         return warehouseReceiverBiz.delete(id);
@@ -77,7 +77,7 @@ public class WarehouseReceiverController extends BaseController {
      * 设为默认地址
      */
     @Log(title = "仓库收货信息", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("base:warehouseReceiver:edit")
+    @RequiresPermissions("wms:base:warehouseReceiver:edit")
     @PatchMapping("/{id}/default")
     public R setDefault(@PathVariable Long id) {
         return warehouseReceiverBiz.setDefault(id);

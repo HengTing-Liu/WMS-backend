@@ -28,7 +28,7 @@ public class StorageController extends BaseController {
     /**
      * 分页查询库区列表
      */
-    @RequiresPermissions("base:storage:list")
+    @RequiresPermissions("wms:base:storage:list")
     @GetMapping("/list")
     public R<TableDataInfo> list(StorageQueryRequest queryRequest) {
         startPage();
@@ -38,7 +38,7 @@ public class StorageController extends BaseController {
     /**
      * 查询所有库区（不分页）
      */
-    @RequiresPermissions("base:storage:list")
+    @RequiresPermissions("wms:base:storage:list")
     @GetMapping("/listAll")
     public R listAll() {
         return storageBiz.listAll();
@@ -47,7 +47,7 @@ public class StorageController extends BaseController {
     /**
      * 根据ID查询库区详情
      */
-    @RequiresPermissions("base:storage:list")
+    @RequiresPermissions("wms:base:storage:list")
     @GetMapping("/{id}")
     public R getById(@PathVariable Long id) {
         return storageBiz.queryById(id);
@@ -57,7 +57,7 @@ public class StorageController extends BaseController {
      * 新增库区
      */
     @Log(title = "库区档案", businessType = BusinessType.INSERT)
-    @RequiresPermissions("base:storage:add")
+    @RequiresPermissions("wms:base:storage:add")
     @PostMapping
     public R create(@RequestBody @Valid StorageRequest request) {
         return storageBiz.add(request);
@@ -67,7 +67,7 @@ public class StorageController extends BaseController {
      * 编辑库区
      */
     @Log(title = "库区档案", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("base:storage:edit")
+    @RequiresPermissions("wms:base:storage:edit")
     @PutMapping("/{id}")
     public R update(@PathVariable Long id, @RequestBody @Valid StorageRequest request) {
         return storageBiz.update(id, request);
@@ -77,7 +77,7 @@ public class StorageController extends BaseController {
      * 删除库区
      */
     @Log(title = "库区档案", businessType = BusinessType.DELETE)
-    @RequiresPermissions("base:storage:delete")
+    @RequiresPermissions("wms:base:storage:delete")
     @DeleteMapping("/{id}")
     public R delete(@PathVariable Long id) {
         return storageBiz.delete(id);
@@ -87,7 +87,7 @@ public class StorageController extends BaseController {
      * 切换库区状态
      */
     @Log(title = "库区档案", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("base:storage:edit")
+    @RequiresPermissions("wms:base:storage:edit")
     @PatchMapping("/{id}/status")
     public R toggleStatus(@PathVariable Long id, @RequestParam Integer enabled) {
         return storageBiz.toggleStatus(id, enabled);

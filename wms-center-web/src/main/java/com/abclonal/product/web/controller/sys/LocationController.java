@@ -32,7 +32,7 @@ public class LocationController extends BaseController {
     /**
      * 分页查询库位列表
      */
-    @RequiresPermissions("base:location:list")
+    @RequiresPermissions("wms:base:location:list")
     @GetMapping("/list")
     public R<TableDataInfo> list(WmsLocationRequest queryRequest) {
         startPage();
@@ -42,7 +42,7 @@ public class LocationController extends BaseController {
     /**
      * 查询所有库位（不分页）
      */
-    @RequiresPermissions("base:location:list")
+    @RequiresPermissions("wms:base:location:list")
     @GetMapping("/listAll")
     public R<List<WmsLocation>> listAll() {
         return locationBiz.listAll();
@@ -51,7 +51,7 @@ public class LocationController extends BaseController {
     /**
      * 根据ID查询库位详情
      */
-    @RequiresPermissions("base:location:list")
+    @RequiresPermissions("wms:base:location:list")
     @GetMapping("/{id}")
     public R<WmsLocationResponse> getById(@PathVariable("id") Long id) {
         return locationBiz.queryById(id);
@@ -61,7 +61,7 @@ public class LocationController extends BaseController {
      * 新增库位
      */
     @Log(title = "库位档案", businessType = BusinessType.INSERT)
-    @RequiresPermissions("base:location:add")
+    @RequiresPermissions("wms:base:location:add")
     @PostMapping
     public R<Long> create(@Valid @RequestBody WmsLocationRequest request) {
         return locationBiz.add(request);
@@ -71,7 +71,7 @@ public class LocationController extends BaseController {
      * 编辑库位
      */
     @Log(title = "库位档案", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("base:location:edit")
+    @RequiresPermissions("wms:base:location:edit")
     @PutMapping("/{id}")
     public R<Void> update(@PathVariable("id") Long id, @Valid @RequestBody WmsLocationRequest request) {
         return locationBiz.update(id, request);
@@ -81,7 +81,7 @@ public class LocationController extends BaseController {
      * 编辑库位（ID在请求体中，前端兼容）
      */
     @Log(title = "库位档案", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("base:location:edit")
+    @RequiresPermissions("wms:base:location:edit")
     @PutMapping
     public R<Void> updateBody(@Valid @RequestBody WmsLocationRequest request) {
         if (request.getId() == null) {
@@ -94,7 +94,7 @@ public class LocationController extends BaseController {
      * 删除库位
      */
     @Log(title = "库位档案", businessType = BusinessType.DELETE)
-    @RequiresPermissions("base:location:delete")
+    @RequiresPermissions("wms:base:location:delete")
     @DeleteMapping("/{id}")
     public R<Void> delete(@PathVariable("id") Long id) {
         return locationBiz.delete(id);
@@ -104,7 +104,7 @@ public class LocationController extends BaseController {
      * 切换库位状态
      */
     @Log(title = "库位档案", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("base:location:edit")
+    @RequiresPermissions("wms:base:location:edit")
     @PatchMapping("/{id}/status")
     public R<Void> toggleStatus(@PathVariable("id") Long id, @RequestParam("enabled") Integer enabled) {
         return locationBiz.toggleStatus(id, enabled);
