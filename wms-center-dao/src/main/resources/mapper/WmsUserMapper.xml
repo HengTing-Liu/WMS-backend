@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abclonal.product.dao.mapper.user.WmsUserMapper">
+
+    <resultMap type="com.abclonal.product.dao.entity.WmsUser" id="WmsUserMap">
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="deptId" column="dept_id" jdbcType="BIGINT"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="nickName" column="nick_name" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="phonenumber" column="phonenumber" jdbcType="VARCHAR"/>
+        <result property="sex" column="sex" jdbcType="VARCHAR"/>
+        <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="VARCHAR"/>
+        <result property="delFlag" column="del_flag" jdbcType="VARCHAR"/>
+        <result property="loginIp" column="login_ip" jdbcType="VARCHAR"/>
+        <result property="loginDate" column="login_date" jdbcType="TIMESTAMP"/>
+        <result property="pwdUpdateDate" column="pwd_update_date" jdbcType="TIMESTAMP"/>
+        <result property="defaultPage" column="default_page" jdbcType="VARCHAR"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        user_id, dept_id, user_name, nick_name, email, phonenumber, sex, avatar,
+        status, del_flag, login_ip, login_date, pwd_update_date, default_page,
+        remark, create_by, create_time, update_by, update_time
+    </sql>
+
+    <!-- 查询单个 -->
+    <select id="queryById" resultMap="WmsUserMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_user
+        where user_id = #{userId} and del_flag = '0'
+    </select>
+
+    <!-- 查询指定行数据 -->
+    <select id="queryAll" resultMap="WmsUserMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_user
+        <where>
+            del_flag = '0'
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="userName != null and userName != ''">
+                and user_name like concat('%', #{userName}, '%')
+            </if>
+            <if test="nickName != null and nickName != ''">
+                and nick_name like concat('%', #{nickName}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="phonenumber != null and phonenumber != ''">
+                and phonenumber like concat('%', #{phonenumber}, '%')
+            </if>
+            <if test="deptId != null">
+                and dept_id = #{deptId}
+            </if>
+        </where>
+        order by user_id asc
+    </select>
+
+    <!-- 统计总行数 -->
+    <select id="count" resultType="java.lang.Long">
+        select count(1) from sys_user
+        <where>
+            del_flag = '0'
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="userName != null and userName != ''">
+                and user_name like concat('%', #{userName}, '%')
+            </if>
+            <if test="nickName != null and nickName != ''">
+                and nick_name like concat('%', #{nickName}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status}
+            </if>
+            <if test="phonenumber != null and phonenumber != ''">
+                and phonenumber like concat('%', #{phonenumber}, '%')
+            </if>
+            <if test="deptId != null">
+                and dept_id = #{deptId}
+            </if>
+        </where>
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" keyProperty="userId" useGeneratedKeys="true">
+        insert into sys_user(
+            dept_id, user_name, nick_name, email, phonenumber, sex, avatar,
+            password, status, del_flag, default_page, remark,
+            create_by, create_time, update_by, update_time
+        ) values (
+            <choose>
+                <when test="deptId != null">#{deptId}</when>
+                <otherwise>null</otherwise>
+            </choose>,
+            #{userName}, #{nickName},
+            <choose>
+                <when test="email != null and email != ''">#{email}</when>
+                <otherwise>null</otherwise>
+            </choose>,
+            <choose>
+                <when test="phonenumber != null and phonenumber != ''">#{phonenumber}</when>
+                <otherwise>null</otherwise>
+            </choose>,
+            <choose>
+                <when test="sex != null and sex != ''">#{sex}</when>
+                <otherwise>'0'</otherwise>
+            </choose>,
+            <choose>
+                <when test="avatar != null and avatar != ''">#{avatar}</when>
+                <otherwise>null</otherwise>
+            </choose>,
+            <choose>
+                <when test="password != null and password != ''">#{password}</when>
+                <otherwise>null</otherwise>
+            </choose>,
+            <choose>
+                <when test="status != null and status != ''">#{status}</when>
+                <otherwise>'0'</otherwise>
+            </choose>,
+            '0',
+            <choose>
+                <when test="defaultPage != null and defaultPage != ''">#{defaultPage}</when>
+                <otherwise>null</otherwise>
+            </choose>,
+            <choose>
+                <when test="remark != null and remark != ''">#{remark}</when>
+                <otherwise>null</otherwise>
+            </choose>,
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="update">
+        update sys_user
+        <set>
+            <if test="deptId != null">
+                dept_id = #{deptId},
+            </if>
+            <if test="nickName != null and nickName != ''">
+                nick_name = #{nickName},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="phonenumber != null">
+                phonenumber = #{phonenumber},
+            </if>
+            <if test="sex != null and sex != ''">
+                sex = #{sex},
+            </if>
+            <if test="avatar != null and avatar != ''">
+                avatar = #{avatar},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            <if test="status != null and status != ''">
+                status = #{status},
+            </if>
+            <if test="defaultPage != null">
+                default_page = #{defaultPage},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="updateBy != null and updateBy != ''">
+                update_by = #{updateBy},
+            </if>
+            update_time = now()
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <!-- 逻辑删除 -->
+    <update id="deleteById">
+        update sys_user
+        set del_flag = '2',
+            update_by = #{username},
+            update_time = now()
+        where user_id = #{userId}
+    </update>
+
+    <!-- 切换状态 -->
+    <update id="toggleStatus">
+        update sys_user
+        set status = #{status},
+            update_time = now()
+        where user_id = #{userId} and del_flag = '0'
+    </update>
+
+    <!-- 查询所有（不分页） -->
+    <select id="listAll" resultMap="WmsUserMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_user
+        where del_flag = '0'
+        order by user_id asc
+    </select>
+
+    <!-- 校验用户名唯一性 -->
+    <select id="checkUserNameUnique" resultMap="WmsUserMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_user
+        where user_name = #{userName} and del_flag = '0'
+        limit 1
+    </select>
+
+</mapper>
