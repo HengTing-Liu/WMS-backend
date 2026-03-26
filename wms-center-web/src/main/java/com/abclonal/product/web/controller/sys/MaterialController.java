@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sys/material")
+@RequestMapping("/base/material")
 public class MaterialController extends BaseController {
 
     @Autowired
