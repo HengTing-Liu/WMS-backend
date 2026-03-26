@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/base/material")
+@RequestMapping("/api/base/material")
 public class MaterialController extends BaseController {
 
     @Autowired
     private MaterialService materialService;
 
-    @GetMapping("/page")
+    @GetMapping("/list")
     public R<TableDataInfo> page(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,

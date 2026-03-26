@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/base/supplier")
+@RequestMapping("/api/base/supplier")
 public class SupplierController extends BaseController {
 
     @Autowired
     private SupplierService supplierService;
 
-    @GetMapping("/page")
+    @GetMapping("/list")
     public R<TableDataInfo> page(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
