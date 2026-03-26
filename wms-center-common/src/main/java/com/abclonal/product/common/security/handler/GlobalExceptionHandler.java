@@ -37,24 +37,24 @@ public class GlobalExceptionHandler
      * 权限码异常
      */
     @ExceptionHandler(NotPermissionException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(code = org.springframework.http.HttpStatus.FORBIDDEN)
     public AjaxResult handleNotPermissionException(NotPermissionException e, HttpServletRequest request)
     {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',权限码校验失败'{}'", requestURI, e.getMessage());
-        return AjaxResult.error(HttpStatus.FORBIDDEN.value(), "没有访问权限，请联系管理员授权");
+        return AjaxResult.error(HttpStatus.FORBIDDEN, "没有访问权限，请联系管理员授权");
     }
 
     /**
      * 角色权限异常
      */
     @ExceptionHandler(NotRoleException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(code = org.springframework.http.HttpStatus.FORBIDDEN)
     public AjaxResult handleNotRoleException(NotRoleException e, HttpServletRequest request)
     {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',角色权限校验失败'{}'", requestURI, e.getMessage());
-        return AjaxResult.error(HttpStatus.FORBIDDEN.value(), "没有访问权限，请联系管理员授权");
+        return AjaxResult.error(HttpStatus.FORBIDDEN, "没有访问权限，请联系管理员授权");
     }
 
     /**
