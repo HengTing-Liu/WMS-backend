@@ -17,7 +17,6 @@
         <result property="loginIp" column="login_ip" jdbcType="VARCHAR"/>
         <result property="loginDate" column="login_date" jdbcType="TIMESTAMP"/>
         <result property="pwdUpdateDate" column="pwd_update_date" jdbcType="TIMESTAMP"/>
-        <result property="defaultPage" column="default_page" jdbcType="VARCHAR"/>
         <result property="remark" column="remark" jdbcType="VARCHAR"/>
         <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
@@ -28,7 +27,7 @@
     <!-- 基础列 -->
     <sql id="Base_Column_List">
         user_id, dept_id, user_name, nick_name, email, phonenumber, sex, avatar,
-        status, del_flag, login_ip, login_date, pwd_update_date, default_page,
+        status, del_flag, login_ip, login_date, pwd_update_date,
         remark, create_by, create_time, update_by, update_time
     </sql>
 
@@ -99,7 +98,7 @@
     <insert id="insert" keyProperty="userId" useGeneratedKeys="true">
         insert into sys_user(
             dept_id, user_name, nick_name, email, phonenumber, sex, avatar,
-            password, status, del_flag, default_page, remark,
+            password, status, del_flag, remark,
             create_by, create_time, update_by, update_time
         ) values (
             <choose>
@@ -132,10 +131,6 @@
                 <otherwise>'0'</otherwise>
             </choose>,
             '0',
-            <choose>
-                <when test="defaultPage != null and defaultPage != ''">#{defaultPage}</when>
-                <otherwise>null</otherwise>
-            </choose>,
             <choose>
                 <when test="remark != null and remark != ''">#{remark}</when>
                 <otherwise>null</otherwise>
@@ -171,9 +166,6 @@
             </if>
             <if test="status != null and status != ''">
                 status = #{status},
-            </if>
-            <if test="defaultPage != null">
-                default_page = #{defaultPage},
             </if>
             <if test="remark != null">
                 remark = #{remark},

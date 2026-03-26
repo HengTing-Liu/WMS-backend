@@ -116,10 +116,4 @@ public class WmsUser extends BaseEntity implements Serializable {
      */
     @Schema(description = "密码最后更新时间")
     private Date pwdUpdateDate;
-
-    /**
-     * 默认首页
-     */
-    @Schema(description = "默认首页")
-    private String defaultPage;
 }
