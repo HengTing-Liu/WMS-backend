@@ -1,6 +1,6 @@
-package com.aboclonal.product.dao.mapper;
+package com.abclonal.product.dao.mapper;
 
-import com.aboclonal.product.dao.entity.Material;
+import com.abclonal.product.dao.entity.Material;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
 

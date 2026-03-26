@@ -1,4 +1,4 @@
-package com.aboclonal.product.dao.entity;
+package com.abclonal.product.dao.entity;
 
 import java.io.Serializable;
 

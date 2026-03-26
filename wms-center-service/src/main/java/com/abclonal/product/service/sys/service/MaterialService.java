@@ -1,6 +1,6 @@
-package com.aboclonal.product.service.sys.service;
+package com.abclonal.product.service.sys.service;
 
-import com.aboclonal.product.dao.entity.Material;
+import com.abclonal.product.dao.entity.Material;
 import java.util.List;
 
 public interface MaterialService {

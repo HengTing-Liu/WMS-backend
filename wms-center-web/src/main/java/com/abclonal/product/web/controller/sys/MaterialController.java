@@ -1,10 +1,10 @@
-package com.aboclonal.product.web.controller.sys;
+package com.abclonal.product.web.controller.sys;
 
-import com.aboclonal.product.common.domain.R;
-import com.aboclonal.product.common.web.controller.BaseController;
-import com.aboclonal.product.common.web.page.TableDataInfo;
-import com.aboclonal.product.dao.entity.Material;
-import com.aboclonal.product.service.sys.service.MaterialService;
+import com.abclonal.product.common.domain.R;
+import com.abclonal.product.common.web.controller.BaseController;
+import com.abclonal.product.common.web.page.TableDataInfo;
+import com.abclonal.product.dao.entity.Material;
+import com.abclonal.product.service.sys.service.MaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

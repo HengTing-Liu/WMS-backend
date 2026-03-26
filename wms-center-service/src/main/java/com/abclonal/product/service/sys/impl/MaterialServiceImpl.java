@@ -1,8 +1,8 @@
-package com.aboclonal.product.service.sys.impl;
+package com.abclonal.product.service.sys.impl;
 
-import com.aboclonal.product.dao.entity.Material;
-import com.aboclonal.product.dao.mapper.MaterialMapper;
-import com.aboclonal.product.service.sys.service.MaterialService;
+import com.abclonal.product.dao.entity.Material;
+import com.abclonal.product.dao.mapper.MaterialMapper;
+import com.abclonal.product.service.sys.service.MaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
