@@ -6,7 +6,7 @@ import javax.annotation.Generated;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-03-26T10:45:22+0800",
+    date = "2026-03-27T10:16:06+0800",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 1.8.0_482 (Private Build)"
 )
 public class QrCodeConverterImpl implements QrCodeConverter {
