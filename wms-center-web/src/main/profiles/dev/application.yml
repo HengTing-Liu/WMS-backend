@@ -56,6 +56,10 @@ spring:
       # 空闲连接回收策略
       min-evictable-idle-time-millis: 300000    # 连接空闲5分钟可被回收
       max-evictable-idle-time-millis: 600000    # 连接空闲10分钟强制回收
+      # 防连接泄漏
+      remove-abandoned: true                   # 自动移除泄漏连接
+      remove-abandoned-timeout-millis: 300000  # 连接5分钟未归还则强制移除
+      log-abandoned: true                      # 记录被移除的泄漏连接
 
   # ✅ Redis 配置也移动到正确的位置
   redis:
