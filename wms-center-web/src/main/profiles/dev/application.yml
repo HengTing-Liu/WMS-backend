@@ -44,14 +44,18 @@ spring:
       password: ${DATASOURCE_PASSWORD:Test123!@#}
 
     druid:
+      # 基础连接数
       initial-size: 5
-      min-idle: 2
+      min-idle: 3
       max-active: 20
-      idle-timeout: 300000
-      max-lifetime: 1800000
+      # 验证配置（关键！）
       validation-query: SELECT 1
       test-on-borrow: false
       test-while-idle: true
+      time-between-eviction-runs-millis: 30000  # 每30秒检测空闲连接
+      # 空闲连接回收策略
+      min-evictable-idle-time-millis: 300000    # 连接空闲5分钟可被回收
+      max-evictable-idle-time-millis: 600000    # 连接空闲10分钟强制回收
 
   # ✅ Redis 配置也移动到正确的位置
   redis:
