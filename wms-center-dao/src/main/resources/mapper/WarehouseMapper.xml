@@ -133,4 +133,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		</if>
 	</select>
 
+	<select id="selectDistinctCompany" resultType="String">
+		SELECT DISTINCT company
+		FROM sys_warehouse
+		WHERE isdeleted = 0
+		AND company IS NOT NULL
+		AND company != ''
+		ORDER BY company
+	</select>
+
 </mapper>

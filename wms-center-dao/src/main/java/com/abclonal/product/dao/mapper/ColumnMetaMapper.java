@@ -15,9 +15,19 @@ public interface ColumnMetaMapper {
     List<ColumnMeta> selectByTableCode(String tableCode);
 
     /**
+     * 根据ID查询
+     */
+    ColumnMeta selectById(Long id);
+
+    /**
      * 新增
      */
     int insert(ColumnMeta columnMeta);
+
+    /**
+     * 更新（用于更新 dict_type 等字段）
+     */
+    int update(ColumnMeta columnMeta);
 
     /**
      * 根据ID删除

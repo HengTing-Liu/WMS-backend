@@ -22,45 +22,46 @@ ON DUPLICATE KEY UPDATE
     update_time = NOW();
 
 -- 1.2 字段元数据
-INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, is_show_in_list, is_show_in_form, is_searchable, is_sortable, is_required, width, sort_order, status, create_by, create_time) VALUES
+INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, dict_type, is_show_in_list, is_show_in_form, is_searchable, is_sortable, is_required, width, sort_order, status, create_by, create_time) VALUES
 -- 主键
-('sys_warehouse', 'id', '主键ID', 'int', 'number', 0, 0, 0, 0, 0, NULL, 0, 1, 'system', NOW()),
+('sys_warehouse', 'id', '主键ID', 'int', 'number', NULL, 0, 0, 0, 0, 0, NULL, 0, 1, 'system', NOW()),
 -- 仓库编码
-('sys_warehouse', 'warehouseCode', '仓库编码', 'string', 'input', 1, 1, 1, 1, 1, 120, 1, 1, 'system', NOW()),
+('sys_warehouse', 'warehouseCode', '仓库编码', 'string', 'input', NULL, 1, 1, 1, 1, 1, 120, 1, 1, 'system', NOW()),
 -- 仓库名称
-('sys_warehouse', 'warehouseName', '仓库名称', 'string', 'input', 1, 1, 1, 1, 1, 150, 2, 1, 'system', NOW()),
+('sys_warehouse', 'warehouseName', '仓库名称', 'string', 'input', NULL, 1, 1, 1, 1, 1, 150, 2, 1, 'system', NOW()),
 -- 温度分区
-('sys_warehouse', 'temperatureZone', '温度分区', 'string', 'select', 1, 1, 1, 0, 0, 100, 3, 1, 'system', NOW()),
+('sys_warehouse', 'temperatureZone', '温度分区', 'string', 'select', NULL, 1, 1, 1, 0, 0, 100, 3, 1, 'system', NOW()),
 -- 质量分区
-('sys_warehouse', 'qualityZone', '质量分区', 'string', 'select', 1, 1, 1, 0, 0, 100, 4, 1, 'system', NOW()),
+('sys_warehouse', 'qualityZone', '质量分区', 'string', 'select', NULL, 1, 1, 1, 0, 0, 100, 4, 1, 'system', NOW()),
 -- 责任人工号
-('sys_warehouse', 'employeeCode', '责任人工号', 'string', 'input', 0, 1, 0, 0, 0, 120, 5, 1, 'system', NOW()),
+('sys_warehouse', 'employeeCode', '责任人工号', 'string', 'input', NULL, 0, 1, 0, 0, 0, 120, 5, 1, 'system', NOW()),
 -- 责任人
-('sys_warehouse', 'employeeName', '责任人', 'string', 'input', 1, 1, 1, 0, 0, 100, 6, 1, 'system', NOW()),
+('sys_warehouse', 'employeeName', '责任人', 'string', 'input', NULL, 1, 1, 1, 0, 0, 100, 6, 1, 'system', NOW()),
 -- 责任部门编号
-('sys_warehouse', 'deptCode', '责任部门编号', 'string', 'input', 0, 1, 0, 0, 0, 120, 7, 1, 'system', NOW()),
+('sys_warehouse', 'deptCode', '责任部门编号', 'string', 'input', NULL, 0, 1, 0, 0, 0, 120, 7, 1, 'system', NOW()),
 -- 责任部门全路径
-('sys_warehouse', 'deptNameFullPath', '责任部门', 'string', 'input', 1, 1, 0, 0, 0, 200, 8, 1, 'system', NOW()),
--- 所属公司
-('sys_warehouse', 'company', '所属公司', 'string', 'select', 1, 1, 1, 0, 0, 150, 9, 1, 'system', NOW()),
+('sys_warehouse', 'deptNameFullPath', '责任部门', 'string', 'input', NULL, 1, 1, 0, 0, 0, 200, 8, 1, 'system', NOW()),
+-- 所属公司（关联已有字典 sys_company）
+('sys_warehouse', 'company', '所属公司', 'string', 'select', 'sys_company', 1, 1, 1, 0, 0, 150, 9, 1, 'system', NOW()),
 -- 是否启用
-('sys_warehouse', 'isEnabled', '状态', 'int', 'switch', 1, 1, 1, 0, 1, 80, 10, 1, 'system', NOW()),
+('sys_warehouse', 'isEnabled', '状态', 'int', 'switch', NULL, 1, 1, 1, 0, 1, 80, 10, 1, 'system', NOW()),
 -- 备注
-('sys_warehouse', 'remark', '备注', 'string', 'textarea', 0, 1, 0, 0, 0, NULL, 11, 1, 'system', NOW()),
+('sys_warehouse', 'remark', '备注', 'string', 'textarea', NULL, 0, 1, 0, 0, 0, NULL, 11, 1, 'system', NOW()),
 -- 创建时间
-('sys_warehouse', 'createTime', '创建时间', 'datetime', 'datetime', 1, 0, 1, 1, 0, 160, 12, 1, 'system', NOW()),
+('sys_warehouse', 'createTime', '创建时间', 'datetime', 'datetime', NULL, 1, 0, 1, 1, 0, 160, 12, 1, 'system', NOW()),
 -- 创建人
-('sys_warehouse', 'createBy', '创建人', 'string', 'input', 0, 0, 0, 0, 0, 100, 13, 1, 'system', NOW()),
+('sys_warehouse', 'createBy', '创建人', 'string', 'input', NULL, 0, 0, 0, 0, 0, 100, 13, 1, 'system', NOW()),
 -- 更新时间
-('sys_warehouse', 'updateTime', '更新时间', 'datetime', 'datetime', 0, 0, 0, 1, 0, 160, 14, 1, 'system', NOW()),
+('sys_warehouse', 'updateTime', '更新时间', 'datetime', 'datetime', NULL, 0, 0, 0, 1, 0, 160, 14, 1, 'system', NOW()),
 -- 更新人
-('sys_warehouse', 'updateBy', '更新人', 'string', 'input', 0, 0, 0, 0, 0, 100, 15, 1, 'system', NOW()),
+('sys_warehouse', 'updateBy', '更新人', 'string', 'input', NULL, 0, 0, 0, 0, 0, 100, 15, 1, 'system', NOW()),
 -- 逻辑删除
-('sys_warehouse', 'isdeleted', '是否删除', 'int', 'number', 0, 0, 0, 0, 0, NULL, 16, 0, 'system', NOW())
-ON DUPLICATE KEY UPDATE 
+('sys_warehouse', 'isdeleted', '是否删除', 'int', 'number', NULL, 0, 0, 0, 0, 0, NULL, 16, 0, 'system', NOW())
+ON DUPLICATE KEY UPDATE
     title = VALUES(title),
     data_type = VALUES(data_type),
     form_type = VALUES(form_type),
+    dict_type = VALUES(dict_type),
     is_show_in_list = VALUES(is_show_in_list),
     is_show_in_form = VALUES(is_show_in_form),
     is_searchable = VALUES(is_searchable),
@@ -105,45 +106,46 @@ ON DUPLICATE KEY UPDATE
     update_time = NOW();
 
 -- 2.2 字段元数据
-INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, is_show_in_list, is_show_in_form, is_searchable, is_sortable, is_required, width, sort_order, status, create_by, create_time) VALUES
+INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, dict_type, is_show_in_list, is_show_in_form, is_searchable, is_sortable, is_required, width, sort_order, status, create_by, create_time) VALUES
 -- 主键
-('sys_warehouse_receiver', 'id', '主键ID', 'int', 'number', 0, 0, 0, 0, 0, NULL, 0, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'id', '主键ID', 'int', 'number', NULL, 0, 0, 0, 0, 0, NULL, 0, 1, 'system', NOW()),
 -- 仓库编码
-('sys_warehouse_receiver', 'warehouseCode', '仓库编码', 'string', 'select', 1, 1, 1, 0, 1, 120, 1, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'warehouseCode', '仓库编码', 'string', 'select', NULL, 1, 1, 1, 0, 1, 120, 1, 1, 'system', NOW()),
 -- 收货人
-('sys_warehouse_receiver', 'consignee', '收货人', 'string', 'input', 1, 1, 1, 0, 1, 100, 2, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'consignee', '收货人', 'string', 'input', NULL, 1, 1, 1, 0, 1, 100, 2, 1, 'system', NOW()),
 -- 手机号
-('sys_warehouse_receiver', 'phoneNumber', '手机号码', 'string', 'input', 1, 1, 1, 0, 1, 120, 3, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'phoneNumber', '手机号码', 'string', 'input', NULL, 1, 1, 1, 0, 1, 120, 3, 1, 'system', NOW()),
 -- 国家
-('sys_warehouse_receiver', 'country', '国家', 'string', 'select', 0, 1, 0, 0, 0, 100, 4, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'country', '国家', 'string', 'select', NULL, 0, 1, 0, 0, 0, 100, 4, 1, 'system', NOW()),
 -- 省份
-('sys_warehouse_receiver', 'province', '省份', 'string', 'input', 1, 1, 0, 0, 0, 100, 5, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'province', '省份', 'string', 'input', NULL, 1, 1, 0, 0, 0, 100, 5, 1, 'system', NOW()),
 -- 城市
-('sys_warehouse_receiver', 'city', '城市', 'string', 'input', 1, 1, 0, 0, 0, 100, 6, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'city', '城市', 'string', 'input', NULL, 1, 1, 0, 0, 0, 100, 6, 1, 'system', NOW()),
 -- 区县
-('sys_warehouse_receiver', 'district', '区县', 'string', 'input', 0, 1, 0, 0, 0, 100, 7, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'district', '区县', 'string', 'input', NULL, 0, 1, 0, 0, 0, 100, 7, 1, 'system', NOW()),
 -- 详细地址
-('sys_warehouse_receiver', 'detailedAddress', '详细地址', 'string', 'textarea', 1, 1, 0, 0, 1, 250, 8, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'detailedAddress', '详细地址', 'string', 'textarea', NULL, 1, 1, 0, 0, 1, 250, 8, 1, 'system', NOW()),
 -- 邮政编码
-('sys_warehouse_receiver', 'postalCode', '邮政编码', 'string', 'input', 0, 1, 0, 0, 0, 100, 9, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'postalCode', '邮政编码', 'string', 'input', NULL, 0, 1, 0, 0, 0, 100, 9, 1, 'system', NOW()),
 -- 是否默认
-('sys_warehouse_receiver', 'isDefault', '默认地址', 'int', 'switch', 1, 1, 1, 0, 0, 100, 10, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'isDefault', '默认地址', 'int', 'switch', NULL, 1, 1, 1, 0, 0, 100, 10, 1, 'system', NOW()),
 -- 备注
-('sys_warehouse_receiver', 'remark', '备注', 'string', 'textarea', 0, 1, 0, 0, 0, NULL, 11, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'remark', '备注', 'string', 'textarea', NULL, 0, 1, 0, 0, 0, NULL, 11, 1, 'system', NOW()),
 -- 创建时间
-('sys_warehouse_receiver', 'createTime', '创建时间', 'datetime', 'datetime', 1, 0, 1, 1, 0, 160, 12, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'createTime', '创建时间', 'datetime', 'datetime', NULL, 1, 0, 1, 1, 0, 160, 12, 1, 'system', NOW()),
 -- 创建人
-('sys_warehouse_receiver', 'createBy', '创建人', 'string', 'input', 0, 0, 0, 0, 0, 100, 13, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'createBy', '创建人', 'string', 'input', NULL, 0, 0, 0, 0, 0, 100, 13, 1, 'system', NOW()),
 -- 更新时间
-('sys_warehouse_receiver', 'updateTime', '更新时间', 'datetime', 'datetime', 0, 0, 0, 1, 0, 160, 14, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'updateTime', '更新时间', 'datetime', 'datetime', NULL, 0, 0, 0, 1, 0, 160, 14, 1, 'system', NOW()),
 -- 更新人
-('sys_warehouse_receiver', 'updateBy', '更新人', 'string', 'input', 0, 0, 0, 0, 0, 100, 15, 1, 'system', NOW()),
+('sys_warehouse_receiver', 'updateBy', '更新人', 'string', 'input', NULL, 0, 0, 0, 0, 0, 100, 15, 1, 'system', NOW()),
 -- 逻辑删除
-('sys_warehouse_receiver', 'isDeleted', '是否删除', 'int', 'number', 0, 0, 0, 0, 0, NULL, 16, 0, 'system', NOW())
-ON DUPLICATE KEY UPDATE 
+('sys_warehouse_receiver', 'isDeleted', '是否删除', 'int', 'number', NULL, 0, 0, 0, 0, 0, NULL, 16, 0, 'system', NOW())
+ON DUPLICATE KEY UPDATE
     title = VALUES(title),
     data_type = VALUES(data_type),
     form_type = VALUES(form_type),
+    dict_type = VALUES(dict_type),
     is_show_in_list = VALUES(is_show_in_list),
     is_show_in_form = VALUES(is_show_in_form),
     is_searchable = VALUES(is_searchable),
@@ -188,28 +190,29 @@ ON DUPLICATE KEY UPDATE
     update_time = NOW();
 
 -- 3.2 字段元数据（核心字段）
-INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, is_show_in_list, is_show_in_form, is_searchable, is_sortable, is_required, width, sort_order, status, create_by, create_time) VALUES
-('sys_user', 'userId', '用户ID', 'bigint', 'number', 0, 0, 0, 0, 0, NULL, 0, 1, 'system', NOW()),
-('sys_user', 'deptId', '部门ID', 'bigint', 'number', 0, 0, 0, 0, 0, NULL, 1, 1, 'system', NOW()),
-('sys_user', 'userName', '用户名', 'string', 'input', 1, 1, 1, 1, 1, 120, 2, 1, 'system', NOW()),
-('sys_user', 'nickName', '昵称', 'string', 'input', 1, 1, 1, 0, 1, 120, 3, 1, 'system', NOW()),
-('sys_user', 'email', '邮箱', 'string', 'input', 1, 1, 1, 0, 0, 150, 4, 1, 'system', NOW()),
-('sys_user', 'phonenumber', '手机号', 'string', 'input', 1, 1, 1, 0, 0, 120, 5, 1, 'system', NOW()),
-('sys_user', 'sex', '性别', 'int', 'select', 1, 1, 0, 0, 0, 80, 6, 1, 'system', NOW()),
-('sys_user', 'avatar', '头像', 'string', 'input', 0, 0, 0, 0, 0, NULL, 7, 1, 'system', NOW()),
-('sys_user', 'status', '状态', 'int', 'switch', 1, 1, 1, 0, 1, 80, 8, 1, 'system', NOW()),
-('sys_user', 'delFlag', '删除标志', 'string', 'input', 0, 0, 0, 0, 0, NULL, 9, 1, 'system', NOW()),
-('sys_user', 'loginIp', '最后登录IP', 'string', 'input', 1, 0, 0, 0, 0, 150, 10, 1, 'system', NOW()),
-('sys_user', 'loginDate', '最后登录时间', 'datetime', 'datetime', 1, 0, 0, 1, 0, 160, 11, 1, 'system', NOW()),
-('sys_user', 'createBy', '创建者', 'string', 'input', 0, 0, 0, 0, 0, 100, 12, 1, 'system', NOW()),
-('sys_user', 'createTime', '创建时间', 'datetime', 'datetime', 1, 0, 0, 1, 0, 160, 13, 1, 'system', NOW()),
-('sys_user', 'updateBy', '更新者', 'string', 'input', 0, 0, 0, 0, 0, 100, 14, 1, 'system', NOW()),
-('sys_user', 'updateTime', '更新时间', 'datetime', 'datetime', 0, 0, 0, 0, 0, 160, 15, 1, 'system', NOW()),
-('sys_user', 'remark', '备注', 'string', 'textarea', 0, 1, 0, 0, 0, NULL, 16, 1, 'system', NOW())
+INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, dict_type, is_show_in_list, is_show_in_form, is_searchable, is_sortable, is_required, width, sort_order, status, create_by, create_time) VALUES
+('sys_user', 'userId', '用户ID', 'bigint', 'number', NULL, 0, 0, 0, 0, 0, NULL, 0, 1, 'system', NOW()),
+('sys_user', 'deptId', '部门ID', 'bigint', 'number', NULL, 0, 0, 0, 0, 0, NULL, 1, 1, 'system', NOW()),
+('sys_user', 'userName', '用户名', 'string', 'input', NULL, 1, 1, 1, 1, 1, 120, 2, 1, 'system', NOW()),
+('sys_user', 'nickName', '昵称', 'string', 'input', NULL, 1, 1, 1, 0, 1, 120, 3, 1, 'system', NOW()),
+('sys_user', 'email', '邮箱', 'string', 'input', NULL, 1, 1, 1, 0, 0, 150, 4, 1, 'system', NOW()),
+('sys_user', 'phonenumber', '手机号', 'string', 'input', NULL, 1, 1, 1, 0, 0, 120, 5, 1, 'system', NOW()),
+('sys_user', 'sex', '性别', 'int', 'select', 'sys_user_sex', 1, 1, 0, 0, 0, 80, 6, 1, 'system', NOW()),
+('sys_user', 'avatar', '头像', 'string', 'input', NULL, 0, 0, 0, 0, 0, NULL, 7, 1, 'system', NOW()),
+('sys_user', 'status', '状态', 'int', 'switch', NULL, 1, 1, 1, 0, 1, 80, 8, 1, 'system', NOW()),
+('sys_user', 'delFlag', '删除标志', 'string', 'input', NULL, 0, 0, 0, 0, 0, NULL, 9, 1, 'system', NOW()),
+('sys_user', 'loginIp', '最后登录IP', 'string', 'input', NULL, 1, 0, 0, 0, 0, 150, 10, 1, 'system', NOW()),
+('sys_user', 'loginDate', '最后登录时间', 'datetime', 'datetime', NULL, 1, 0, 0, 1, 0, 160, 11, 1, 'system', NOW()),
+('sys_user', 'createBy', '创建者', 'string', 'input', NULL, 0, 0, 0, 0, 0, 100, 12, 1, 'system', NOW()),
+('sys_user', 'createTime', '创建时间', 'datetime', 'datetime', NULL, 1, 0, 0, 1, 0, 160, 13, 1, 'system', NOW()),
+('sys_user', 'updateBy', '更新者', 'string', 'input', NULL, 0, 0, 0, 0, 0, 100, 14, 1, 'system', NOW()),
+('sys_user', 'updateTime', '更新时间', 'datetime', 'datetime', NULL, 0, 0, 0, 0, 0, 160, 15, 1, 'system', NOW()),
+('sys_user', 'remark', '备注', 'string', 'textarea', NULL, 0, 1, 0, 0, 0, NULL, 16, 1, 'system', NOW())
 ON DUPLICATE KEY UPDATE
     title = VALUES(title),
     data_type = VALUES(data_type),
     form_type = VALUES(form_type),
+    dict_type = VALUES(dict_type),
     is_show_in_list = VALUES(is_show_in_list),
     is_show_in_form = VALUES(is_show_in_form),
     is_searchable = VALUES(is_searchable),

@@ -56,8 +56,17 @@ public class ColumnMeta extends BaseEntity {
     /** 校验规则JSON */
     private String rulesJson;
 
+    /** 占位提示 */
+    private String placeholder;
+
+    /** 默认值 */
+    private String defaultValue;
+
     /** 状态: 0-禁用 1-启用 */
     private Integer status;
+
+    /** 备注 */
+    private String remark;
 
     /** 数据库列名（原始） */
     private String columnName;

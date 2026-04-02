@@ -67,4 +67,11 @@ public interface WarehouseMapper {
      * @return 数量
      */
     int checkWarehouseCodeExists(@Param("warehouseCode") String warehouseCode, @Param("excludeId") Long excludeId);
+
+    /**
+     * 查询所有不重复的公司列表
+     *
+     * @return 公司列表
+     */
+    List<String> selectDistinctCompany();
 }

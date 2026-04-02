@@ -12,15 +12,18 @@
         <result property="dataType" column="data_type"/>
         <result property="formType" column="form_type"/>
         <result property="dictType" column="dict_type"/>
-        <result property="showInList" column="show_in_list"/>
-        <result property="showInForm" column="show_in_form"/>
-        <result property="searchable" column="searchable"/>
-        <result property="sortable" column="sortable"/>
-        <result property="required" column="required"/>
+        <result property="showInList" column="is_show_in_list"/>
+        <result property="showInForm" column="is_show_in_form"/>
+        <result property="searchable" column="is_searchable"/>
+        <result property="sortable" column="is_sortable"/>
+        <result property="required" column="is_required"/>
         <result property="width" column="width"/>
         <result property="sortOrder" column="sort_order"/>
         <result property="rulesJson" column="rules_json"/>
+        <result property="placeholder" column="placeholder"/>
+        <result property="defaultValue" column="default_value"/>
         <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
         <result property="componentProps" column="component_props"/>
         <result property="dataSource" column="data_source"/>
         <result property="apiUrl" column="api_url"/>
@@ -32,6 +35,10 @@
         SELECT * FROM sys_column_meta
         WHERE table_code = #{tableCode} AND status = 1
         ORDER BY sort_order
+    </select>
+
+    <select id="selectById" resultMap="ColumnMetaResult">
+        SELECT * FROM sys_column_meta WHERE id = #{id}
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
@@ -47,6 +54,31 @@
             #{componentProps}, #{dataSource}, #{apiUrl}, #{labelField}, #{valueField}
         )
     </insert>
+
+    <update id="update">
+        UPDATE sys_column_meta
+        SET
+            field = #{field},
+            title = #{title},
+            data_type = #{dataType},
+            form_type = #{formType},
+            dict_type = #{dictType},
+            show_in_list = #{showInList},
+            show_in_form = #{showInForm},
+            searchable = #{searchable},
+            sortable = #{sortable},
+            required = #{required},
+            width = #{width},
+            sort_order = #{sortOrder},
+            rules_json = #{rulesJson},
+            status = #{status},
+            component_props = #{componentProps},
+            data_source = #{dataSource},
+            api_url = #{apiUrl},
+            label_field = #{labelField},
+            value_field = #{valueField}
+        WHERE id = #{id}
+    </update>
 
     <delete id="deleteById">
         DELETE FROM sys_column_meta WHERE id = #{id}

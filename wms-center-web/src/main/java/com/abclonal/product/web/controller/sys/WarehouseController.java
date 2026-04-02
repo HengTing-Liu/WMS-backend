@@ -9,14 +9,17 @@ import com.abclonal.product.common.web.controller.BaseController;
 import com.abclonal.product.common.web.page.TableDataInfo;
 import com.abclonal.product.service.annotation.Log;
 import com.abclonal.product.web.security.annotation.RequiresPermissions;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 仓库档案Controller
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/base/warehouse")
 public class WarehouseController extends BaseController {
@@ -30,6 +33,9 @@ public class WarehouseController extends BaseController {
     @RequiresPermissions("wms:base:warehouse:list")
     @GetMapping("/list")
     public R<TableDataInfo> list(WarehouseQueryRequest queryRequest) {
+        log.info("仓库列表查询参数: warehouseCode={}, warehouseName={}, company={}, isEnabled={}",
+                queryRequest.getWarehouseCode(), queryRequest.getWarehouseName(),
+                queryRequest.getCompany(), queryRequest.getIsEnabled());
         startPage();
         return R.ok(getDataTable(warehouseBiz.list(queryRequest).getData()));
     }
@@ -90,5 +96,13 @@ public class WarehouseController extends BaseController {
     @PatchMapping("/{id}/status")
     public R toggleStatus(@PathVariable Long id, @RequestParam Integer enabled) {
         return warehouseBiz.toggleStatus(id, enabled);
+    }
+
+    /**
+     * 查询所有不重复的公司列表
+     */
+    @GetMapping("/companyList")
+    public R<List<String>> getCompanyList() {
+        return warehouseBiz.listDistinctCompany();
     }
 }
