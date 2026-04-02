@@ -81,6 +81,7 @@ public class WarehouseRequest extends BaseRequest {
     /**
      * 所属公司
      */
+    @NotBlank(message = "所属公司不能为空")
     @Size(max = 100, message = "所属公司长度不能超过100")
     @Schema(description = "所属公司")
     private String company;

@@ -39,6 +39,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             "/api/register",
             "/api/captcha/image",
             "/system/meta/**",
+            "/api/system/meta/**",   // 开发阶段：元数据接口临时放行（生产请删除）
             "/crud/**",
             "/v3/api-docs",
             "/v3/api-docs/**",

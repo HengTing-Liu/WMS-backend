@@ -16,7 +16,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebMvcConfig implements WebMvcConfigurer
 {
     /** 不需要拦截地址 */
-    public static final String[] excludeUrls = { "/login", "/logout", "/refresh" ,"/QrCodeProduct"};
+    public static final String[] excludeUrls = {
+        "/login", "/logout", "/refresh", "/QrCodeProduct",
+        // 开发阶段：元数据查询接口临时放行（生产环境请删除）
+        "/api/system/meta"
+    };
 
     @Autowired
     private AuthInterceptor authInterceptor;
