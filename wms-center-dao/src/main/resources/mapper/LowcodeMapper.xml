@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abclonal.product.dao.mapper.LowcodeMapper">
+
+    <!-- 树形查询：查询指定父节点的所有子节点 -->
+    <select id="selectByParent" resultType="java.util.Map">
+        SELECT * FROM ${tableCode}
+        WHERE ${deleteColumn} = '0'
+        <choose>
+            <when test="parentValue != null">
+                AND ${parentColumn} = #{parentValue}
+            </when>
+            <otherwise>
+                AND (${parentColumn} IS NULL OR ${parentColumn} = 0 OR ${parentColumn} = '')
+            </otherwise>
+        </choose>
+        ORDER BY sort_order, id
+    </select>
+
+    <!-- 树形查询：查询所有节点（用于前端一次性加载后本地构建树） -->
+    <select id="selectTreeAll" resultType="java.util.Map">
+        SELECT * FROM ${tableCode}
+        WHERE ${deleteColumn} = '0'
+        ORDER BY sort_order, id
+    </select>
+
+    <!-- 根据多个ID批量查询 -->
+    <select id="selectByIds" resultType="java.util.Map">
+        SELECT * FROM ${tableCode}
+        WHERE ${pkColumn} IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 统计子节点数量 -->
+    <select id="countByParent" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM ${tableCode}
+        WHERE ${deleteColumn} = '0'
+        <choose>
+            <when test="parentValue != null">
+                AND ${parentColumn} = #{parentValue}
+            </when>
+            <otherwise>
+                AND (${parentColumn} IS NULL OR ${parentColumn} = 0 OR ${parentColumn} = '')
+            </otherwise>
+        </choose>
+    </select>
+
+    <!-- 查询所有子节点的ID（递归，MySQL 8.0+ CTE 实现） -->
+    <select id="selectAllChildIds" resultType="java.lang.Long">
+        WITH RECURSIVE tree_nodes AS (
+            SELECT id FROM ${tableCode}
+            WHERE ${deleteColumn} = '0' AND ${parentColumn} = #{nodeId}
+            UNION ALL
+            SELECT t.id FROM ${tableCode} t
+            INNER JOIN tree_nodes tn ON t.${parentColumn} = tn.id
+            WHERE t.${deleteColumn} = '0'
+        )
+        SELECT id FROM tree_nodes
+    </select>
+
+</mapper>

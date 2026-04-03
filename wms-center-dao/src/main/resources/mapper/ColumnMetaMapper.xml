@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -29,6 +29,10 @@
         <result property="apiUrl" column="api_url"/>
         <result property="labelField" column="label_field"/>
         <result property="valueField" column="value_field"/>
+        <result property="colSpan" column="col_span"/>
+        <result property="sectionKey" column="section_key"/>
+        <result property="i18nKey" column="i18n_key"/>
+        <result property="visibleCondition" column="visible_condition"/>
     </resultMap>
 
     <select id="selectByTableCode" resultMap="ColumnMetaResult">
@@ -45,13 +49,15 @@
         INSERT INTO sys_column_meta (
             table_code, field, title, data_type, form_type, dict_type,
             show_in_list, show_in_form, searchable, sortable, required,
-            width, sort_order, rules_json, status,
-            component_props, data_source, api_url, label_field, value_field
+            width, sort_order, rules_json, placeholder, default_value, status,
+            component_props, data_source, api_url, label_field, value_field,
+            col_span, section_key, i18n_key, visible_condition
         ) VALUES (
             #{tableCode}, #{field}, #{title}, #{dataType}, #{formType}, #{dictType},
             #{showInList}, #{showInForm}, #{searchable}, #{sortable}, #{required},
-            #{width}, #{sortOrder}, #{rulesJson}, #{status},
-            #{componentProps}, #{dataSource}, #{apiUrl}, #{labelField}, #{valueField}
+            #{width}, #{sortOrder}, #{rulesJson}, #{placeholder}, #{defaultValue}, #{status},
+            #{componentProps}, #{dataSource}, #{apiUrl}, #{labelField}, #{valueField},
+            #{colSpan}, #{sectionKey}, #{i18nKey}, #{visibleCondition}
         )
     </insert>
 
@@ -71,12 +77,18 @@
             width = #{width},
             sort_order = #{sortOrder},
             rules_json = #{rulesJson},
+            placeholder = #{placeholder},
+            default_value = #{defaultValue},
             status = #{status},
             component_props = #{componentProps},
             data_source = #{dataSource},
             api_url = #{apiUrl},
             label_field = #{labelField},
-            value_field = #{valueField}
+            value_field = #{valueField},
+            col_span = #{colSpan},
+            section_key = #{sectionKey},
+            i18n_key = #{i18nKey},
+            visible_condition = #{visibleCondition}
         WHERE id = #{id}
     </update>
 

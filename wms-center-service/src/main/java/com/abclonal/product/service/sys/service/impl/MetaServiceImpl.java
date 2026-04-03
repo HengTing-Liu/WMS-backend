@@ -233,6 +233,10 @@ public class MetaServiceImpl implements MetaService {
                 .valueField(col.getValueField())
                 .componentProps(col.getComponentProps())
                 .options(options)
+                .colSpan(col.getColSpan())
+                .sectionKey(col.getSectionKey())
+                .i18nKey(col.getI18nKey())
+                .visibleCondition(col.getVisibleCondition())
                 .build();
         }).collect(java.util.stream.Collectors.toList());
     }

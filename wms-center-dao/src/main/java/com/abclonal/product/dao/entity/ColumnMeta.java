@@ -32,6 +32,9 @@ public class ColumnMeta extends BaseEntity {
     /** 字典类型 */
     private String dictType;
 
+    /** 联动配置JSON */
+    private String linkageJson;
+
     /** 列表显示: 0-否 1-是 */
     private Integer showInList;
 
@@ -100,6 +103,18 @@ public class ColumnMeta extends BaseEntity {
 
     /** 值字段 */
     private String valueField;
+
+    /** 表单栅格列宽（1-24），默认6 */
+    private Integer colSpan;
+
+    /** 字段分组标识 */
+    private String sectionKey;
+
+    /** 多语言 key */
+    private String i18nKey;
+
+    /** 显示条件 JSON */
+    private String visibleCondition;
 
     // 代码生成器适配方法（兼容 common.generator.ColumnMeta）
     public String getJavaType() {

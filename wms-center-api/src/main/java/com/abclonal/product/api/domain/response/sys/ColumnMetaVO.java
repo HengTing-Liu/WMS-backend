@@ -65,4 +65,16 @@ public class ColumnMetaVO {
 
     @Schema(description = "字典下拉选项列表")
     private List<DictOptionVO> options;
+
+    @Schema(description = "表单栅格列宽（1-24），默认6")
+    private Integer colSpan;
+
+    @Schema(description = "字段分组标识（如 basic/basicInfo/extra）")
+    private String sectionKey;
+
+    @Schema(description = "多语言 key")
+    private String i18nKey;
+
+    @Schema(description = "显示条件 JSON")
+    private String visibleCondition;
 }
