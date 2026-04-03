@@ -97,4 +97,12 @@ public class WarehouseBiz {
         warehouseService.toggleStatus(id, enabled);
         return R.ok();
     }
+
+    /**
+     * 查询所有不重复的公司列表
+     */
+    public R<List<String>> listDistinctCompany() {
+        List<String> companies = warehouseService.listDistinctCompany();
+        return R.ok(companies);
+    }
 }

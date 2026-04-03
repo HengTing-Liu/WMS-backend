@@ -123,4 +123,9 @@ public class WarehouseServiceImpl implements WarehouseService {
         Warehouse warehouse = new Warehouse();
         return warehouseMapper.selectList(warehouse);
     }
+
+    @Override
+    public List<String> listDistinctCompany() {
+        return warehouseMapper.selectDistinctCompany();
+    }
 }

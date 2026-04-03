@@ -1,12 +1,16 @@
 package com.abclonal.product.service.sys.service.impl;
 
+import com.abclonal.product.api.domain.response.sys.ColumnMetaVO;
+import com.abclonal.product.api.domain.response.sys.DictOptionVO;
 import com.abclonal.product.common.exception.ServiceException;
 import com.abclonal.product.dao.entity.ColumnMeta;
+import com.abclonal.product.dao.entity.SysDictData;
 import com.abclonal.product.dao.entity.TableMeta;
 import com.abclonal.product.dao.entity.TableOperation;
 import com.abclonal.product.dao.mapper.ColumnMetaMapper;
-import com.abclonal.product.dao.mapper.TableMetaMapper;
 import com.abclonal.product.dao.mapper.DynamicMapper;
+import com.abclonal.product.dao.mapper.SysDictDataMapper;
+import com.abclonal.product.dao.mapper.TableMetaMapper;
 import com.abclonal.product.dao.mapper.TableOperationMapper;
 import com.abclonal.product.service.sys.cache.MetaCacheEvent;
 import com.abclonal.product.service.sys.cache.MetaCacheService;
@@ -24,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 元数据服务实现
@@ -57,6 +62,9 @@ public class MetaServiceImpl implements MetaService {
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
+
+    @Autowired
+    private SysDictDataMapper sysDictDataMapper;
 
     @Override
     public TableMeta getTableMeta(String tableCode) {
@@ -181,5 +189,55 @@ public class MetaServiceImpl implements MetaService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteOperation(Long id) {
         tableOperationMapper.deleteById(id);
+    }
+
+    @Override
+    public List<ColumnMetaVO> getColumnSchema(String tableCode) {
+        List<ColumnMeta> columns = columnMetaMapper.selectByTableCode(tableCode);
+        if (columns == null || columns.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        return columns.stream().map(col -> {
+            // 当 dictType 不为空时，查询字典数据
+            List<DictOptionVO> options = null;
+            if (col.getDictType() != null && !col.getDictType().isEmpty()) {
+                try {
+                    List<SysDictData> dictDatas = sysDictDataMapper.selectDictDataByType(col.getDictType());
+                    if (dictDatas != null && !dictDatas.isEmpty()) {
+                        options = dictDatas.stream().map(d ->
+                            DictOptionVO.builder()
+                                .value(d.getDictValue())
+                                .label(d.getDictLabel())
+                                .build()
+                        ).collect(Collectors.toList());
+                    }
+                } catch (Exception e) {
+                    log.warn("查询字典数据失败 dictType={}", col.getDictType(), e);
+                }
+            }
+            return ColumnMetaVO.builder()
+                .code(col.getField())
+                .label(col.getTitle())
+                .type(col.getDataType())
+                .formType(col.getFormType())
+                .isSearchable(col.getSearchable() != null && col.getSearchable() == 1)
+                .isVisible(col.getShowInList() != null && col.getShowInList() == 1)
+                .isSortable(col.getSortable() != null && col.getSortable() == 1)
+                .isRequired(col.getRequired() != null && col.getRequired() == 1)
+                .width(col.getWidth())
+                .sortOrder(col.getSortOrder())
+                .dictType(col.getDictType())
+                .dataSource(col.getDataSource())
+                .apiUrl(col.getApiUrl())
+                .labelField(col.getLabelField())
+                .valueField(col.getValueField())
+                .componentProps(col.getComponentProps())
+                .options(options)
+                .colSpan(col.getColSpan())
+                .sectionKey(col.getSectionKey())
+                .i18nKey(col.getI18nKey())
+                .visibleCondition(col.getVisibleCondition())
+                .build();
+        }).collect(java.util.stream.Collectors.toList());
     }
 }

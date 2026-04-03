@@ -2,6 +2,7 @@ package com.abclonal.product.web.controller.sys;
 
 import com.abclonal.product.api.domain.request.sys.ColumnMetaRequest;
 import com.abclonal.product.api.domain.request.sys.TableMetaRequest;
+import com.abclonal.product.api.domain.response.sys.ColumnMetaVO;
 import com.abclonal.product.common.domain.R;
 import com.abclonal.product.common.web.controller.BaseController;
 import com.abclonal.product.dao.entity.ColumnMeta;
@@ -86,6 +87,19 @@ public class MetaController extends BaseController {
     }
 
     /**
+     * 获取字段 Schema（前端友好格式）
+     */
+    @Operation(summary = "获取字段 Schema", description = "根据表标识获取字段元数据的前端友好 Schema")
+    // [DEV] @RequiresPermissions("system:meta:query") // removed for dev
+    @GetMapping("/column/schema")
+    public R<List<ColumnMetaVO>> getColumnSchema(
+            @Parameter(description = "表标识", required = true)
+            @RequestParam String tableCode) {
+        List<ColumnMetaVO> list = metaService.getColumnSchema(tableCode);
+        return R.ok(list);
+    }
+
+    /**
      * 获取操作按钮列表
      */
     @Operation(summary = "获取操作按钮", description = "根据表标识获取操作按钮配置列表")
@@ -126,7 +140,7 @@ public class MetaController extends BaseController {
             BeanUtils.copyProperties(req, column);
             return column;
         }).collect(Collectors.toList());
-        
+
         metaService.saveColumnMetaList(tableCode, columns);
         return R.ok();
     }

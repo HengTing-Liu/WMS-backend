@@ -1,5 +1,6 @@
 package com.abclonal.product.service.sys.service;
 
+import com.abclonal.product.api.domain.response.sys.ColumnMetaVO;
 import com.abclonal.product.dao.entity.ColumnMeta;
 import com.abclonal.product.dao.entity.TableMeta;
 import com.abclonal.product.dao.entity.TableOperation;
@@ -60,4 +61,11 @@ public interface MetaService {
      * 删除操作按钮
      */
     void deleteOperation(Long id);
+
+    /**
+     * 获取字段 Schema VO 列表（前端友好格式）
+     * @param tableCode 表标识
+     * @return 字段 VO 列表
+     */
+    List<ColumnMetaVO> getColumnSchema(String tableCode);
 }

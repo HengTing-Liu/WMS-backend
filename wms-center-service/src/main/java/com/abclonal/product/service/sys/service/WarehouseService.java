@@ -63,4 +63,11 @@ public interface WarehouseService {
      * @return 仓库列表
      */
     List<Warehouse> listAll();
+
+    /**
+     * 查询所有不重复的公司列表
+     *
+     * @return 公司列表
+     */
+    List<String> listDistinctCompany();
 }

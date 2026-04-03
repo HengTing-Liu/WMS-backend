@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -12,20 +12,27 @@
         <result property="dataType" column="data_type"/>
         <result property="formType" column="form_type"/>
         <result property="dictType" column="dict_type"/>
-        <result property="showInList" column="show_in_list"/>
-        <result property="showInForm" column="show_in_form"/>
-        <result property="searchable" column="searchable"/>
-        <result property="sortable" column="sortable"/>
-        <result property="required" column="required"/>
+        <result property="showInList" column="is_show_in_list"/>
+        <result property="showInForm" column="is_show_in_form"/>
+        <result property="searchable" column="is_searchable"/>
+        <result property="sortable" column="is_sortable"/>
+        <result property="required" column="is_required"/>
         <result property="width" column="width"/>
         <result property="sortOrder" column="sort_order"/>
         <result property="rulesJson" column="rules_json"/>
+        <result property="placeholder" column="placeholder"/>
+        <result property="defaultValue" column="default_value"/>
         <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
         <result property="componentProps" column="component_props"/>
         <result property="dataSource" column="data_source"/>
         <result property="apiUrl" column="api_url"/>
         <result property="labelField" column="label_field"/>
         <result property="valueField" column="value_field"/>
+        <result property="colSpan" column="col_span"/>
+        <result property="sectionKey" column="section_key"/>
+        <result property="i18nKey" column="i18n_key"/>
+        <result property="visibleCondition" column="visible_condition"/>
     </resultMap>
 
     <select id="selectByTableCode" resultMap="ColumnMetaResult">
@@ -34,19 +41,56 @@
         ORDER BY sort_order
     </select>
 
+    <select id="selectById" resultMap="ColumnMetaResult">
+        SELECT * FROM sys_column_meta WHERE id = #{id}
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sys_column_meta (
             table_code, field, title, data_type, form_type, dict_type,
             show_in_list, show_in_form, searchable, sortable, required,
-            width, sort_order, rules_json, status,
-            component_props, data_source, api_url, label_field, value_field
+            width, sort_order, rules_json, placeholder, default_value, status,
+            component_props, data_source, api_url, label_field, value_field,
+            col_span, section_key, i18n_key, visible_condition
         ) VALUES (
             #{tableCode}, #{field}, #{title}, #{dataType}, #{formType}, #{dictType},
             #{showInList}, #{showInForm}, #{searchable}, #{sortable}, #{required},
-            #{width}, #{sortOrder}, #{rulesJson}, #{status},
-            #{componentProps}, #{dataSource}, #{apiUrl}, #{labelField}, #{valueField}
+            #{width}, #{sortOrder}, #{rulesJson}, #{placeholder}, #{defaultValue}, #{status},
+            #{componentProps}, #{dataSource}, #{apiUrl}, #{labelField}, #{valueField},
+            #{colSpan}, #{sectionKey}, #{i18nKey}, #{visibleCondition}
         )
     </insert>
+
+    <update id="update">
+        UPDATE sys_column_meta
+        SET
+            field = #{field},
+            title = #{title},
+            data_type = #{dataType},
+            form_type = #{formType},
+            dict_type = #{dictType},
+            show_in_list = #{showInList},
+            show_in_form = #{showInForm},
+            searchable = #{searchable},
+            sortable = #{sortable},
+            required = #{required},
+            width = #{width},
+            sort_order = #{sortOrder},
+            rules_json = #{rulesJson},
+            placeholder = #{placeholder},
+            default_value = #{defaultValue},
+            status = #{status},
+            component_props = #{componentProps},
+            data_source = #{dataSource},
+            api_url = #{apiUrl},
+            label_field = #{labelField},
+            value_field = #{valueField},
+            col_span = #{colSpan},
+            section_key = #{sectionKey},
+            i18n_key = #{i18nKey},
+            visible_condition = #{visibleCondition}
+        WHERE id = #{id}
+    </update>
 
     <delete id="deleteById">
         DELETE FROM sys_column_meta WHERE id = #{id}
