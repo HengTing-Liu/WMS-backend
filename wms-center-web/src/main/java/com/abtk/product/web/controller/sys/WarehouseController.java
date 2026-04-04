@@ -41,10 +41,7 @@ public class WarehouseController extends BaseController {
      */
     @RequiresPermissions("wms:base:warehouse:query")
     @GetMapping("/list")
-    public R<TableDataInfo> list(
-            @RequestParam(value = "enabled", required = false) Integer isEnabled,
-            WarehouseQueryRequest queryRequest) {
-        queryRequest.setIsEnabled(isEnabled);
+    public R<TableDataInfo> list(WarehouseQueryRequest queryRequest) {
         log.info("仓库列表查询参数: warehouseCode={}, warehouseName={}, company={}, isEnabled={}",
                 queryRequest.getWarehouseCode(), queryRequest.getWarehouseName(),
                 queryRequest.getCompany(), queryRequest.getIsEnabled());

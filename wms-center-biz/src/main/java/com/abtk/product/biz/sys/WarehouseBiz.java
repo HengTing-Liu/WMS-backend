@@ -38,6 +38,10 @@ public class WarehouseBiz {
     public R<List<Warehouse>> list(WarehouseQueryRequest queryRequest) {
         Warehouse condition = new Warehouse();
         BeanUtils.copyProperties(queryRequest, condition);
+        // 手动兜底：确保 isEnabled 被复制
+        if (condition.getIsEnabled() == null && queryRequest.getIsEnabled() != null) {
+            condition.setIsEnabled(queryRequest.getIsEnabled());
+        }
         List<Warehouse> list = warehouseService.list(condition);
         return R.ok(list);
     }
@@ -67,7 +71,7 @@ public class WarehouseBiz {
     public R<Long> add(WarehouseRequest request) {
         // 使用Converter转换Request到Entity
         Warehouse warehouse = WarehouseConverter.INSTANCE.requestToEntity(request);
-        
+
         Long id = warehouseService.create(warehouse);
         return R.ok(id);
     }
@@ -78,7 +82,7 @@ public class WarehouseBiz {
     public R<Void> update(Long id, WarehouseRequest request) {
         // 使用Converter转换Request到Entity
         Warehouse warehouse = WarehouseConverter.INSTANCE.requestToEntity(request);
-        
+
         warehouseService.update(id, warehouse);
         return R.ok();
     }
