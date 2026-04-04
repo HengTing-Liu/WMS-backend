@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.abclonal.product</groupId>
+        <groupId>com.abtk.product</groupId>
         <artifactId>wms-center</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
@@ -16,7 +16,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.abclonal.product</groupId>
+            <groupId>com.abtk.product</groupId>
             <artifactId>wms-center-common</artifactId>
         </dependency>
         <dependency>
@@ -38,11 +38,11 @@
         </dependency>
 
         <dependency>
-            <groupId>com.abclonal.product</groupId>
+            <groupId>com.abtk.product</groupId>
             <artifactId>wms-center-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.abclonal.product</groupId>
+            <groupId>com.abtk.product</groupId>
             <artifactId>wms-center-dao</artifactId>
         </dependency>
     </dependencies>

@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.abclonal.product.dao.mapper.StorageMapper">
+<mapper namespace="com.abtk.product.dao.mapper.StorageMapper">
 
-	<resultMap type="com.abclonal.product.dao.entity.Storage" id="StorageResult">
+	<resultMap type="com.abtk.product.dao.entity.Storage" id="StorageResult">
 		<id     property="id"                  column="id" />
 		<result property="storageCode"        column="storage_code" />
 		<result property="storageName"        column="storage_name" />
@@ -34,7 +34,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		AND id = #{id}
 	</select>
 
-	<select id="selectList" parameterType="com.abclonal.product.dao.entity.Storage" resultMap="StorageResult">
+	<select id="selectList" parameterType="com.abtk.product.dao.entity.Storage" resultMap="StorageResult">
 		<include refid="selectStorageVo"/>
 		<if test="storageCode != null and storageCode != ''">
 			AND storage_code LIKE CONCAT('%', #{storageCode}, '%')
@@ -57,7 +57,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		ORDER BY create_time DESC
 	</select>
 
-	<select id="selectAll" parameterType="com.abclonal.product.dao.entity.Storage" resultMap="StorageResult">
+	<select id="selectAll" parameterType="com.abtk.product.dao.entity.Storage" resultMap="StorageResult">
 		<include refid="selectStorageVo"/>
 		<if test="storageCode != null and storageCode != ''">
 			AND storage_code LIKE CONCAT('%', #{storageCode}, '%')
@@ -77,7 +77,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		ORDER BY create_time DESC
 	</select>
 
-	<insert id="insert" parameterType="com.abclonal.product.dao.entity.Storage" useGeneratedKeys="true" keyProperty="id">
+	<insert id="insert" parameterType="com.abtk.product.dao.entity.Storage" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO sys_storage(
 			storage_code,
 			storage_name,
@@ -103,7 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		)
 	</insert>
 
-	<update id="update" parameterType="com.abclonal.product.dao.entity.Storage">
+	<update id="update" parameterType="com.abtk.product.dao.entity.Storage">
 		UPDATE sys_storage
 		<set>
 			<if test="storageCode != null and storageCode != ''">storage_code = #{storageCode},</if>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -29,7 +29,7 @@
 
 =============================================================================
 -->
-<mapper namespace="com.abclonal.product.dao.mapper.DynamicMapper">
+<mapper namespace="com.abtk.product.dao.mapper.DynamicMapper">
 
     <!-- 动态查询列表（动态删除列 + 动态搜索参数） -->
     <!-- params 中的 key（字段名）必须在 Service 层通过 SAFE_FIELD_PATTERN 校验 -->
