@@ -1,4 +1,4 @@
--- ============================================
+﻿-- ============================================
 -- 动态表单模块 - 登录日志表元数据初始化
 -- 更新日期: 2026-03-21
 -- ============================================
@@ -12,7 +12,7 @@
 
 -- 1.1 表级元数据
 INSERT INTO sys_table_meta (table_code, table_name, module, entity_class, service_class, permission_code, page_size, is_tree, status, remark, create_by, create_time) 
-VALUES ('sys_log_in', '登录日志', 'sys', 'com.aboclonal.product.dao.gengrator.entity.LogIn', 'com.aboclonal.product.service.system.ILogInService', 'system:logininfor', 20, 0, 1, '系统登录日志管理', 'system', NOW())
+VALUES ('sys_log_in', '登录日志', 'sys', 'com.abtk.product.dao.gengrator.entity.LogIn', 'com.abtk.product.service.system.ILogInService', 'system:logininfor', 20, 0, 1, '系统登录日志管理', 'system', NOW())
 ON DUPLICATE KEY UPDATE 
     table_name = VALUES(table_name),
     entity_class = VALUES(entity_class),

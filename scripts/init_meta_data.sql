@@ -1,4 +1,4 @@
--- ============================================
+﻿-- ============================================
 -- 动态表单模块 - 仓库管理表元数据初始化
 -- 更新日期: 2026-03-20
 -- ============================================
@@ -12,7 +12,7 @@
 
 -- 1.1 表级元数据
 INSERT INTO sys_table_meta (table_code, table_name, module, entity_class, service_class, permission_code, page_size, is_tree, status, remark, is_deleted_column, create_by, create_time) 
-VALUES ('sys_warehouse', '仓库档案', 'base', 'com.abclonal.product.dao.gengrator.entity.Warehouse', 'com.abclonal.product.service.sys.service.WarehouseService', 'base:warehouse', 20, 0, 1, '仓库基础信息管理', 'isdeleted', 'system', NOW())
+VALUES ('sys_warehouse', '仓库档案', 'base', 'com.abtk.product.dao.gengrator.entity.Warehouse', 'com.abtk.product.service.sys.service.WarehouseService', 'base:warehouse', 20, 0, 1, '仓库基础信息管理', 'isdeleted', 'system', NOW())
 ON DUPLICATE KEY UPDATE 
     table_name = VALUES(table_name),
     entity_class = VALUES(entity_class),
@@ -96,7 +96,7 @@ ON DUPLICATE KEY UPDATE
 
 -- 2.1 表级元数据
 INSERT INTO sys_table_meta (table_code, table_name, module, entity_class, service_class, permission_code, page_size, is_tree, status, remark, is_deleted_column, create_by, create_time) 
-VALUES ('sys_warehouse_receiver', '仓库收货信息', 'base', 'com.abclonal.product.dao.gengrator.entity.WarehouseReceiver', 'com.abclonal.product.service.sys.service.WarehouseReceiverService', 'base:warehouseReceiver', 20, 0, 1, '仓库收货地址信息管理', 'isDeleted', 'system', NOW())
+VALUES ('sys_warehouse_receiver', '仓库收货信息', 'base', 'com.abtk.product.dao.gengrator.entity.WarehouseReceiver', 'com.abtk.product.service.sys.service.WarehouseReceiverService', 'base:warehouseReceiver', 20, 0, 1, '仓库收货地址信息管理', 'isDeleted', 'system', NOW())
 ON DUPLICATE KEY UPDATE 
     table_name = VALUES(table_name),
     entity_class = VALUES(entity_class),
@@ -180,7 +180,7 @@ ON DUPLICATE KEY UPDATE
 
 -- 3.1 表级元数据
 INSERT INTO sys_table_meta (table_code, table_name, module, entity_class, service_class, permission_code, page_size, is_tree, status, remark, is_deleted_column, create_by, create_time)
-VALUES ('sys_user', '用户表', 'sys', 'com.abclonal.product.dao.gengrator.entity.SysUser', 'com.abclonal.product.service.system.ISysUserService', 'system:user', 20, 0, 1, '系统用户表', 'del_flag', 'system', NOW())
+VALUES ('sys_user', '用户表', 'sys', 'com.abtk.product.dao.gengrator.entity.SysUser', 'com.abtk.product.service.system.ISysUserService', 'system:user', 20, 0, 1, '系统用户表', 'del_flag', 'system', NOW())
 ON DUPLICATE KEY UPDATE
     table_name = VALUES(table_name),
     entity_class = VALUES(entity_class),

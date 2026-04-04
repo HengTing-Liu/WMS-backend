@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.abclonal.product.dao.mapper.SysMenuMetaMapMapper">
+<mapper namespace="com.abtk.product.dao.mapper.SysMenuMetaMapMapper">
 
-    <resultMap id="SysMenuMetaMapResult" type="com.abclonal.product.dao.entity.SysMenuMetaMap">
+    <resultMap id="SysMenuMetaMapResult" type="com.abtk.product.dao.entity.SysMenuMetaMap">
         <id property="menuId" column="menu_id"/>
         <result property="entityName" column="entity_name"/>
         <result property="listMode" column="list_mode"/>
@@ -32,7 +32,7 @@
         WHERE menu_id = #{menuId}
     </select>
 
-    <insert id="insertMenuMetaMap" parameterType="com.abclonal.product.dao.entity.SysMenuMetaMap">
+    <insert id="insertMenuMetaMap" parameterType="com.abtk.product.dao.entity.SysMenuMetaMap">
         INSERT INTO sys_menu_meta_map (
             <if test="menuId != null">menu_id,</if>
             <if test="entityName != null">entity_name,</if>
@@ -54,7 +54,7 @@
         )
     </insert>
 
-    <update id="updateMenuMetaMap" parameterType="com.abclonal.product.dao.entity.SysMenuMetaMap">
+    <update id="updateMenuMetaMap" parameterType="com.abtk.product.dao.entity.SysMenuMetaMap">
         UPDATE sys_menu_meta_map
         <set>
             <if test="entityName != null">entity_name = #{entityName},</if>

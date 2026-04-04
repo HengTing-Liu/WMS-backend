@@ -1,0 +1,142 @@
+package com.abtk.product.dao.entity;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+/**
+ * 字段元数据实体
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class ColumnMeta extends BaseEntity {
+    private static final long serialVersionUID = 1L;
+
+    /** 主键ID */
+    private Long id;
+
+    /** 表标识 */
+    private String tableCode;
+
+    /** 字段名(英文) */
+    private String field;
+
+    /** 显示名称(中文) */
+    private String title;
+
+    /** 数据类型: string/int/bigint/decimal/date/datetime/text/boolean */
+    private String dataType;
+
+    /** 表单类型: input/select/date/textarea/switch */
+    private String formType;
+
+    /** 字典类型 */
+    private String dictType;
+
+    /** 列表显示: 0-否 1-是 */
+    private Integer showInList;
+
+    /** 表单显示: 0-否 1-是 */
+    private Integer showInForm;
+
+    /** 可搜索: 0-否 1-是 */
+    private Integer searchable;
+
+    /** 可排序: 0-否 1-是 */
+    private Integer sortable;
+
+    /** 必填: 0-否 1-是 */
+    private Integer required;
+
+    /** 列宽(px) */
+    private Integer width;
+
+    /** 排序号 */
+    private Integer sortOrder;
+
+    /** 校验规则JSON */
+    private String rulesJson;
+
+    /** 占位提示 */
+    private String placeholder;
+
+    /** 默认值 */
+    private String defaultValue;
+
+    /** 状态: 0-禁用 1-启用 */
+    private Integer status;
+
+    /** 备注 */
+    private String remark;
+
+    /** 数据库列名（原始） */
+    private String columnName;
+
+    /** 数据库列类型 */
+    private String columnType;
+
+    /** 是否主键 */
+    private Boolean primaryKey;
+
+    /** 是否可为空 */
+    private Boolean nullable;
+
+    /** 列大小/精度 */
+    private Integer columnSize;
+
+    /** 小数位数 */
+    private Integer decimalDigits;
+
+    /** 组件属性(JSON) */
+    private String componentProps;
+
+    /** 数据来源: dict/api/static */
+    private String dataSource;
+
+    /** API地址 */
+    private String apiUrl;
+
+    /** 显示字段 */
+    private String labelField;
+
+    /** 值字段 */
+    private String valueField;
+
+    // 代码生成器适配方法（兼容 common.generator.ColumnMeta）
+    public String getJavaType() {
+        return mapDataTypeToJavaType(dataType);
+    }
+
+    public String getJavaFieldName() {
+        return field;
+    }
+
+    public String getColumnComment() {
+        return title;
+    }
+
+    public Integer getIsShow() {
+        return showInList;
+    }
+
+    public Integer getIsEdit() {
+        return showInForm;
+    }
+
+    public Integer getIsRequired() {
+        return required;
+    }
+
+    private String mapDataTypeToJavaType(String dataType) {
+        if (dataType == null) return "String";
+        switch (dataType) {
+            case "int": return "Integer";
+            case "bigint": return "Long";
+            case "decimal": return "BigDecimal";
+            case "date": return "Date";
+            case "datetime": return "Date";
+            case "text": return "String";
+            case "boolean": return "Boolean";
+            default: return "String";
+        }
+    }
+}

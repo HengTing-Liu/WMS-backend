@@ -1,3 +1,3 @@
 # Spring Boot Auto Configuration
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.abclonal.product.service.permission.config.DataPermissionAutoConfiguration
+com.abtk.product.service.permission.config.DataPermissionAutoConfiguration

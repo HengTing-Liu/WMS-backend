@@ -1,4 +1,4 @@
--- ============================================
+﻿-- ============================================
 -- 动态表单模块 - 用户管理表元数据初始化
 -- 更新日期: 2026-03-20
 -- ============================================
@@ -12,7 +12,7 @@
 
 -- 1.1 表级元数据
 INSERT INTO sys_table_meta (table_code, table_name, module, entity_class, service_class, permission_code, page_size, is_tree, status, remark, create_by, create_time) 
-VALUES ('sys_user', '用户管理', 'sys', 'com.abclonal.product.dao.gengrator.entity.SysUser', 'com.abclonal.product.service.sys.service.SysUserService', 'system:user', 20, 0, 1, '系统用户信息管理', 'system', NOW())
+VALUES ('sys_user', '用户管理', 'sys', 'com.abtk.product.dao.gengrator.entity.SysUser', 'com.abtk.product.service.sys.service.SysUserService', 'system:user', 20, 0, 1, '系统用户信息管理', 'system', NOW())
 ON DUPLICATE KEY UPDATE 
     table_name = VALUES(table_name),
     entity_class = VALUES(entity_class),

@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.abclonal.product</groupId>
+    <groupId>com.abtk.product</groupId>
     <artifactId>wms-center</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -64,7 +64,7 @@
         <dependencies>
             <!-- 模块依赖管理 -->
             <dependency>
-                <groupId>com.abclonal.product</groupId>
+                <groupId>com.abtk.product</groupId>
                 <artifactId>wms-center-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -76,33 +76,33 @@
             </dependency>
 
             <dependency>
-                <groupId>com.abclonal.product</groupId>
+                <groupId>com.abtk.product</groupId>
                 <artifactId>wms-center-biz</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.abclonal.product</groupId>
+                <groupId>com.abtk.product</groupId>
                 <artifactId>wms-center-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.abclonal.product</groupId>
+                <groupId>com.abtk.product</groupId>
                 <artifactId>wms-center-dao</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.abclonal.product</groupId>
+                <groupId>com.abtk.product</groupId>
                 <artifactId>wms-center-domain</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.abclonal.product</groupId>
+                <groupId>com.abtk.product</groupId>
                 <artifactId>wms-center-service</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.abclonal.product</groupId>
+                <groupId>com.abtk.product</groupId>
                 <artifactId>wms-center-web</artifactId>
                 <version>${project.version}</version>
             </dependency>

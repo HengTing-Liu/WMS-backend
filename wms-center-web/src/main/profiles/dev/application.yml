@@ -1,4 +1,4 @@
-spring:
+﻿spring:
   profiles:
     active: dev
   application:
@@ -80,7 +80,7 @@ server:
 # MyBatis 配置（只保留 MyBatis 相关配置）
 mybatis:
   mapper-locations: classpath:mapper/**/*Mapper.xml
-  type-aliases-package: com.abclonal.product.dao.**.entity
+  type-aliases-package: com.abtk.product.dao.**.entity
   configLocation: classpath:mybatis/mybatis-config.xml
 
 # 日志配置
@@ -90,7 +90,7 @@ logging:
     com.alibaba: WARN
     org.apache.dubbo: WARN
     org.springframework: INFO
-    com.abclonal.product.dao: DEBUG
+    com.abtk.product.dao: DEBUG
 #    org.mybatis: DEBUG
 
 debug: false

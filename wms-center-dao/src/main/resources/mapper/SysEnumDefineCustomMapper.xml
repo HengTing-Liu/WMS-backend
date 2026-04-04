@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.abclonal.product.dao.mapper.SysEnumDefineCustomMapper">
+<mapper namespace="com.abtk.product.dao.mapper.SysEnumDefineCustomMapper">
 
     <!-- 插入枚举定义 -->
-    <insert id="insertEnumDefine" parameterType="com.abclonal.product.dao.entity.SysEnumDefine" keyProperty="id" useGeneratedKeys="true">
+    <insert id="insertEnumDefine" parameterType="com.abtk.product.dao.entity.SysEnumDefine" keyProperty="id" useGeneratedKeys="true">
         insert into sys_enum_define(enum_code, enum_name, enum_desc, category_code, category_name, is_enabled, sort_order, create_by, create_time, update_by, update_time, remark)
         values (
             #{enumCode},

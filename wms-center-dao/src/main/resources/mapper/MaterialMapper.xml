@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.abclonal.product.dao.mapper.MaterialMapper">
-	<resultMap type="com.abclonal.product.dao.entity.Material" id="MaterialResult">
+<mapper namespace="com.abtk.product.dao.mapper.MaterialMapper">
+	<resultMap type="com.abtk.product.dao.entity.Material" id="MaterialResult">
 		<id property="id" column="id"/>
 		<result property="materialCode" column="material_code"/>
 		<result property="materialName" column="material_name"/>
@@ -23,7 +23,7 @@
 	<select id="selectById" parameterType="Long" resultMap="MaterialResult">
 		<include refid="selectMaterialVo"/> AND id = #{id}
 	</select>
-	<select id="selectList" parameterType="com.abclonal.product.dao.entity.Material" resultMap="MaterialResult">
+	<select id="selectList" parameterType="com.abtk.product.dao.entity.Material" resultMap="MaterialResult">
 		<include refid="selectMaterialVo"/>
 		<if test="materialCode != null and materialCode != ''">AND material_code = #{materialCode}</if>
 		<if test="materialName != null and materialName != ''">AND material_name = #{materialName}</if>
@@ -33,7 +33,7 @@
 		<if test="status != null">AND status = #{status}</if>
 		ORDER BY create_time DESC
 	</select>
-	<select id="selectExactList" parameterType="com.abclonal.product.dao.entity.Material" resultMap="MaterialResult">
+	<select id="selectExactList" parameterType="com.abtk.product.dao.entity.Material" resultMap="MaterialResult">
 		<include refid="selectMaterialVo"/>
 		<if test="materialCode != null and materialCode != ''">AND material_code = #{materialCode}</if>
 		<if test="materialName != null and materialName != ''">AND material_name = #{materialName}</if>
@@ -53,11 +53,11 @@
 		</if>
 		ORDER BY create_time DESC
 	</select>
-	<insert id="insert" parameterType="com.abclonal.product.dao.entity.Material" useGeneratedKeys="true" keyProperty="id">
+	<insert id="insert" parameterType="com.abtk.product.dao.entity.Material" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO sys_material (material_code, material_name, spec, unit, category, status, create_by, create_time)
 		VALUES (#{materialCode}, #{materialName}, #{spec}, #{unit}, #{category}, #{status}, #{createBy}, NOW())
 	</insert>
-	<update id="update" parameterType="com.abclonal.product.dao.entity.Material">
+	<update id="update" parameterType="com.abtk.product.dao.entity.Material">
 		UPDATE sys_material
 		<set>
 			<if test="materialCode != null and materialCode != ''">material_code = #{materialCode},</if>

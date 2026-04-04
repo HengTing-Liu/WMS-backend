@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.abclonal.product.dao.mapper.TableMetaMapper">
+<mapper namespace="com.abtk.product.dao.mapper.TableMetaMapper">
 
-    <resultMap id="TableMetaResult" type="com.abclonal.product.dao.entity.TableMeta">
+    <resultMap id="TableMetaResult" type="com.abtk.product.dao.entity.TableMeta">
         <id property="id" column="id"/>
         <result property="tableCode" column="table_code"/>
         <result property="tableName" column="table_name"/>
