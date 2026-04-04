@@ -1,4 +1,4 @@
-package com.abclonal.product.dao.mapper;
+package com.abtk.product.dao.mapper;
 
 import org.apache.ibatis.annotations.Param;
 import java.util.List;

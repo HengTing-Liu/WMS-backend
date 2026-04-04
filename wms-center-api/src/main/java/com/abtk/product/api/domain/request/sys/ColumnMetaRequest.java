@@ -1,9 +1,6 @@
 package com.abtk.product.api.domain.request.sys;
 
-<<<<<<< HEAD:wms-center-api/src/main/java/com/abclonal/product/api/domain/request/sys/ColumnMetaRequest.java
-=======
 import com.abtk.product.api.domain.request.BaseRequest;
->>>>>>> 5e4b635:wms-center-api/src/main/java/com/abtk/product/api/domain/request/sys/ColumnMetaRequest.java
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import java.io.Serializable;

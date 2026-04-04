@@ -1,6 +1,6 @@
-package com.abclonal.product.service.sys.service;
+package com.abtk.product.service.sys.service;
 
-import com.abclonal.product.common.web.page.TableDataInfo;
+import com.abtk.product.common.web.page.TableDataInfo;
 import java.util.List;
 import java.util.Map;
 
