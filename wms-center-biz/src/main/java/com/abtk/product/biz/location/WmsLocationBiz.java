@@ -6,6 +6,7 @@ import com.abtk.product.api.domain.request.location.WmsLocationBatchRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationGridUpdateRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationTreeRequest;
+import com.abtk.product.api.domain.response.location.LocationCodeSuggestion;
 import com.abtk.product.api.domain.response.location.WmsLocationOccupancyResponse;
 import com.abtk.product.api.domain.response.location.WmsLocationResponse;
 import com.abtk.product.common.domain.R;
@@ -64,6 +65,27 @@ public class WmsLocationBiz {
     private static final long CACHE_NULL_EXPIRE_MINUTES = 5;
     // 空值缓存的标记
     private static final String CACHE_NULL_VALUE = "__NULL__";
+
+    /**
+     * 库位编码前缀映射（按库位类型的中文名确定前缀）
+     * 与 locationType 枚举保持一致：STORAGE/PICK/COLLECT/RETURN
+     */
+    private static final java.util.Map<String, String> LOCATION_TYPE_CODE_PREFIX = new java.util.LinkedHashMap<>();
+    static {
+        LOCATION_TYPE_CODE_PREFIX.put("STORAGE", "S");   // 存储区
+        LOCATION_TYPE_CODE_PREFIX.put("PICK", "P");      // 拣货区
+        LOCATION_TYPE_CODE_PREFIX.put("COLLECT", "C");  // 集货区
+        LOCATION_TYPE_CODE_PREFIX.put("RETURN", "R");   // 退货区
+        LOCATION_TYPE_CODE_PREFIX.put("AREA", "A");     // 库区
+        LOCATION_TYPE_CODE_PREFIX.put("SHELF", "F");    // 货架
+        LOCATION_TYPE_CODE_PREFIX.put("ROW", "RW");     // 行
+        LOCATION_TYPE_CODE_PREFIX.put("COL", "CL");     // 列
+        LOCATION_TYPE_CODE_PREFIX.put("CELL", "E");     // 格
+        LOCATION_TYPE_CODE_PREFIX.put("FREEZER", "FZ"); // 冰箱
+        LOCATION_TYPE_CODE_PREFIX.put("LAYER", "L");    // 层
+        LOCATION_TYPE_CODE_PREFIX.put("BOX", "B");      // 盒
+        LOCATION_TYPE_CODE_PREFIX.put("CONTAINER", "CN"); // 容器
+    }
 
     // ==================== 基础CRUD方法 ====================
 
@@ -200,6 +222,119 @@ public class WmsLocationBiz {
             return R.ok(true, i18nService.getMessage("batch.delete.success", ids.size()));
         } catch (Exception e) {
             return R.fail(i18nService.getMessage("batch.delete.error", e.getMessage()));
+        }
+    }
+
+    // ==================== 自动编码建议 ====================
+
+    /**
+     * 建议库位编码
+     * 根据父节点和库位类型，自动生成下一个可用编码
+     *
+     * @param warehouseCode 仓库编码
+     * @param parentId     父节点ID（null 表示根节点）
+     * @param locationType 库位类型（用于确定前缀）
+     * @return 编码建议
+     */
+    public R<LocationCodeSuggestion> suggestCode(String warehouseCode, Long parentId, String locationType) {
+        LocationCodeSuggestion suggestion = new LocationCodeSuggestion();
+        suggestion.setSerialLength(4);
+
+        // 1. 查询父节点信息
+        WmsLocation parent = null;
+        String parentCode = "";
+        String fullPath = "";
+        int currentLevel = 1;
+        String parentSortNo = "";
+
+        if (parentId != null) {
+            parent = wmsLocationService.queryById(parentId);
+            if (parent == null) {
+                return R.fail(i18nService.getMessage("wms.location.parent.not.found"));
+            }
+            parentCode = parent.getLocationNo() != null ? parent.getLocationNo() : "";
+            fullPath = parent.getLocationFullpathName() != null ? parent.getLocationFullpathName() : "";
+            parentSortNo = parent.getLocationSortNo() != null ? parent.getLocationSortNo() : "";
+            currentLevel = parent.getLocationLevel() + 1;
+        }
+
+        // 2. 确定类型前缀
+        String typePrefix = LOCATION_TYPE_CODE_PREFIX.getOrDefault(locationType, "L");
+
+        // 3. 查询同级的最大序号
+        int nextSerial = 1;
+        int currentMaxSerial = 0;
+
+        List<WmsLocation> siblings;
+        if (parentId != null) {
+            siblings = wmsLocationService.queryByParentId(parentId);
+        } else {
+            // 根节点：查询该仓库下 parent_id 为 null 的节点
+            siblings = wmsLocationService.queryRootNodes().stream()
+                    .filter(r -> warehouseCode.equals(r.getWarehouseCode()))
+                    .collect(Collectors.toList());
+        }
+
+        if (siblings != null && !siblings.isEmpty()) {
+            // 计算当前同级的最大序号
+            // 提取 locationNo 中的数字部分进行比较
+            for (WmsLocation sibling : siblings) {
+                String no = sibling.getLocationNo();
+                if (no != null && !no.isEmpty()) {
+                    // 提取编码末尾的数字部分
+                    int serial = extractLastSerial(no);
+                    if (serial > currentMaxSerial) {
+                        currentMaxSerial = serial;
+                    }
+                }
+            }
+            nextSerial = currentMaxSerial + 1;
+        }
+
+        // 4. 生成建议编码
+        String suggestedCode = typePrefix + String.format("%0" + suggestion.getSerialLength() + "d", nextSerial);
+
+        // 5. 设置返回结果
+        suggestion.setSuggestedCode(suggestedCode);
+        suggestion.setCurrentMaxSerial(currentMaxSerial);
+        suggestion.setNextSerial(nextSerial);
+        suggestion.setParentCode(parentCode);
+        suggestion.setParentId(parentId);
+        suggestion.setCurrentLevel(currentLevel);
+        suggestion.setCodePrefix(typePrefix);
+        suggestion.setFullPath(fullPath);
+
+        log.info("[库位编码建议] warehouseCode={}, parentId={}, locationType={}, suggestedCode={}",
+                warehouseCode, parentId, locationType, suggestedCode);
+
+        return R.ok(suggestion);
+    }
+
+    /**
+     * 从编码中提取末尾的数字序号
+     * 例如："S0001" -> 1, "F003" -> 3, "A001" -> 1
+     */
+    private int extractLastSerial(String code) {
+        if (code == null || code.isEmpty()) {
+            return 0;
+        }
+        // 从末尾向前找连续的数字
+        int i = code.length() - 1;
+        while (i >= 0 && !Character.isDigit(code.charAt(i))) {
+            i--;
+        }
+        if (i < 0) {
+            return 0;
+        }
+        // 找到数字的起始位置
+        int j = i;
+        while (j > 0 && Character.isDigit(code.charAt(j - 1))) {
+            j--;
+        }
+        try {
+            return Integer.parseInt(code.substring(j, i + 1));
+        } catch (NumberFormatException e) {
+            return 0;
         }
     }
 
