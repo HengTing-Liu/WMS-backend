@@ -1,6 +1,7 @@
 package com.abtk.product.web.controller.sys;
 
 import com.abtk.product.api.domain.request.sys.ColumnMetaRequest;
+import com.abtk.product.api.domain.request.sys.TableMetaQueryRequest;
 import com.abtk.product.api.domain.request.sys.TableMetaRequest;
 import com.abtk.product.api.domain.response.sys.ColumnMetaVO;
 import com.abtk.product.common.domain.R;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -37,10 +37,22 @@ public class MetaController extends BaseController {
     private MetaService metaService;
 
     /**
+     * 表元数据分页列表查询
+     */
+    @Operation(summary = "表元数据分页列表", description = "支持按表编码、表名称、模块模糊搜索")
+    @RequiresPermissions("system:meta:table:query")
+    @GetMapping("/table")
+    public R<?> listTableMeta(TableMetaQueryRequest queryRequest) {
+        startPage();
+        List<TableMeta> list = metaService.listPage(queryRequest);
+        return R.ok(getDataTable(list));
+    }
+
+    /**
      * 获取表元数据（包含字段和操作按钮）
      */
     @Operation(summary = "获取表元数据", description = "根据表标识获取完整的表元数据，包含字段和操作按钮配置")
-    @RequiresPermissions("system:meta:query")
+    @RequiresPermissions("system:meta:table:query")
     @GetMapping("/table/{tableCode}")
     public R<TableMeta> getTableMeta(
             @Parameter(description = "表标识", required = true)
@@ -50,10 +62,36 @@ public class MetaController extends BaseController {
     }
 
     /**
+     * 根据ID获取表元数据详情
+     */
+    @Operation(summary = "根据ID获取表元数据")
+    @RequiresPermissions("system:meta:table:query")
+    @GetMapping("/table/id/{id}")
+    public R<TableMeta> getTableMetaById(
+            @Parameter(description = "表元数据ID", required = true)
+            @PathVariable Long id) {
+        TableMeta tableMeta = metaService.getById(id);
+        return R.ok(tableMeta);
+    }
+
+    /**
+     * 根据编码获取表元数据详情
+     */
+    @Operation(summary = "根据编码获取表元数据")
+    @RequiresPermissions("system:meta:table:query")
+    @GetMapping("/table/code/{code}")
+    public R<TableMeta> getTableMetaByCode(
+            @Parameter(description = "表编码", required = true)
+            @PathVariable String code) {
+        TableMeta tableMeta = metaService.getByCode(code);
+        return R.ok(tableMeta);
+    }
+
+    /**
      * 查询所有表元数据列表
      */
     @Operation(summary = "查询所有表元数据", description = "获取所有启用的表元数据列表")
-    @RequiresPermissions("system:meta:list")
+    @RequiresPermissions("system:meta:table:query")
     @GetMapping("/table/list")
     public R<List<TableMeta>> listAllTables() {
         List<TableMeta> list = metaService.listAllTables();
@@ -64,7 +102,7 @@ public class MetaController extends BaseController {
      * 根据模块查询表元数据
      */
     @Operation(summary = "按模块查询表元数据", description = "根据模块标识查询表元数据列表")
-    @RequiresPermissions("system:meta:list")
+    @RequiresPermissions("system:meta:table:query")
     @GetMapping("/table/listByModule")
     public R<List<TableMeta>> listTablesByModule(
             @Parameter(description = "模块标识(base/wms/sys)", required = true)
@@ -77,7 +115,7 @@ public class MetaController extends BaseController {
      * 获取字段元数据列表
      */
     @Operation(summary = "获取字段元数据", description = "根据表标识获取字段元数据列表")
-    @RequiresPermissions("system:meta:query")
+    @RequiresPermissions("system:meta:table:query")
     @GetMapping("/column/list/{tableCode}")
     public R<List<ColumnMeta>> listColumnMeta(
             @Parameter(description = "表标识", required = true)
@@ -90,7 +128,7 @@ public class MetaController extends BaseController {
      * 获取字段 Schema（前端友好格式）
      */
     @Operation(summary = "获取字段 Schema", description = "根据表标识获取字段元数据的前端友好 Schema")
-    // [DEV] @RequiresPermissions("system:meta:query") // removed for dev
+    @RequiresPermissions("system:meta:table:query")
     @GetMapping("/column/schema")
     public R<List<ColumnMetaVO>> getColumnSchema(
             @Parameter(description = "表标识", required = true)
@@ -103,7 +141,7 @@ public class MetaController extends BaseController {
      * 获取操作按钮列表
      */
     @Operation(summary = "获取操作按钮", description = "根据表标识获取操作按钮配置列表")
-    @RequiresPermissions("system:meta:query")
+    @RequiresPermissions("system:meta:table:query")
     @GetMapping("/operation/list/{tableCode}")
     public R<List<TableOperation>> listOperations(
             @Parameter(description = "表标识", required = true)
@@ -113,12 +151,12 @@ public class MetaController extends BaseController {
     }
 
     /**
-     * 保存表元数据
+     * 创建表元数据
      */
-    @Operation(summary = "保存表元数据", description = "新增或更新表元数据")
-    @RequiresPermissions("system:meta:edit")
-    @PostMapping("/table/save")
-    public R<Void> saveTableMeta(@RequestBody @Valid TableMetaRequest request) {
+    @Operation(summary = "创建表元数据")
+    @RequiresPermissions("system:meta:table:manage")
+    @PostMapping("/table")
+    public R<Void> createTableMeta(@RequestBody @Valid TableMetaRequest request) {
         TableMeta tableMeta = new TableMeta();
         BeanUtils.copyProperties(request, tableMeta);
         metaService.saveTableMeta(tableMeta);
@@ -126,10 +164,53 @@ public class MetaController extends BaseController {
     }
 
     /**
+     * 更新表元数据
+     */
+    @Operation(summary = "更新表元数据")
+    @RequiresPermissions("system:meta:table:manage")
+    @PutMapping("/table/{id}")
+    public R<Void> updateTableMeta(
+            @Parameter(description = "表元数据ID", required = true)
+            @PathVariable Long id,
+            @RequestBody @Valid TableMetaRequest request) {
+        TableMeta tableMeta = new TableMeta();
+        BeanUtils.copyProperties(request, tableMeta);
+        tableMeta.setId(id);
+        metaService.saveTableMeta(tableMeta);
+        return R.ok();
+    }
+
+    /**
+     * 删除表元数据
+     */
+    @Operation(summary = "删除表元数据", description = "根据ID删除表元数据（逻辑删除）")
+    @RequiresPermissions("system:meta:table:manage")
+    @DeleteMapping("/table/{id}")
+    public R<Void> deleteTableMeta(
+            @Parameter(description = "表元数据ID", required = true)
+            @PathVariable Long id) {
+        metaService.deleteTableMeta(id);
+        return R.ok();
+    }
+
+    /**
+     * 启用/禁用切换
+     */
+    @Operation(summary = "启用/禁用切换")
+    @RequiresPermissions("system:meta:table:manage")
+    @PutMapping("/table/{id}/toggle")
+    public R<Void> toggleTableMeta(
+            @Parameter(description = "表元数据ID", required = true)
+            @PathVariable Long id) {
+        metaService.toggleStatus(id);
+        return R.ok();
+    }
+
+    /**
      * 批量保存字段元数据
      */
     @Operation(summary = "保存字段元数据", description = "批量保存字段元数据配置")
-    @RequiresPermissions("system:meta:edit")
+    @RequiresPermissions("system:meta:table:manage")
     @PostMapping("/column/save/{tableCode}")
     public R<Void> saveColumnMeta(
             @Parameter(description = "表标识", required = true)
@@ -146,23 +227,10 @@ public class MetaController extends BaseController {
     }
 
     /**
-     * 删除表元数据
-     */
-    @Operation(summary = "删除表元数据", description = "根据ID删除表元数据（逻辑删除）")
-    @RequiresPermissions("system:meta:delete")
-    @DeleteMapping("/table/{id}")
-    public R<Void> deleteTableMeta(
-            @Parameter(description = "表元数据ID", required = true)
-            @PathVariable Long id) {
-        metaService.deleteTableMeta(id);
-        return R.ok();
-    }
-
-    /**
      * 删除字段元数据
      */
     @Operation(summary = "删除字段元数据", description = "根据ID删除字段元数据（逻辑删除）")
-    @RequiresPermissions("system:meta:delete")
+    @RequiresPermissions("system:meta:table:manage")
     @DeleteMapping("/column/{id}")
     public R<Void> deleteColumnMeta(
             @Parameter(description = "字段元数据ID", required = true)
@@ -175,7 +243,7 @@ public class MetaController extends BaseController {
      * 删除操作按钮
      */
     @Operation(summary = "删除操作按钮", description = "根据ID删除操作按钮配置（逻辑删除）")
-    @RequiresPermissions("system:meta:delete")
+    @RequiresPermissions("system:meta:table:manage")
     @DeleteMapping("/operation/{id}")
     public R<Void> deleteOperation(
             @Parameter(description = "操作按钮ID", required = true)

@@ -1,8 +1,10 @@
 package com.abtk.product.dao.mapper;
 
 import com.abtk.product.dao.entity.TableMeta;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 表元数据 Mapper
@@ -28,6 +30,26 @@ public interface TableMetaMapper {
      * 根据模块查询
      */
     List<TableMeta> selectByModule(String module);
+
+    /**
+     * 分页查询
+     */
+    List<TableMeta> selectPage(Map<String, Object> params);
+
+    /**
+     * 统计表编码重复（排除指定ID）
+     */
+    int selectCountByTableCodeExcludeId(@Param("tableCode") String tableCode, @Param("excludeId") Long excludeId);
+
+    /**
+     * 统计关联字段数量
+     */
+    int countColumnsByTableCode(@Param("tableCode") String tableCode, @Param("excludeDeleted") boolean excludeDeleted);
+
+    /**
+     * 统计关联操作数量
+     */
+    int countOperationsByTableCode(@Param("tableCode") String tableCode, @Param("excludeDeleted") boolean excludeDeleted);
 
     /**
      * 新增

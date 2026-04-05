@@ -1,5 +1,6 @@
 package com.abtk.product.service.sys.service;
 
+import com.abtk.product.api.domain.request.sys.TableMetaQueryRequest;
 import com.abtk.product.api.domain.response.sys.ColumnMetaVO;
 import com.abtk.product.dao.entity.ColumnMeta;
 import com.abtk.product.dao.entity.TableMeta;
@@ -16,6 +17,21 @@ public interface MetaService {
      * 获取表元数据（包含字段和操作）
      */
     TableMeta getTableMeta(String tableCode);
+
+    /**
+     * 根据ID获取表元数据
+     */
+    TableMeta getById(Long id);
+
+    /**
+     * 根据编码获取表元数据
+     */
+    TableMeta getByCode(String tableCode);
+
+    /**
+     * 分页查询表元数据
+     */
+    List<TableMeta> listPage(TableMetaQueryRequest request);
 
     /**
      * 查询字段元数据列表
@@ -61,6 +77,11 @@ public interface MetaService {
      * 删除操作按钮
      */
     void deleteOperation(Long id);
+
+    /**
+     * 切换启用/禁用状态
+     */
+    void toggleStatus(Long id);
 
     /**
      * 获取字段 Schema VO 列表（前端友好格式）

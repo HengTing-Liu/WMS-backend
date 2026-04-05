@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -73,6 +73,47 @@
 
     <select id="selectById" resultMap="TableMetaResult">
         SELECT * FROM sys_table_meta WHERE id = #{id}
+    </select>
+
+    <select id="selectPage" resultMap="TableMetaResult">
+        SELECT * FROM sys_table_meta WHERE 1=1
+        <if test="tableCode != null and tableCode != ''">
+            AND table_code LIKE CONCAT('%', #{tableCode}, '%')
+        </if>
+        <if test="tableName != null and tableName != ''">
+            AND table_name LIKE CONCAT('%', #{tableName}, '%')
+        </if>
+        <if test="module != null and module != ''">
+            AND module = #{module}
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY id DESC
+    </select>
+
+    <select id="selectCountByTableCodeExcludeId" resultType="int">
+        SELECT COUNT(1) FROM sys_table_meta
+        WHERE table_code = #{tableCode}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <select id="countColumnsByTableCode" resultType="int">
+        SELECT COUNT(1) FROM sys_column_meta
+        WHERE table_code = #{tableCode}
+        <if test="excludeDeleted">
+            AND is_deleted = 0
+        </if>
+    </select>
+
+    <select id="countOperationsByTableCode" resultType="int">
+        SELECT COUNT(1) FROM sys_table_operation
+        WHERE table_code = #{tableCode}
+        <if test="excludeDeleted">
+            AND is_deleted = 0
+        </if>
     </select>
 
 </mapper>

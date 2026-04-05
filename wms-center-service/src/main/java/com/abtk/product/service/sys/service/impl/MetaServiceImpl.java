@@ -1,5 +1,6 @@
 package com.abtk.product.service.sys.service.impl;
 
+import com.abtk.product.api.domain.request.sys.TableMetaQueryRequest;
 import com.abtk.product.api.domain.response.sys.ColumnMetaVO;
 import com.abtk.product.api.domain.response.sys.DictOptionVO;
 import com.abtk.product.common.exception.ServiceException;
@@ -25,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,6 +65,34 @@ public class MetaServiceImpl implements MetaService {
 
     @Autowired
     private SysDictDataMapper sysDictDataMapper;
+
+    @Override
+    public TableMeta getById(Long id) {
+        TableMeta tableMeta = tableMetaMapper.selectById(id);
+        if (tableMeta == null) {
+            throw new ServiceException(i18nService.getMessage("meta.table.not.found", id.toString()));
+        }
+        return tableMeta;
+    }
+
+    @Override
+    public TableMeta getByCode(String tableCode) {
+        TableMeta tableMeta = tableMetaMapper.selectByTableCode(tableCode);
+        if (tableMeta == null) {
+            throw new ServiceException(i18nService.getMessage("meta.table.not.found", tableCode));
+        }
+        return tableMeta;
+    }
+
+    @Override
+    public List<TableMeta> listPage(TableMetaQueryRequest request) {
+        Map<String, Object> params = new java.util.HashMap<>();
+        params.put("tableCode", request.getTableCode());
+        params.put("tableName", request.getTableName());
+        params.put("module", request.getModule());
+        params.put("status", request.getStatus());
+        return tableMetaMapper.selectPage(params);
+    }
 
     @Override
     public TableMeta getTableMeta(String tableCode) {
@@ -136,6 +164,11 @@ public class MetaServiceImpl implements MetaService {
     @Transactional(rollbackFor = Exception.class)
     public TableMeta saveTableMeta(TableMeta tableMeta) {
         String tableCode = tableMeta.getTableCode();
+        // 表编码唯一性校验
+        int count = tableMetaMapper.selectCountByTableCodeExcludeId(tableCode, tableMeta.getId());
+        if (count > 0) {
+            throw new ServiceException("表编码已存在: " + tableCode);
+        }
         if (tableMeta.getId() == null) {
             tableMeta.setCreateBy("system");
             tableMeta.setCreateTime(new Date());
@@ -171,12 +204,41 @@ public class MetaServiceImpl implements MetaService {
     public void deleteTableMeta(Long id) {
         // 先查询获取 tableCode（用于缓存清理）
         TableMeta existing = tableMetaMapper.selectById(id);
+        if (existing == null) {
+            throw new ServiceException("表元数据不存在: " + id);
+        }
+        // 删除前检查关联字段
+        int columnCount = tableMetaMapper.countColumnsByTableCode(existing.getTableCode(), true);
+        if (columnCount > 0) {
+            throw new ServiceException("该表存在 " + columnCount + " 个关联字段，不允许删除");
+        }
+        // 删除前检查关联操作
+        int operationCount = tableMetaMapper.countOperationsByTableCode(existing.getTableCode(), true);
+        if (operationCount > 0) {
+            throw new ServiceException("该表存在 " + operationCount + " 个关联操作，不允许删除");
+        }
         tableMetaMapper.deleteById(id);
 
         // 发布删除事件
-        if (existing != null && existing.getTableCode() != null) {
+        if (existing.getTableCode() != null) {
             eventPublisher.publishEvent(new MetaCacheEvent(this, existing.getTableCode(), MetaCacheEvent.ChangeType.TABLE_DELETED));
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void toggleStatus(Long id) {
+        TableMeta existing = tableMetaMapper.selectById(id);
+        if (existing == null) {
+            throw new ServiceException("表元数据不存在: " + id);
+        }
+        TableMeta update = new TableMeta();
+        update.setId(id);
+        update.setStatus(existing.getStatus() != null && existing.getStatus() == 1 ? 0 : 1);
+        update.setUpdateBy("system");
+        update.setUpdateTime(new Date());
+        tableMetaMapper.update(update);
+        eventPublisher.publishEvent(new MetaCacheEvent(this, existing.getTableCode(), MetaCacheEvent.ChangeType.TABLE_UPDATED));
     }
 
     @Override
