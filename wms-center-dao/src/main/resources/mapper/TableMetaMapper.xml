@@ -75,4 +75,23 @@
         SELECT * FROM sys_table_meta WHERE id = #{id}
     </select>
 
+    <select id="selectList" resultMap="TableMetaResult">
+        SELECT * FROM sys_table_meta
+        <where>
+            <if test="tableCode != null and tableCode != ''">
+                AND table_code LIKE CONCAT('%', #{tableCode}, '%')
+            </if>
+            <if test="tableName != null and tableName != ''">
+                AND table_name LIKE CONCAT('%', #{tableName}, '%')
+            </if>
+            <if test="module != null and module != ''">
+                AND module = #{module}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
 </mapper>

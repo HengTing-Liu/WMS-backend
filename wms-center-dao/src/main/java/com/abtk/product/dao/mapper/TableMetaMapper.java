@@ -30,6 +30,11 @@ public interface TableMetaMapper {
     List<TableMeta> selectByModule(String module);
 
     /**
+     * 根据条件查询列表（支持模糊搜索）
+     */
+    List<TableMeta> selectList(TableMeta condition);
+
+    /**
      * 新增
      */
     int insert(TableMeta tableMeta);
