@@ -16,7 +16,7 @@ import javax.validation.Valid;
  * 仓库收货信息Controller
  */
 @RestController
-@RequestMapping("/base/warehouse/receiver")
+@RequestMapping("/api/base/warehouse/receiver")
 public class WarehouseReceiverController extends BaseController {
 
     @Autowired
