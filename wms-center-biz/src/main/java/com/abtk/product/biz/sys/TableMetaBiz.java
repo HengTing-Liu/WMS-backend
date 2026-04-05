@@ -6,7 +6,6 @@ import com.abtk.product.api.domain.response.sys.TableMetaResponse;
 import com.abtk.product.common.domain.R;
 import com.abtk.product.common.utils.bean.BeanUtils;
 import com.abtk.product.dao.entity.TableMeta;
-import com.abtk.product.domain.converter.TableMetaConverter;
 import com.abtk.product.service.sys.service.TableMetaService;
 import com.abtk.product.service.system.service.I18nService;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +58,8 @@ public class TableMetaBiz {
         if (entity == null) {
             return R.fail(i18nService.getMessage("system.meta.table.not.found"));
         }
-        TableMetaResponse response = TableMetaConverter.INSTANCE.entityToResponse(entity);
+        TableMetaResponse response = new TableMetaResponse();
+        BeanUtils.copyProperties(entity, response);
         return R.ok(response);
     }
 
@@ -71,7 +71,8 @@ public class TableMetaBiz {
         if (entity == null) {
             return R.fail(i18nService.getMessage("system.meta.table.not.found"));
         }
-        TableMetaResponse response = TableMetaConverter.INSTANCE.entityToResponse(entity);
+        TableMetaResponse response = new TableMetaResponse();
+        BeanUtils.copyProperties(entity, response);
         return R.ok(response);
     }
 
@@ -79,9 +80,8 @@ public class TableMetaBiz {
      * 创建表元数据
      */
     public R<Long> add(TableMetaRequest request) {
-        // 使用Converter转换Request到Entity
-        TableMeta tableMeta = TableMetaConverter.INSTANCE.requestToEntity(request);
-
+        TableMeta tableMeta = new TableMeta();
+        BeanUtils.copyProperties(request, tableMeta);
         Long id = tableMetaService.create(tableMeta);
         return R.ok(id);
     }
@@ -90,9 +90,8 @@ public class TableMetaBiz {
      * 更新表元数据
      */
     public R<Void> update(Long id, TableMetaRequest request) {
-        // 使用Converter转换Request到Entity
-        TableMeta tableMeta = TableMetaConverter.INSTANCE.requestToEntity(request);
-
+        TableMeta tableMeta = new TableMeta();
+        BeanUtils.copyProperties(request, tableMeta);
         tableMetaService.update(id, tableMeta);
         return R.ok();
     }
@@ -121,7 +120,11 @@ public class TableMetaBiz {
         BeanUtils.copyProperties(request, condition);
         List<TableMeta> list = tableMetaService.list(condition);
         return list.stream()
-                .map(TableMetaConverter.INSTANCE::entityToResponse)
+                .map(entity -> {
+                    TableMetaResponse response = new TableMetaResponse();
+                    BeanUtils.copyProperties(entity, response);
+                    return response;
+                })
                 .collect(Collectors.toList());
     }
 }

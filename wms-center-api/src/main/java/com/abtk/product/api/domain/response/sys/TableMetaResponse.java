@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 表元数据响应出参
@@ -74,7 +74,7 @@ public class TableMetaResponse extends BaseResponse {
 
     @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Schema(description = "创建时间")
-    private LocalDateTime createTime;
+    private Date createTime;
 
     @Excel(name = "更新人")
     @Schema(description = "更新人")
@@ -82,5 +82,5 @@ public class TableMetaResponse extends BaseResponse {
 
     @Excel(name = "更新时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Schema(description = "更新时间")
-    private LocalDateTime updateTime;
+    private Date updateTime;
 }
