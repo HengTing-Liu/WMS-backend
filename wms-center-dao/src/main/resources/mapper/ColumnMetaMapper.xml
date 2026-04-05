@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -33,6 +33,7 @@
         <result property="sectionKey" column="section_key"/>
         <result property="i18nKey" column="i18n_key"/>
         <result property="visibleCondition" column="visible_condition"/>
+        <result property="columnName" column="column_name"/>
     </resultMap>
 
     <select id="selectByTableCode" resultMap="ColumnMetaResult">

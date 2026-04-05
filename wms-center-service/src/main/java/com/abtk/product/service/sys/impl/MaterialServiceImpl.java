@@ -3,9 +3,12 @@ package com.abtk.product.service.sys.impl;
 import com.abtk.product.dao.entity.Material;
 import com.abtk.product.dao.mapper.MaterialMapper;
 import com.abtk.product.service.sys.service.MaterialService;
+import com.abtk.product.common.utils.poi.ExcelUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @Service
@@ -80,5 +83,29 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public List<Material> listByKeyword(String keyword) {
         return materialMapper.selectByKeyword(keyword);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void toggleStatus(Long id, Integer enabled) {
+        Material material = new Material();
+        material.setId(id);
+        material.setStatus(enabled);
+        int rows = materialMapper.updateStatus(id, enabled);
+        if (rows == 0) {
+            throw new RuntimeException("切换状态失败，物料不存在");
+        }
+    }
+
+    @Override
+    public void export(HttpServletResponse response, String materialCode, String materialName, String category, Integer status) {
+        Material condition = new Material();
+        condition.setMaterialCode(materialCode);
+        condition.setMaterialName(materialName);
+        condition.setCategory(category);
+        condition.setStatus(status);
+        List<Material> list = materialMapper.selectList(condition);
+        ExcelUtil<Material> util = new ExcelUtil<>(Material.class);
+        util.exportExcel(response, list, "物料档案");
     }
 }

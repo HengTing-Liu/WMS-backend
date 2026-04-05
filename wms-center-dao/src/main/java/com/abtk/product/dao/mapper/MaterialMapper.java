@@ -13,4 +13,5 @@ public interface MaterialMapper {
     int update(Material material);
     int deleteById(Long id);
     int checkMaterialCodeExists(@Param("materialCode") String materialCode, @Param("excludeId") Long excludeId);
+    int updateStatus(@Param("id") Long id, @Param("status") Integer status);
 }

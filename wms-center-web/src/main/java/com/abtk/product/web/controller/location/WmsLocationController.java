@@ -5,6 +5,7 @@ import com.abtk.product.api.domain.request.location.WmsLocationBatchRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationGridUpdateRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationTreeRequest;
+import com.abtk.product.api.domain.response.location.LocationCodeSuggestion;
 import com.abtk.product.api.domain.response.location.WmsLocationOccupancyResponse;
 import com.abtk.product.api.domain.response.location.WmsLocationResponse;
 import com.abtk.product.biz.location.WmsLocationBiz;
@@ -179,6 +180,27 @@ public class WmsLocationController extends BaseController {
     @Operation(summary = "查询库位树", description = "查询库位树形结构，支持递归和层级限制")
     public R<List<WmsLocationResponse>> queryTree(WmsLocationTreeRequest request) {
         return wmsLocationBiz.queryTree(request);
+    }
+
+    // ==================== 自动编码建议接口 ====================
+
+    /**
+     * 建议库位编码
+     * 根据父节点自动生成下一个可用编码
+     *
+     * @param warehouseCode 仓库编码
+     * @param parentId      父节点ID（null 表示根节点）
+     * @param locationType  库位类型（用于确定前缀）
+     * @return 建议的编码，如 "A001"
+     */
+    @GetMapping("/suggestCode")
+    @RequiresPermissions("wms:location:add")
+    @Operation(summary = "建议库位编码", description = "根据父节点自动生成下一个可用编码")
+    public R<LocationCodeSuggestion> suggestCode(
+            @RequestParam String warehouseCode,
+            @RequestParam(required = false) Long parentId,
+            @RequestParam(required = false) String locationType) {
+        return wmsLocationBiz.suggestCode(warehouseCode, parentId, locationType);
     }
 
     // ==================== 占用率统计接口 ====================
