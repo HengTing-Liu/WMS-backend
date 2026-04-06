@@ -146,19 +146,6 @@ public class MetaController extends BaseController {
     }
 
     /**
-     * 删除表元数据
-     */
-    @Operation(summary = "删除表元数据", description = "根据ID删除表元数据（逻辑删除）")
-    @RequiresPermissions("system:meta:delete")
-    @DeleteMapping("/table/{id}")
-    public R<Void> deleteTableMeta(
-            @Parameter(description = "表元数据ID", required = true)
-            @PathVariable Long id) {
-        metaService.deleteTableMeta(id);
-        return R.ok();
-    }
-
-    /**
      * 删除字段元数据
      */
     @Operation(summary = "删除字段元数据", description = "根据ID删除字段元数据（逻辑删除）")
