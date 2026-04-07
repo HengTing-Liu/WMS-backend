@@ -127,8 +127,7 @@ public class MetaController extends BaseController {
     /**
      * 获取字段 Schema（前端友好格式）
      */
-    @Operation(summary = "获取字段 Schema", description = "根据表标识获取字段元数据的前端友好 Schema")
-    @RequiresPermissions("system:meta:table:query")
+    @Operation(summary = "获取字段 Schema", description = "根据表标识获取字段元数据的前端友好 Schema，低代码动态渲染专用，无需权限")
     @GetMapping("/column/schema")
     public R<List<ColumnMetaVO>> getColumnSchema(
             @Parameter(description = "表标识", required = true)
