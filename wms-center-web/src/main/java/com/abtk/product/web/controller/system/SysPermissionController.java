@@ -1,4 +1,4 @@
-package com.abtk.product.web.controller.sys;
+package com.abtk.product.web.controller.system;
 
 import com.abtk.product.api.domain.request.sys.SysPermissionRequest;
 import com.abtk.product.api.domain.response.sys.SysPermissionResponse;
@@ -18,13 +18,10 @@ import java.util.List;
 import static com.abtk.product.common.utils.PageUtils.startPage;
 
 /**
- * 权限管理Controller（/api/base/permission）
- *
- * @author backend
- * @since 2026-03-26
+ * 权限管理Controller（/api/system/permission）
  */
 @RestController
-@RequestMapping("/api/base/permission")
+@RequestMapping("/api/system/permission")
 public class SysPermissionController extends BaseController {
 
     @Autowired
@@ -33,7 +30,7 @@ public class SysPermissionController extends BaseController {
     /**
      * 分页查询权限列表
      */
-    @RequiresPermissions("wms:base:permission:list")
+    @RequiresPermissions("system:permission:list")
     @GetMapping("/list")
     public R<TableDataInfo> list(SysPermissionRequest queryRequest) {
         startPage();
@@ -43,7 +40,7 @@ public class SysPermissionController extends BaseController {
     /**
      * 查询所有权限（不分页）
      */
-    @RequiresPermissions("wms:base:permission:list")
+    @RequiresPermissions("system:permission:list")
     @GetMapping("/listAll")
     public R<List<SysPermissionResponse>> listAll() {
         return sysPermissionBiz.listAll();
@@ -52,7 +49,7 @@ public class SysPermissionController extends BaseController {
     /**
      * 根据ID查询权限详情
      */
-    @RequiresPermissions("wms:base:permission:list")
+    @RequiresPermissions("system:permission:list")
     @GetMapping("/{id}")
     public R<SysPermissionResponse> getById(@PathVariable("id") Long id) {
         return sysPermissionBiz.queryById(id);
@@ -62,7 +59,7 @@ public class SysPermissionController extends BaseController {
      * 新增权限
      */
     @Log(title = "权限管理", businessType = BusinessType.INSERT)
-    @RequiresPermissions("wms:base:permission:add")
+    @RequiresPermissions("system:permission:add")
     @PostMapping
     public R<Long> create(@Valid @RequestBody SysPermissionRequest request) {
         return sysPermissionBiz.add(request);
@@ -72,7 +69,7 @@ public class SysPermissionController extends BaseController {
      * 编辑权限
      */
     @Log(title = "权限管理", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("wms:base:permission:edit")
+    @RequiresPermissions("system:permission:edit")
     @PutMapping("/{id}")
     public R<Void> update(@PathVariable("id") Long id, @Valid @RequestBody SysPermissionRequest request) {
         return sysPermissionBiz.update(id, request);
@@ -82,7 +79,7 @@ public class SysPermissionController extends BaseController {
      * 删除权限
      */
     @Log(title = "权限管理", businessType = BusinessType.DELETE)
-    @RequiresPermissions("wms:base:permission:delete")
+    @RequiresPermissions("system:permission:delete")
     @DeleteMapping("/{id}")
     public R<Void> delete(@PathVariable("id") Long id) {
         return sysPermissionBiz.delete(id);
@@ -92,7 +89,7 @@ public class SysPermissionController extends BaseController {
      * 切换权限状态
      */
     @Log(title = "权限管理", businessType = BusinessType.UPDATE)
-    @RequiresPermissions("wms:base:permission:edit")
+    @RequiresPermissions("system:permission:edit")
     @PatchMapping("/{id}/status")
     public R<Void> toggleStatus(@PathVariable("id") Long id, @RequestParam("enabled") Integer enabled) {
         return sysPermissionBiz.toggleStatus(id, enabled);
