@@ -1,4 +1,4 @@
-﻿package com.abtk.product.web.controller.sys;
+package com.abtk.product.web.controller.sys;
 
 import com.abtk.product.api.domain.request.dict.WmsDictRequest;
 import com.abtk.product.api.domain.response.dict.WmsDictResponse;
