@@ -1,6 +1,7 @@
 package com.abtk.product.web.controller.sys;
 
 import com.abtk.product.api.domain.request.sys.ColumnMetaRequest;
+import com.abtk.product.common.web.page.TableDataInfo;
 import com.abtk.product.api.domain.request.sys.TableMetaRequest;
 import com.abtk.product.api.domain.response.sys.ColumnMetaVO;
 import com.abtk.product.common.domain.R;
@@ -105,11 +106,14 @@ public class MetaController extends BaseController {
     @Operation(summary = "获取操作按钮", description = "根据表标识获取操作按钮配置列表")
     @RequiresPermissions("system:meta:query")
     @GetMapping("/operation/list/{tableCode}")
-    public R<List<TableOperation>> listOperations(
+    public R<TableDataInfo<TableOperation>> listOperations(
             @Parameter(description = "表标识", required = true)
             @PathVariable String tableCode) {
         List<TableOperation> list = metaService.getOperationList(tableCode);
-        return R.ok(list);
+        TableDataInfo<TableOperation> tableData = new TableDataInfo<>();
+        tableData.setRows(list);
+        tableData.setTotal(list.size());
+        return R.ok(tableData);
     }
 
     /**
