@@ -49,10 +49,9 @@ public class MetaController extends BaseController {
     }
 
     /**
-     * 获取表元数据（包含字段和操作按钮）
+     * 获取表元数据（低代码页面运行时拉取，与 column/schema、operation/list 一致，仅需登录）
      */
     @Operation(summary = "获取表元数据", description = "根据表标识获取完整的表元数据，包含字段和操作按钮配置")
-    @RequiresPermissions("system:meta:table:query")
     @GetMapping("/table/{tableCode}")
     public R<TableMeta> getTableMeta(
             @Parameter(description = "表标识", required = true)

@@ -6,7 +6,6 @@ import com.abtk.product.common.web.page.TableDataInfo;
 import com.abtk.product.dao.util.SqlInjectionValidator;
 import com.abtk.product.service.sys.service.CrudService;
 import com.abtk.product.service.sys.service.LowcodeTreeService;
-import com.abtk.product.web.security.annotation.RequiresPermissions;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 低代码运行时 CRUD。不按表名配置细粒度权限（如 sys_warehouse:list），否则每表需在权限表同步一条；
+ * 访问控制：需携带有效 Token（见 AuthInterceptor），业务可见性由菜单与路由控制。
+ */
 @Slf4j
 @Tag(name = "低代码通用CRUD", description = "统一入口：列表/详情/新建/修改/删除/启用停用")
 @RestController
@@ -31,7 +34,6 @@ public class LowcodeCrudController extends BaseController {
     // ========== 列表查询 ==========
 
     @Operation(summary = "分页查询列表", description = "通用分页查询，支持权限过滤")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:list')")
     @GetMapping("/{tableCode}/list")
     public R<TableDataInfo> list(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
@@ -44,7 +46,6 @@ public class LowcodeCrudController extends BaseController {
     }
 
     @Operation(summary = "查询所有（不分页）", description = "通用全量查询")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:list')")
     @GetMapping("/{tableCode}/listAll")
     public R<List<Map<String, Object>>> listAll(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
@@ -57,7 +58,6 @@ public class LowcodeCrudController extends BaseController {
     // ========== 树形查询 ==========
 
     @Operation(summary = "树形分页查询", description = "分页查询指定父节点的子节点")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:list')")
     @GetMapping("/{tableCode}/tree/list")
     public R<TableDataInfo> listTree(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
@@ -71,7 +71,6 @@ public class LowcodeCrudController extends BaseController {
     }
 
     @Operation(summary = "查询所有树节点（不分页）", description = "一次性加载所有节点，前端本地构建树")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:list')")
     @GetMapping("/{tableCode}/tree/listAll")
     public R<List<Map<String, Object>>> listTreeAll(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
@@ -82,7 +81,6 @@ public class LowcodeCrudController extends BaseController {
     }
 
     @Operation(summary = "查询子节点数量", description = "查询指定节点的直接子节点数量")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:list')")
     @GetMapping("/{tableCode}/tree/count")
     public R<Long> countChildren(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
@@ -93,7 +91,6 @@ public class LowcodeCrudController extends BaseController {
     }
 
     @Operation(summary = "查询所有子孙节点ID", description = "递归查询所有子孙节点ID（不含自身，MySQL 8.0+）")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:list')")
     @GetMapping("/{tableCode}/tree/descendantIds")
     public R<List<Long>> getDescendantIds(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
@@ -106,7 +103,6 @@ public class LowcodeCrudController extends BaseController {
     // ========== 单条详情 ==========
 
     @Operation(summary = "查询详情", description = "根据ID查询单条记录")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:list')")
     @GetMapping("/{tableCode}/{id}")
     public R<Map<String, Object>> getById(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
@@ -118,7 +114,6 @@ public class LowcodeCrudController extends BaseController {
     // ========== 新增 ==========
 
     @Operation(summary = "新增记录", description = "新建数据记录")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:add')")
     @PostMapping("/{tableCode}")
     public R<Long> create(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
@@ -130,7 +125,6 @@ public class LowcodeCrudController extends BaseController {
     // ========== 修改 ==========
 
     @Operation(summary = "修改记录", description = "更新数据记录")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:edit')")
     @PutMapping("/{tableCode}/{id}")
     public R<Void> update(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
@@ -143,7 +137,6 @@ public class LowcodeCrudController extends BaseController {
     // ========== 删除 ==========
 
     @Operation(summary = "删除记录", description = "逻辑删除数据记录")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:delete')")
     @DeleteMapping("/{tableCode}/{id}")
     public R<Void> delete(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
@@ -153,7 +146,6 @@ public class LowcodeCrudController extends BaseController {
     }
 
     @Operation(summary = "批量删除", description = "批量逻辑删除")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:delete')")
     @DeleteMapping("/{tableCode}")
     public R<Void> batchDelete(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
@@ -163,7 +155,6 @@ public class LowcodeCrudController extends BaseController {
     }
 
     @Operation(summary = "删除前检查占用", description = "检查记录是否被其他数据引用")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:list')")
     @GetMapping("/{tableCode}/checkOccupancy/{id}")
     public R<Map<String, Object>> checkOccupancy(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
@@ -175,7 +166,6 @@ public class LowcodeCrudController extends BaseController {
     // ========== 启用/停用 ==========
 
     @Operation(summary = "启用/停用", description = "切换单条记录的状态")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:edit')")
     @PostMapping("/{tableCode}/toggle/{id}")
     public R<Void> toggle(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
@@ -186,7 +176,6 @@ public class LowcodeCrudController extends BaseController {
     }
 
     @Operation(summary = "批量启用/停用", description = "批量切换记录状态")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:edit')")
     @PostMapping("/{tableCode}/toggle")
     public R<Void> batchToggle(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,

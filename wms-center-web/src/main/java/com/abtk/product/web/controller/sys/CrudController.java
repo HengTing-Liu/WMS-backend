@@ -4,7 +4,6 @@ import com.abtk.product.common.domain.R;
 import com.abtk.product.common.web.controller.BaseController;
 import com.abtk.product.common.web.page.TableDataInfo;
 import com.abtk.product.service.sys.service.CrudService;
-import com.abtk.product.web.security.annotation.RequiresPermissions;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,8 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 通用CRUD Controller
- * 基于元数据配置的动态CRUD接口
+ * 通用CRUD Controller（/api/crud）。与 {@link LowcodeCrudController} 相同策略：不按表名配置细粒度权限，需有效 Token。
  */
 @Slf4j
 @Tag(name = "通用CRUD", description = "基于元数据配置的动态CRUD接口")
@@ -32,7 +30,6 @@ public class CrudController extends BaseController {
      * 分页查询列表
      */
     @Operation(summary = "分页查询", description = "根据表标识分页查询数据列表")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:list')")
     @GetMapping("/{tableCode}/list")
     public R<TableDataInfo> list(
             @Parameter(description = "表标识", required = true)
@@ -48,7 +45,6 @@ public class CrudController extends BaseController {
      * 查询所有数据（不分页）
      */
     @Operation(summary = "查询所有", description = "根据表标识查询所有数据（不分页）")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:list')")
     @GetMapping("/{tableCode}/listAll")
     public R<List<Map<String, Object>>> listAll(
             @Parameter(description = "表标识", required = true)
@@ -62,7 +58,6 @@ public class CrudController extends BaseController {
      * 根据ID查询详情
      */
     @Operation(summary = "查询详情", description = "根据表标识和ID查询数据详情")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:list')")
     @GetMapping("/{tableCode}/{id}")
     public R<Map<String, Object>> getById(
             @Parameter(description = "表标识", required = true)
@@ -77,7 +72,6 @@ public class CrudController extends BaseController {
      * 新增记录
      */
     @Operation(summary = "新增记录", description = "根据表标识新增数据记录")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:add')")
     @PostMapping("/{tableCode}")
     public R<Long> create(
             @Parameter(description = "表标识", required = true)
@@ -91,7 +85,6 @@ public class CrudController extends BaseController {
      * 更新记录
      */
     @Operation(summary = "更新记录", description = "根据表标识和ID更新数据记录")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:edit')")
     @PutMapping("/{tableCode}/{id}")
     public R<Void> update(
             @Parameter(description = "表标识", required = true)
@@ -107,7 +100,6 @@ public class CrudController extends BaseController {
      * 删除记录
      */
     @Operation(summary = "删除记录", description = "根据表标识和ID删除数据记录（逻辑删除）")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:delete')")
     @DeleteMapping("/{tableCode}/{id}")
     public R<Void> delete(
             @Parameter(description = "表标识", required = true)
@@ -122,7 +114,6 @@ public class CrudController extends BaseController {
      * 批量删除
      */
     @Operation(summary = "批量删除", description = "根据表标识批量删除数据记录（逻辑删除）")
-    @RequiresPermissions("@ss.hasPermi('{tableCode}:delete')")
     @DeleteMapping("/{tableCode}")
     public R<Void> batchDelete(
             @Parameter(description = "表标识", required = true)
