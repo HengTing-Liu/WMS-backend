@@ -37,4 +37,13 @@ public class ColumnMetaRequest implements Serializable {
     private String sectionKey;
     private String i18nKey;
     private String visibleCondition;
+    // 补全缺失字段
+    private String linkageJson;
+    private String remark;
+    private String columnName;
+    private String columnType;
+    private Boolean primaryKey;
+    private Boolean nullable;
+    private Integer columnSize;
+    private Integer decimalDigits;
 }

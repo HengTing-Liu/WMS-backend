@@ -137,10 +137,9 @@ public class MetaController extends BaseController {
     }
 
     /**
-     * 获取操作按钮列表
+     * 获取操作按钮列表（低代码动态渲染专用，无需权限）
      */
     @Operation(summary = "获取操作按钮", description = "根据表标识获取操作按钮配置列表")
-    @RequiresPermissions("system:meta:table:query")
     @GetMapping("/operation/list/{tableCode}")
     public R<List<TableOperation>> listOperations(
             @Parameter(description = "表标识", required = true)

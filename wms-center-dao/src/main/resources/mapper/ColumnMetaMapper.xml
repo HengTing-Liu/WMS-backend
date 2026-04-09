@@ -52,13 +52,17 @@
             show_in_list, show_in_form, searchable, sortable, required,
             width, sort_order, rules_json, placeholder, default_value, status,
             component_props, data_source, api_url, label_field, value_field,
-            col_span, section_key, i18n_key, visible_condition
+            col_span, section_key, i18n_key, visible_condition, remark,
+            linkage_json, column_name, column_type, primary_key, nullable,
+            column_size, decimal_digits
         ) VALUES (
             #{tableCode}, #{field}, #{title}, #{dataType}, #{formType}, #{dictType},
             #{showInList}, #{showInForm}, #{searchable}, #{sortable}, #{required},
             #{width}, #{sortOrder}, #{rulesJson}, #{placeholder}, #{defaultValue}, #{status},
             #{componentProps}, #{dataSource}, #{apiUrl}, #{labelField}, #{valueField},
-            #{colSpan}, #{sectionKey}, #{i18nKey}, #{visibleCondition}
+            #{colSpan}, #{sectionKey}, #{i18nKey}, #{visibleCondition}, #{remark},
+            #{linkageJson}, #{columnName}, #{columnType}, #{primaryKey}, #{nullable},
+            #{columnSize}, #{decimalDigits}
         )
     </insert>
 
@@ -89,7 +93,15 @@
             col_span = #{colSpan},
             section_key = #{sectionKey},
             i18n_key = #{i18nKey},
-            visible_condition = #{visibleCondition}
+            visible_condition = #{visibleCondition},
+            remark = #{remark},
+            linkage_json = #{linkageJson},
+            column_name = #{columnName},
+            column_type = #{columnType},
+            primary_key = #{primaryKey},
+            nullable = #{nullable},
+            column_size = #{columnSize},
+            decimal_digits = #{decimalDigits}
         WHERE id = #{id}
     </update>
 
