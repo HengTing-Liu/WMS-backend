@@ -28,6 +28,21 @@ public interface MetaService {
     List<TableOperation> getOperationList(String tableCode);
 
     /**
+     * 根据ID查询操作按钮
+     */
+    TableOperation getOperationById(Long id);
+
+    /**
+     * 保存操作按钮（新增或更新）
+     */
+    TableOperation saveOperation(TableOperation operation);
+
+    /**
+     * 批量更新操作按钮排序
+     */
+    void sortOperations(List<TableOperation> operations);
+
+    /**
      * 查询所有表元数据
      */
     List<TableMeta> listAllTables();
@@ -61,6 +76,11 @@ public interface MetaService {
      * 删除操作按钮
      */
     void deleteOperation(Long id);
+
+    /**
+     * 批量删除操作按钮
+     */
+    void deleteOperations(List<Long> ids);
 
     /**
      * 获取字段 Schema VO 列表（前端友好格式）
