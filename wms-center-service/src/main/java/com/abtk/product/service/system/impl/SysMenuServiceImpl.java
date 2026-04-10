@@ -209,7 +209,47 @@ public class SysMenuServiceImpl implements ISysMenuService
             }
             routers.add(router);
         }
+        // Vue Router：嵌套路由不能与任意祖先 route name 相同。库中父子菜单可能配置了相同 route_name（如均为 WmsBase）。
+        for (RouterVo router : routers) {
+            ensureRouteNamesUniqueAmongAncestors(router, new HashSet<>());
+        }
         return routers;
+    }
+
+    /**
+     * 保证路由树中子节点 name 不与任意祖先重复，避免前端 addRoute 报错。
+     */
+    private void ensureRouteNamesUniqueAmongAncestors(RouterVo node, Set<String> ancestorNames) {
+        if (node == null) {
+            return;
+        }
+        String name = node.getName();
+        if (StringUtils.isNotEmpty(name) && ancestorNames.contains(name)) {
+            String slug = StringUtils.isNotEmpty(node.getPath())
+                    ? node.getPath().replaceAll("[^a-zA-Z0-9]", "_")
+                    : "child";
+            if (StringUtils.isEmpty(slug)) {
+                slug = "child";
+            }
+            int n = 0;
+            String unique = name;
+            while (ancestorNames.contains(unique)) {
+                n++;
+                unique = name + "_" + slug + "_" + n;
+            }
+            node.setName(unique);
+            name = unique;
+        }
+        Set<String> next = new HashSet<>(ancestorNames);
+        if (StringUtils.isNotEmpty(name)) {
+            next.add(name);
+        }
+        List<RouterVo> children = node.getChildren();
+        if (children != null) {
+            for (RouterVo c : children) {
+                ensureRouteNamesUniqueAmongAncestors(c, next);
+            }
+        }
     }
 
     @Override
