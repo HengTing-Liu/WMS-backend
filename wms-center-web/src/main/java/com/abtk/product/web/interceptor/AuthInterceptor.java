@@ -43,6 +43,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             "/crud/**",
             "/api/wms/crud/**",      // 低代码 CRUD 接口
             "/api/base/**",          // 基础接口（如仓库等）
+            "/api/user/getInfo",     // 用户信息接口
             "/v3/api-docs",
             "/v3/api-docs/**",
             "/swagger-ui",
