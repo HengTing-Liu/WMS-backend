@@ -43,4 +43,13 @@ public class TableOperation extends BaseEntity {
 
     /** 关联 sys_menu F类按钮ID（打通 UI按钮配置 与 权限点） */
     private Long menuId;
+
+    /** 事件类型: builtin|api|download|redirect|modal|drawer */
+    private String eventType;
+
+    /** 事件配置JSON */
+    private String eventConfig;
+
+    /** 确认提示消息 */
+    private String confirmMessage;
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -45,10 +45,17 @@
         </if>
     </select>
 
-    <!-- 查询所有（动态删除列） -->
+    <!-- 查询所有（支持搜索参数和逻辑删除列） -->
     <select id="selectAll" resultType="java.util.Map">
         SELECT * FROM ${tableCode}
         WHERE ${deleteColumn} = '0'
+        <if test="params != null and params.size > 0">
+            <foreach collection="params" item="value" index="key" open="AND " separator=" AND " close="">
+                <if test="value != null and value != ''">
+                    ${key} = #{value}
+                </if>
+            </foreach>
+        </if>
     </select>
 
     <!-- 根据ID查询 -->

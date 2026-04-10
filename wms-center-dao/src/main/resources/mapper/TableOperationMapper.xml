@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -16,6 +16,9 @@
         <result property="sortOrder" column="sort_order"/>
         <result property="status" column="status"/>
         <result property="menuId" column="menu_id"/>
+        <result property="eventType" column="event_type"/>
+        <result property="eventConfig" column="event_config"/>
+        <result property="confirmMessage" column="confirm_message"/>
     </resultMap>
 
     <select id="selectByTableCode" resultMap="TableOperationResult">
@@ -27,10 +30,12 @@
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sys_table_operation (
             table_code, operation_code, operation_name, operation_type,
-            icon, permission, position, sort_order, status, menu_id
+            icon, permission, position, sort_order, status, menu_id,
+            event_type, event_config
         ) VALUES (
             #{tableCode}, #{operationCode}, #{operationName}, #{operationType},
-            #{icon}, #{permission}, #{position}, #{sortOrder}, #{status}, #{menuId}
+            #{icon}, #{permission}, #{position}, #{sortOrder}, #{status}, #{menuId},
+            #{eventType}, #{eventConfig}
         )
     </insert>
 

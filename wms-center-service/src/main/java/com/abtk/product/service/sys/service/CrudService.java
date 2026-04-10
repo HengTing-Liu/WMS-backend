@@ -11,6 +11,14 @@ import java.util.Map;
 public interface CrudService {
 
     /**
+     * 导出数据列表
+     * @param tableCode 表标识
+     * @param params 查询参数
+     * @return 导出数据（包含字段配置信息）
+     */
+    Map<String, Object> exportList(String tableCode, Map<String, Object> params);
+
+    /**
      * 分页查询列表
      */
     TableDataInfo list(String tableCode, Map<String, Object> params, Integer pageNum, Integer pageSize);

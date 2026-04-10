@@ -1,8 +1,11 @@
 package com.abtk.product.web.controller.sys;
 
 import com.abtk.product.common.domain.R;
+import com.abtk.product.common.utils.DateUtils;
+import com.abtk.product.common.utils.poi.DynamicExcelUtil;
 import com.abtk.product.common.web.controller.BaseController;
 import com.abtk.product.common.web.page.TableDataInfo;
+import com.abtk.product.dao.entity.ColumnMeta;
 import com.abtk.product.dao.util.SqlInjectionValidator;
 import com.abtk.product.service.sys.service.CrudService;
 import com.abtk.product.service.sys.service.LowcodeTreeService;
@@ -12,8 +15,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
+
+import com.github.pagehelper.PageInfo;
 
 /**
  * 低代码运行时 CRUD。不按表名配置细粒度权限（如 sys_warehouse:list），否则每表需在权限表同步一条；
@@ -196,5 +202,39 @@ public class LowcodeCrudController extends BaseController {
             @Parameter(description = "排除的ID（编辑时使用）") @RequestParam(required = false) Long excludeId) {
         boolean unique = crudService.checkUnique(tableCode, field, value, excludeId);
         return R.ok(unique);
+    }
+
+    // ========== 导出 ==========
+
+    @Operation(summary = "导出数据", description = "通用Excel导出，根据字段配置动态生成表头")
+    @PostMapping("/{tableCode}/export")
+    public void export(
+            @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
+            @Parameter(description = "查询参数") @RequestParam Map<String, Object> params,
+            HttpServletResponse response) {
+        SqlInjectionValidator.validateTable(tableCode);
+        log.info("通用导出: tableCode={}", tableCode);
+
+        // 获取导出数据
+        Map<String, Object> exportData = crudService.exportList(tableCode, params);
+        List<Map<String, Object>> dataList = (List<Map<String, Object>>) exportData.get("dataList");
+        List<ColumnMeta> columns = (List<ColumnMeta>) exportData.get("columns");
+
+        // 构建字段配置
+        List<DynamicExcelUtil.ExportField> fields = new ArrayList<>();
+        for (ColumnMeta col : columns) {
+            DynamicExcelUtil.ExportField field = new DynamicExcelUtil.ExportField();
+            field.setField(col.getField());
+            field.setTitle(col.getTitle());
+            field.setDataType(col.getDataType());
+            field.setWidth(col.getWidth());
+            fields.add(field);
+        }
+
+        // 生成文件名
+        String fileName = tableCode + "_" + DateUtils.parseDateToStr("yyyyMMdd_HHmmss", new Date());
+
+        // 导出Excel
+        DynamicExcelUtil.exportExcel(response, dataList, fileName, fields);
     }
 }

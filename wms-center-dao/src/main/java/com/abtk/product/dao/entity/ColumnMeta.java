@@ -116,6 +116,9 @@ public class ColumnMeta extends BaseEntity {
     /** 显示条件 JSON */
     private String visibleCondition;
 
+    /** 导出显示: 0-否 1-是 */
+    private Integer showInExport;
+
     // 代码生成器适配方法（兼容 common.generator.ColumnMeta）
     public String getJavaType() {
         return mapDataTypeToJavaType(dataType);

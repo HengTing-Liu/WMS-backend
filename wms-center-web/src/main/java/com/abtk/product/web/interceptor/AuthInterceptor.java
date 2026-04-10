@@ -41,6 +41,8 @@ public class AuthInterceptor implements HandlerInterceptor {
             "/system/meta/**",
             "/api/system/meta/**",   // 开发阶段：元数据接口临时放行（生产请删除）
             "/crud/**",
+            "/api/wms/crud/**",      // 低代码 CRUD 接口
+            "/api/base/**",          // 基础接口（如仓库等）
             "/v3/api-docs",
             "/v3/api-docs/**",
             "/swagger-ui",
