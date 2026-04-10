@@ -3,9 +3,11 @@ package com.abtk.product.service.sys.service.impl;
 import com.abtk.product.common.exception.ServiceException;
 import com.abtk.product.common.utils.StringUtils;
 import com.abtk.product.common.web.page.TableDataInfo;
+import com.abtk.product.dao.mapper.ColumnMetaMapper;
 import com.abtk.product.dao.mapper.DynamicMapper;
 import com.abtk.product.dao.mapper.TableMetaMapper;
 import com.abtk.product.dao.util.SqlInjectionValidator;
+import com.abtk.product.dao.entity.ColumnMeta;
 import com.abtk.product.dao.entity.TableMeta;
 import com.abtk.product.service.permission.util.CrudPermissionUtil;
 import com.abtk.product.service.sys.service.CrudService;
@@ -17,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +51,9 @@ public class CrudServiceImpl implements CrudService {
 
     @Autowired
     private TableMetaMapper tableMetaMapper;
+
+    @Autowired
+    private ColumnMetaMapper columnMetaMapper;
 
     @Autowired
     private I18nService i18nService;
@@ -207,5 +214,81 @@ public class CrudServiceImpl implements CrudService {
         SqlInjectionValidator.validateField(field);
         Long count = dynamicMapper.checkUnique(tableCode, field, value, excludeId);
         return count == 0;
+    }
+
+    @Override
+    public Map<String, Object> exportList(String tableCode, Map<String, Object> params) {
+        SqlInjectionValidator.validateTable(tableCode);
+
+        // 过滤掉分页参数
+        Map<String, Object> searchParams = new HashMap<>();
+        if (params != null) {
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (!PAGE_PARAMS.contains(key) && value != null && !"".equals(value)) {
+                    searchParams.put(key, value);
+                }
+            }
+        }
+        // 注入数据权限
+        searchParams = CrudPermissionUtil.injectDataScope(searchParams);
+
+        // 获取逻辑删除列
+        String deleteColumn = getDeleteColumn(tableCode);
+
+        // 查询全部数据（不分页）
+        List<Map<String, Object>> dataList = dynamicMapper.selectAll(tableCode, searchParams, deleteColumn);
+
+        // 将数据 Map 的 key 从下划线转为驼峰（与 ColumnMeta.field 格式保持一致）
+        List<Map<String, Object>> normalizedDataList = new ArrayList<>();
+        for (Map<String, Object> row : dataList) {
+            Map<String, Object> normalizedRow = new HashMap<>();
+            for (Map.Entry<String, Object> entry : row.entrySet()) {
+                String key = entry.getKey();
+                String camelKey = sqlFieldToCamelCase(key);
+                normalizedRow.put(camelKey, entry.getValue());
+            }
+            normalizedDataList.add(normalizedRow);
+        }
+
+        // 获取导出字段配置
+        List<ColumnMeta> exportColumns = columnMetaMapper.selectByTableCode(tableCode);
+        List<ColumnMeta> exportableColumns = exportColumns.stream()
+                .filter(col -> col.getShowInExport() == null || col.getShowInExport() == 1)
+                .sorted(Comparator.comparing(ColumnMeta::getSortOrder, Comparator.nullsLast(Comparator.naturalOrder())))
+                .collect(Collectors.toList());
+
+        // 构建结果
+        Map<String, Object> result = new HashMap<>();
+        result.put("dataList", normalizedDataList);
+        result.put("columns", exportableColumns);
+        return result;
+    }
+
+    /**
+     * SQL 字段名转驼峰命名
+     * 例如: warehouse_code -> warehouseCode, is_enabled -> isEnabled
+     */
+    private String sqlFieldToCamelCase(String sqlField) {
+        if (sqlField == null || sqlField.isEmpty()) {
+            return sqlField;
+        }
+        StringBuilder result = new StringBuilder();
+        boolean nextUpper = false;
+        for (int i = 0; i < sqlField.length(); i++) {
+            char c = sqlField.charAt(i);
+            if (c == '_') {
+                nextUpper = true;
+            } else {
+                if (nextUpper) {
+                    result.append(Character.toUpperCase(c));
+                    nextUpper = false;
+                } else {
+                    result.append(c);
+                }
+            }
+        }
+        return result.toString();
     }
 }
