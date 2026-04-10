@@ -49,21 +49,21 @@ public class DynamicExcelUtil {
             this.field = field;
             this.title = title;
             this.dataType = "string";
-            this.width = 120;
+            this.width = 80;
         }
 
         public ExportField(String field, String title, String dataType) {
             this.field = field;
             this.title = title;
             this.dataType = dataType != null ? dataType : "string";
-            this.width = 120;
+            this.width = 80;
         }
 
         public ExportField(String field, String title, String dataType, Integer width) {
             this.field = field;
             this.title = title;
             this.dataType = dataType != null ? dataType : "string";
-            this.width = width != null ? width : 120;
+            this.width = width != null ? width : 80;
         }
 
         public String getField() { return field; }
@@ -124,8 +124,11 @@ public class DynamicExcelUtil {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(field.getTitle());
                 cell.setCellStyle(headerStyle);
-                // 设置列宽
-                sheet.setColumnWidth(i, (field.getWidth() != null ? field.getWidth() : 120) * 256);
+                // 设置列宽（限制最大宽度为200，避免列太宽）
+                int colWidth = field.getWidth() != null ? field.getWidth() : 100;
+                if (colWidth > 200) colWidth = 200;
+                if (colWidth < 50) colWidth = 50;
+                sheet.setColumnWidth(i, colWidth * 256);
             }
 
             // 写入数据
@@ -144,7 +147,11 @@ public class DynamicExcelUtil {
                         Cell cell = newHeaderRow.createCell(i);
                         cell.setCellValue(field.getTitle());
                         cell.setCellStyle(headerStyle);
-                        currentSheet.setColumnWidth(i, (field.getWidth() != null ? field.getWidth() : 120) * 256);
+                        // 设置列宽（限制最大宽度为200，避免列太宽）
+                        int colWidth = field.getWidth() != null ? field.getWidth() : 100;
+                        if (colWidth > 200) colWidth = 200;
+                        if (colWidth < 50) colWidth = 50;
+                        currentSheet.setColumnWidth(i, colWidth * 256);
                     }
                     rowNum = 1;
                 }
