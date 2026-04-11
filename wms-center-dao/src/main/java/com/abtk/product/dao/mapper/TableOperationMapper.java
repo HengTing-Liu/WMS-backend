@@ -15,12 +15,27 @@ public interface TableOperationMapper {
     List<TableOperation> selectByTableCode(String tableCode);
 
     /**
+     * 根据ID查询
+     */
+    TableOperation selectById(Long id);
+
+    /**
      * 新增
      */
     int insert(TableOperation operation);
 
     /**
+     * 更新
+     */
+    int update(TableOperation operation);
+
+    /**
      * 根据ID删除
      */
     int deleteById(Long id);
+
+    /**
+     * 批量更新排序号
+     */
+    int updateSortOrder(Long id, Integer sortOrder);
 }

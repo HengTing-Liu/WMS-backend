@@ -151,6 +151,36 @@ public class MetaServiceImpl implements MetaService {
     }
 
     @Override
+    public TableOperation getOperationById(Long id) {
+        return tableOperationMapper.selectById(id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public TableOperation saveOperation(TableOperation operation) {
+        if (operation.getId() == null) {
+            // 新增
+            tableOperationMapper.insert(operation);
+        } else {
+            // 更新
+            tableOperationMapper.update(operation);
+        }
+        return operation;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void sortOperations(List<TableOperation> operations) {
+        for (TableOperation op : operations) {
+            if (op.getId() != null && op.getSortOrder() != null) {
+                tableOperationMapper.updateSortOrder(op.getId(), op.getSortOrder());
+            }
+        }
+    }
+
+    @Override
     public List<TableMeta> listAllTables() {
         return tableMetaMapper.selectAll();
     }
@@ -251,6 +281,16 @@ public class MetaServiceImpl implements MetaService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteOperation(Long id) {
         tableOperationMapper.deleteById(id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteOperations(List<Long> ids) {
+        if (ids != null) {
+            for (Long id : ids) {
+                tableOperationMapper.deleteById(id);
+            }
+        }
     }
 
     @Override

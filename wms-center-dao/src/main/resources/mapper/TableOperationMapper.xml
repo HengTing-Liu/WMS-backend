@@ -27,6 +27,10 @@
         ORDER BY sort_order
     </select>
 
+    <select id="selectById" resultMap="TableOperationResult">
+        SELECT * FROM sys_table_operation WHERE id = #{id}
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sys_table_operation (
             table_code, operation_code, operation_name, operation_type,
@@ -38,6 +42,22 @@
             #{eventType}, #{eventConfig}
         )
     </insert>
+
+    <update id="update">
+        UPDATE sys_table_operation
+        SET operation_name = #{operationName},
+            operation_type = #{operationType},
+            icon = #{icon},
+            permission = #{permission},
+            position = #{position},
+            sort_order = #{sortOrder},
+            status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateSortOrder">
+        UPDATE sys_table_operation SET sort_order = #{sortOrder} WHERE id = #{id}
+    </update>
 
     <delete id="deleteById">
         DELETE FROM sys_table_operation WHERE id = #{id}

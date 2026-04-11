@@ -2,6 +2,7 @@ package com.abtk.product.web.controller.sys;
 
 import com.abtk.product.api.domain.request.sys.ColumnMetaRequest;
 import com.abtk.product.api.domain.request.sys.TableMetaQueryRequest;
+import com.abtk.product.common.web.page.TableDataInfo;
 import com.abtk.product.api.domain.request.sys.TableMetaRequest;
 import com.abtk.product.api.domain.response.sys.ColumnMetaVO;
 import com.abtk.product.common.domain.R;
@@ -140,11 +141,63 @@ public class MetaController extends BaseController {
      */
     @Operation(summary = "获取操作按钮", description = "根据表标识获取操作按钮配置列表")
     @GetMapping("/operation/list/{tableCode}")
-    public R<List<TableOperation>> listOperations(
+    public R<TableDataInfo<TableOperation>> listOperations(
             @Parameter(description = "表标识", required = true)
             @PathVariable String tableCode) {
         List<TableOperation> list = metaService.getOperationList(tableCode);
-        return R.ok(list);
+        TableDataInfo<TableOperation> tableData = new TableDataInfo<>();
+        tableData.setRows(list);
+        tableData.setTotal(list.size());
+        return R.ok(tableData);
+    }
+
+    /**
+     * 获取操作按钮详情
+     */
+    @Operation(summary = "获取操作按钮详情", description = "根据ID获取操作按钮详情")
+    @RequiresPermissions("system:meta:query")
+    @GetMapping("/operation/{id}")
+    public R<TableOperation> getOperation(
+            @Parameter(description = "操作按钮ID", required = true)
+            @PathVariable Long id) {
+        TableOperation operation = metaService.getOperationById(id);
+        return R.ok(operation);
+    }
+
+    /**
+     * 创建/更新操作按钮
+     */
+    @Operation(summary = "保存操作按钮", description = "新增或更新操作按钮配置")
+    @RequiresPermissions("system:meta:edit")
+    @PostMapping("/operation")
+    public R<TableOperation> saveOperation(@RequestBody TableOperation operation) {
+        TableOperation result = metaService.saveOperation(operation);
+        return R.ok(result);
+    }
+
+    /**
+     * 更新操作按钮
+     */
+    @Operation(summary = "更新操作按钮", description = "更新操作按钮配置")
+    @RequiresPermissions("system:meta:edit")
+    @PutMapping("/operation/{id}")
+    public R<TableOperation> updateOperation(
+            @PathVariable Long id,
+            @RequestBody TableOperation operation) {
+        operation.setId(id);
+        TableOperation result = metaService.saveOperation(operation);
+        return R.ok(result);
+    }
+
+    /**
+     * 批量更新操作按钮排序
+     */
+    @Operation(summary = "更新操作按钮排序", description = "批量更新操作按钮排序号")
+    @RequiresPermissions("system:meta:edit")
+    @PutMapping("/operation/sort")
+    public R<Void> sortOperations(@RequestBody List<TableOperation> operations) {
+        metaService.sortOperations(operations);
+        return R.ok();
     }
 
     /**
@@ -246,6 +299,17 @@ public class MetaController extends BaseController {
             @Parameter(description = "操作按钮ID", required = true)
             @PathVariable Long id) {
         metaService.deleteOperation(id);
+        return R.ok();
+    }
+
+    /**
+     * 批量删除操作按钮
+     */
+    @Operation(summary = "批量删除操作按钮", description = "批量删除操作按钮配置")
+    @RequiresPermissions("system:meta:delete")
+    @DeleteMapping("/operation")
+    public R<Void> deleteOperations(@RequestBody List<Long> ids) {
+        metaService.deleteOperations(ids);
         return R.ok();
     }
 }

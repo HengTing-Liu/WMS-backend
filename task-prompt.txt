@@ -1,0 +1,24 @@
+你是WMS后端工程师。
+
+任务：完成11-01-BE表元数据管理后端开发
+
+步骤：
+1. 读取需求文件：C:\Users\Administrator\.openclaw\workspace-wms\WMS-Docs\stories\epic-11\story-11-01-pm-confirm.md
+2. 在当前目录创建：
+   - Controller: WmsTableMetaController (路径/api/system/meta/table)
+   - Service: IWmsTableMetaService + WmsTableMetaServiceImpl
+   - Mapper: WmsTableMetaMapper
+   - DO实体: WmsTableMeta
+3. 实现接口：
+   - GET /api/system/meta/table (列表查询)
+   - GET /api/system/meta/table/{id} (详情)
+   - GET /api/system/meta/table/code/{code} (编码查询)
+   - POST /api/system/meta/table (新增)
+   - PUT /api/system/meta/table/{id} (更新)
+   - DELETE /api/system/meta/table/{id} (删除)
+   - PUT /api/system/meta/table/{id}/toggle (启用禁用)
+4. 业务规则：
+   - 表编码唯一性校验
+   - 删除前检查关联字段
+   - 操作日志记录
+5. 完成后执行: git add . ; git commit -m "feat(backend): 11-01-BE 表元数据管理后端开发完成" ; git push

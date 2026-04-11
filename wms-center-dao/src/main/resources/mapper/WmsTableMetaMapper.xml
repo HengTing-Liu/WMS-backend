@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abtk.product.dao.mapper.WmsTableMetaMapper">
+
+    <resultMap type="com.abtk.product.dao.entity.WmsTableMeta" id="WmsTableMetaMap">
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="tableCode" column="table_code" jdbcType="VARCHAR"/>
+        <result property="tableName" column="table_name" jdbcType="VARCHAR"/>
+        <result property="module" column="module" jdbcType="VARCHAR"/>
+        <result property="entityClass" column="entity_class" jdbcType="VARCHAR"/>
+        <result property="serviceClass" column="service_class" jdbcType="VARCHAR"/>
+        <result property="permissionCode" column="permission_code" jdbcType="VARCHAR"/>
+        <result property="pageSize" column="page_size" jdbcType="INTEGER"/>
+        <result property="isTree" column="is_tree" jdbcType="TINYINT"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="updateBy" column="update_by" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+        <result property="isDeletedColumn" column="is_deleted_column" jdbcType="VARCHAR"/>
+        <result property="hasDataPermission" column="has_data_permission" jdbcType="TINYINT"/>
+        <result property="permissionField" column="permission_field" jdbcType="VARCHAR"/>
+        <result property="permissionScope" column="permission_scope" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 基础列 -->
+    <sql id="Base_Column_List">
+        id, table_code, table_name, module, entity_class, service_class, permission_code,
+        page_size, is_tree, status, remark, create_by, create_time, update_by, update_time,
+        is_deleted_column, has_data_permission, permission_field, permission_scope
+    </sql>
+
+    <!-- 查询单个 -->
+    <select id="queryById" resultMap="WmsTableMetaMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_table_meta
+        where id = #{id} and is_deleted_column = 'isdeleted'
+    </select>
+
+    <!-- 通过编码查询 -->
+    <select id="queryByCode" resultMap="WmsTableMetaMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_table_meta
+        where table_code = #{tableCode} and is_deleted_column = 'isdeleted'
+    </select>
+
+    <!-- 查询指定行数据 -->
+    <select id="queryAll" resultMap="WmsTableMetaMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_table_meta
+        <where>
+            is_deleted_column = 'isdeleted'
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="tableCode != null and tableCode != ''">
+                and table_code like concat('%', #{tableCode}, '%')
+            </if>
+            <if test="tableName != null and tableName != ''">
+                and table_name like concat('%', #{tableName}, '%')
+            </if>
+            <if test="module != null and module != ''">
+                and module = #{module}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        order by id asc
+    </select>
+
+    <!-- 统计总行数 -->
+    <select id="count" resultType="java.lang.Long">
+        select count(1) from sys_table_meta
+        <where>
+            is_deleted_column = 'isdeleted'
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="tableCode != null and tableCode != ''">
+                and table_code like concat('%', #{tableCode}, '%')
+            </if>
+            <if test="tableName != null and tableName != ''">
+                and table_name like concat('%', #{tableName}, '%')
+            </if>
+            <if test="module != null and module != ''">
+                and module = #{module}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into sys_table_meta(
+            table_code, table_name, module, entity_class, service_class, permission_code,
+            page_size, is_tree, status, remark, create_by, create_time, update_by, update_time,
+            is_deleted_column, has_data_permission, permission_field, permission_scope
+        ) values (
+            #{tableCode}, #{tableName}, #{module}, #{entityClass}, #{serviceClass}, #{permissionCode},
+            <choose>
+                <when test="pageSize != null">#{pageSize}</when>
+                <otherwise>20</otherwise>
+            </choose>,
+            <choose>
+                <when test="isTree != null">#{isTree}</when>
+                <otherwise>0</otherwise>
+            </choose>,
+            <choose>
+                <when test="status != null">#{status}</when>
+                <otherwise>1</otherwise>
+            </choose>,
+            #{remark}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime},
+            <choose>
+                <when test="isDeletedColumn != null and isDeletedColumn != ''">#{isDeletedColumn}</when>
+                <otherwise>'isdeleted'</otherwise>
+            </choose>,
+            <choose>
+                <when test="hasDataPermission != null">#{hasDataPermission}</when>
+                <otherwise>0</otherwise>
+            </choose>,
+            <choose>
+                <when test="permissionField != null and permissionField != ''">#{permissionField}</when>
+                <otherwise>'dept_id'</otherwise>
+            </choose>,
+            <choose>
+                <when test="permissionScope != null and permissionScope != ''">#{permissionScope}</when>
+                <otherwise>'DEPT'</otherwise>
+            </choose>
+        )
+    </insert>
+
+    <!-- 修改 -->
+    <update id="update">
+        update sys_table_meta
+        <set>
+            <if test="tableCode != null and tableCode != ''">
+                table_code = #{tableCode},
+            </if>
+            <if test="tableName != null and tableName != ''">
+                table_name = #{tableName},
+            </if>
+            <if test="module != null">
+                module = #{module},
+            </if>
+            <if test="entityClass != null">
+                entity_class = #{entityClass},
+            </if>
+            <if test="serviceClass != null">
+                service_class = #{serviceClass},
+            </if>
+            <if test="permissionCode != null">
+                permission_code = #{permissionCode},
+            </if>
+            <if test="pageSize != null">
+                page_size = #{pageSize},
+            </if>
+            <if test="isTree != null">
+                is_tree = #{isTree},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="isDeletedColumn != null">
+                is_deleted_column = #{isDeletedColumn},
+            </if>
+            <if test="hasDataPermission != null">
+                has_data_permission = #{hasDataPermission},
+            </if>
+            <if test="permissionField != null">
+                permission_field = #{permissionField},
+            </if>
+            <if test="permissionScope != null">
+                permission_scope = #{permissionScope},
+            </if>
+            <if test="updateBy != null and updateBy != ''">
+                update_by = #{updateBy},
+            </if>
+            update_time = now()
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 逻辑删除 -->
+    <update id="deleteById">
+        update sys_table_meta
+        set is_deleted_column = 'deleted',
+            update_by = #{username},
+            update_time = now()
+        where id = #{id}
+    </update>
+
+    <!-- 切换状态 -->
+    <update id="toggleStatus">
+        update sys_table_meta
+        set status = #{status},
+            update_time = now()
+        where id = #{id} and is_deleted_column = 'isdeleted'
+    </update>
+
+    <!-- 查询所有（不分页） -->
+    <select id="listAll" resultMap="WmsTableMetaMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_table_meta
+        where is_deleted_column = 'isdeleted'
+        order by id asc
+    </select>
+
+    <!-- 校验表编码唯一性 -->
+    <select id="checkTableCodeUnique" resultMap="WmsTableMetaMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_table_meta
+        where table_code = #{tableCode} and is_deleted_column = 'isdeleted'
+        limit 1
+    </select>
+
+    <!-- 检查表是否有关联字段 -->
+    <select id="countFieldByTableId" resultType="java.lang.Long">
+        select count(1) from sys_column_meta
+        where table_id = #{tableId} and is_deleted = 0
+    </select>
+
+</mapper>
