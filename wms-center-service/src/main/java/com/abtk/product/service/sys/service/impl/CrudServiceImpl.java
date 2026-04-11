@@ -142,6 +142,18 @@ public class CrudServiceImpl implements CrudService {
         SqlInjectionValidator.validateTable(tableCode);
         data.put("create_time", new Date());
         data.put("create_by", "system");
+        // 新增记录时，默认 isEnabled = 1（启用），除非前端明确传入 false/0
+        Object isEnabledVal = data.get("isEnabled");
+        if (isEnabledVal == null) {
+            data.put("isEnabled", 1);
+        } else {
+            // 将各种形式的值统一转为 1 或 0
+            if (Boolean.TRUE.equals(isEnabledVal) || "true".equals(String.valueOf(isEnabledVal)) || "1".equals(String.valueOf(isEnabledVal))) {
+                data.put("isEnabled", 1);
+            } else {
+                data.put("isEnabled", 0);
+            }
+        }
         if (SYS_USER_TABLE.equals(tableCode) && data.containsKey("user_id")) {
             data.put("id", data.get("user_id"));
         }
