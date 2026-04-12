@@ -43,7 +43,7 @@ public class CustomerServiceImpl implements CustomerService {
             throw new ServiceException("客户编码已存在");
         }
 
-        customer.setIsdeleted(0);
+        customer.setIsDeleted(0);
 
         // 设置创建人
         String username = SecurityUtils.getUsername();

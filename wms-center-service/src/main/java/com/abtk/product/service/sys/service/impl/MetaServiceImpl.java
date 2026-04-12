@@ -168,8 +168,7 @@ public class MetaServiceImpl implements MetaService {
         return operation;
     }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void sortOperations(List<TableOperation> operations) {
@@ -237,16 +236,9 @@ public class MetaServiceImpl implements MetaService {
         if (existing == null) {
             throw new ServiceException("表元数据不存在: " + id);
         }
-        // 删除前检查关联字段
-        int columnCount = tableMetaMapper.countColumnsByTableCode(existing.getTableCode(), true);
-        if (columnCount > 0) {
-            throw new ServiceException("该表存在 " + columnCount + " 个关联字段，不允许删除");
-        }
-        // 删除前检查关联操作
-        int operationCount = tableMetaMapper.countOperationsByTableCode(existing.getTableCode(), true);
-        if (operationCount > 0) {
-            throw new ServiceException("该表存在 " + operationCount + " 个关联操作，不允许删除");
-        }
+        // 级联删除关联配置，保证前端“删除表元数据”可一次完成
+        columnMetaMapper.deleteByTableCode(existing.getTableCode());
+        tableOperationMapper.deleteByTableCode(existing.getTableCode());
         tableMetaMapper.deleteById(id);
 
         // 发布删除事件

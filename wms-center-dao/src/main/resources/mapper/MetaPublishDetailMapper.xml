@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abtk.product.dao.mapper.MetaPublishDetailMapper">
+
+    <resultMap id="MetaPublishDetailResult" type="com.abtk.product.dao.entity.MetaPublishDetail">
+        <id property="id" column="id"/>
+        <result property="publishId" column="publish_id"/>
+        <result property="seq" column="seq"/>
+        <result property="sqlType" column="sql_type"/>
+        <result property="sqlText" column="sql_text"/>
+        <result property="riskLevel" column="risk_level"/>
+        <result property="executionTime" column="execution_time"/>
+        <result property="resultStatus" column="result_status"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="executedAt" column="executed_at"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectByPublishId" resultMap="MetaPublishDetailResult">
+        SELECT * FROM sys_meta_publish_detail
+        WHERE publish_id = #{publishId}
+        ORDER BY seq ASC
+    </select>
+
+    <select id="selectById" resultMap="MetaPublishDetailResult">
+        SELECT * FROM sys_meta_publish_detail WHERE id = #{id}
+    </select>
+
+    <insert id="batchInsert">
+        INSERT INTO sys_meta_publish_detail
+        (publish_id, seq, sql_type, sql_text, risk_level, result_status, create_by, create_time)
+        VALUES
+        <foreach collection="details" item="item" separator=",">
+            (#{item.publishId}, #{item.seq}, #{item.sqlType}, #{item.sqlText},
+             #{item.riskLevel}, #{item.resultStatus}, #{item.createBy}, NOW())
+        </foreach>
+    </insert>
+
+    <update id="updateById">
+        UPDATE sys_meta_publish_detail
+        SET result_status = #{resultStatus},
+            error_message = #{errorMessage},
+            execution_time = #{executionTime},
+            executed_at = #{executedAt},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+</mapper>

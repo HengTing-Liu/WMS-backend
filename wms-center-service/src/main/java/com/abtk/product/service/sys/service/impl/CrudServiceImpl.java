@@ -35,8 +35,8 @@ public class CrudServiceImpl implements CrudService {
     /** sys_user 主键列名 */
     private static final String SYS_USER_PK = "user_id";
 
-    /** 默认逻辑删除列名 */
-    private static final String DEFAULT_DELETE_COLUMN = "isdeleted";
+    /** 默认逻辑删除列名（下划线格式，与数据库列名规范一致） */
+    private static final String DEFAULT_DELETE_COLUMN = "is_deleted";
 
     /** 分页参数名（需要从查询条件中排除） */
     private static final Set<String> PAGE_PARAMS = new HashSet<>(
@@ -61,7 +61,7 @@ public class CrudServiceImpl implements CrudService {
     /**
      * 从 sys_table_meta 获取表的逻辑删除列名
      * @param tableCode 表标识
-     * @return 删除列名，未配置则返回默认值 isdeleted
+     * @return 删除列名，未配置则返回默认值 is_deleted
      */
     private String getDeleteColumn(String tableCode) {
         TableMeta meta = tableMetaMapper.selectByTableCode(tableCode);

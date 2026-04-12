@@ -45,7 +45,7 @@ public class TableMeta extends BaseEntity {
     /** 备注 */
     private String remark;
 
-    /** 逻辑删除字段名（如 del_flag、isdeleted） */
+    /** 逻辑删除字段名（如 del_flag、is_deleted） */
     private String isDeletedColumn;
 
     /** 表字段列表（非数据库字段） */

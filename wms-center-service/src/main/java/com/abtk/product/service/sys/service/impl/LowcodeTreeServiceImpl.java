@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Service
 public class LowcodeTreeServiceImpl implements LowcodeTreeService {
 
-    private static final String DEFAULT_DELETE_COLUMN = "isdeleted";
+    private static final String DEFAULT_DELETE_COLUMN = "is_deleted";
     private static final String DEFAULT_PK_COLUMN = "id";
     private static final String DEFAULT_STATUS_COLUMN = "is_enabled";
     private static final String DEFAULT_PARENT_COLUMN = "parent_id";

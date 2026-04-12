@@ -32,6 +32,10 @@ public interface TableMetaMapper {
     List<TableMeta> selectByModule(String module);
 
     /**
+     * 条件查询列表
+     */
+    List<TableMeta> selectList(TableMeta condition);
+
     /**
      * 分页查询
      */

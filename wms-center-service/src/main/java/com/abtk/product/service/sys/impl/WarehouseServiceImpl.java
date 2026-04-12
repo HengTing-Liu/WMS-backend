@@ -46,7 +46,7 @@ public class WarehouseServiceImpl implements WarehouseService {
             throw new ServiceException("仓库编码已存在");
         }
 
-        warehouse.setIsdeleted(0);
+        warehouse.setIsDeleted(0);
 
         // 设置创建人
         String username = SecurityUtils.getUsername();

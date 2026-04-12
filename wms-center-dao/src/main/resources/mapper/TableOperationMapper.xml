@@ -23,7 +23,7 @@
 
     <select id="selectByTableCode" resultMap="TableOperationResult">
         SELECT * FROM sys_table_operation
-        WHERE table_code = #{tableCode} AND status = 1
+        WHERE table_code = #{tableCode}
         ORDER BY sort_order
     </select>
 
@@ -35,23 +35,29 @@
         INSERT INTO sys_table_operation (
             table_code, operation_code, operation_name, operation_type,
             icon, permission, position, sort_order, status, menu_id,
-            event_type, event_config
+            event_type, event_config, confirm_message
         ) VALUES (
             #{tableCode}, #{operationCode}, #{operationName}, #{operationType},
             #{icon}, #{permission}, #{position}, #{sortOrder}, #{status}, #{menuId},
-            #{eventType}, #{eventConfig}
+            #{eventType}, #{eventConfig}, #{confirmMessage}
         )
     </insert>
 
     <update id="update">
         UPDATE sys_table_operation
-        SET operation_name = #{operationName},
+        SET table_code = #{tableCode},
+            operation_code = #{operationCode},
+            operation_name = #{operationName},
             operation_type = #{operationType},
             icon = #{icon},
             permission = #{permission},
             position = #{position},
             sort_order = #{sortOrder},
-            status = #{status}
+            status = #{status},
+            menu_id = #{menuId},
+            event_type = #{eventType},
+            event_config = #{eventConfig},
+            confirm_message = #{confirmMessage}
         WHERE id = #{id}
     </update>
 
@@ -61,6 +67,10 @@
 
     <delete id="deleteById">
         DELETE FROM sys_table_operation WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByTableCode">
+        DELETE FROM sys_table_operation WHERE table_code = #{tableCode}
     </delete>
 
 </mapper>

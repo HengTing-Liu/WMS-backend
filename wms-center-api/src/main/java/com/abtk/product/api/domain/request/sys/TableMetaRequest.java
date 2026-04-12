@@ -47,4 +47,7 @@ public class TableMetaRequest extends BaseRequest {
 
     @Schema(description = "备注")
     private String remark;
+
+    @Schema(description = "逻辑删除字段名")
+    private String isDeletedColumn;
 }

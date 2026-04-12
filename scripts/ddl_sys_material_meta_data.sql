@@ -4,7 +4,7 @@
 
 -- 1. 表级元数据
 INSERT INTO sys_table_meta (table_code, table_name, module, entity_class, service_class, permission_code, page_size, is_tree, status, remark, is_deleted_column, create_by, create_time)
-VALUES ('wms_material', '物料档案', 'wms', 'com.abtk.product.dao.entity.Material', 'com.abtk.product.service.sys.impl.MaterialServiceImpl', 'wms:material', 20, 0, 1, '物料基础信息管理', 'delFlag', 'system', NOW())
+VALUES ('wms_material', '物料档案', 'wms', 'com.abtk.product.dao.entity.Material', 'com.abtk.product.service.sys.impl.MaterialServiceImpl', 'wms:material', 20, 0, 1, '物料基础信息管理', 'del_flag', 'system', NOW())
 ON DUPLICATE KEY UPDATE
     table_name = VALUES(table_name),
     entity_class = VALUES(entity_class),

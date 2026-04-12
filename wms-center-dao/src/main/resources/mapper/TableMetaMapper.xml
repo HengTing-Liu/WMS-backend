@@ -40,6 +40,23 @@
         ORDER BY create_time DESC
     </select>
 
+    <select id="selectList" resultMap="TableMetaResult">
+        SELECT * FROM sys_table_meta WHERE 1=1
+        <if test="tableCode != null and tableCode != ''">
+            AND table_code LIKE CONCAT('%', #{tableCode}, '%')
+        </if>
+        <if test="tableName != null and tableName != ''">
+            AND table_name LIKE CONCAT('%', #{tableName}, '%')
+        </if>
+        <if test="module != null and module != ''">
+            AND module = #{module}
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY id DESC
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sys_table_meta (
             table_code, table_name, module, entity_class, service_class,
@@ -56,6 +73,8 @@
         UPDATE sys_table_meta
         SET table_name = #{tableName},
             module = #{module},
+            entity_class = #{entityClass},
+            service_class = #{serviceClass},
             permission_code = #{permissionCode},
             page_size = #{pageSize},
             is_tree = #{isTree},

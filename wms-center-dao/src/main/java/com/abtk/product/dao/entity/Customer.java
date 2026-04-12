@@ -49,7 +49,7 @@ public class Customer extends BaseEntity implements java.io.Serializable {
     private String remark;
 
     /** 逻辑删除：0-未删除 1-已删除 */
-    private Integer isdeleted;
+    private Integer isDeleted;
 
     // Getter和Setter方法
     public Long getId() {
@@ -156,11 +156,11 @@ public class Customer extends BaseEntity implements java.io.Serializable {
         this.remark = remark;
     }
 
-    public Integer getIsdeleted() {
-        return isdeleted;
+    public Integer getIsDeleted() {
+        return isDeleted;
     }
 
-    public void setIsdeleted(Integer isdeleted) {
-        this.isdeleted = isdeleted;
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }

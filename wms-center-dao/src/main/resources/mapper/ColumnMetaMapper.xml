@@ -12,8 +12,10 @@
         <result property="dataType" column="data_type"/>
         <result property="formType" column="form_type"/>
         <result property="dictType" column="dict_type"/>
+        <result property="linkageJson" column="linkage_json"/>
         <result property="showInList" column="show_in_list"/>
         <result property="showInForm" column="show_in_form"/>
+        <result property="showInExport" column="show_in_export"/>
         <result property="searchable" column="searchable"/>
         <result property="sortable" column="sortable"/>
         <result property="required" column="required"/>
@@ -34,6 +36,11 @@
         <result property="i18nKey" column="i18n_key"/>
         <result property="visibleCondition" column="visible_condition"/>
         <result property="columnName" column="column_name"/>
+        <result property="columnType" column="column_type"/>
+        <result property="primaryKey" column="primary_key"/>
+        <result property="nullable" column="nullable"/>
+        <result property="columnSize" column="column_size"/>
+        <result property="decimalDigits" column="decimal_digits"/>
     </resultMap>
 
     <select id="selectByTableCode" resultMap="ColumnMetaResult">

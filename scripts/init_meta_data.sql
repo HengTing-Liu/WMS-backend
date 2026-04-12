@@ -1,4 +1,4 @@
-﻿-- ============================================
+-- ============================================
 -- 动态表单模块 - 仓库管理表元数据初始化
 -- 更新日期: 2026-03-20
 -- ============================================
@@ -12,7 +12,7 @@
 
 -- 1.1 表级元数据
 INSERT INTO sys_table_meta (table_code, table_name, module, entity_class, service_class, permission_code, page_size, is_tree, status, remark, is_deleted_column, create_by, create_time) 
-VALUES ('sys_warehouse', '仓库档案', 'base', 'com.abtk.product.dao.gengrator.entity.Warehouse', 'com.abtk.product.service.sys.service.WarehouseService', 'base:warehouse', 20, 0, 1, '仓库基础信息管理', 'isdeleted', 'system', NOW())
+VALUES ('sys_warehouse', '仓库档案', 'base', 'com.abtk.product.dao.gengrator.entity.Warehouse', 'com.abtk.product.service.sys.service.WarehouseService', 'base:warehouse', 20, 0, 1, '仓库基础信息管理', 'is_deleted', 'system', NOW())
 ON DUPLICATE KEY UPDATE 
     table_name = VALUES(table_name),
     entity_class = VALUES(entity_class),
@@ -56,7 +56,7 @@ INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, dic
 -- 更新人
 ('sys_warehouse', 'updateBy', '更新人', 'string', 'input', NULL, 0, 0, 0, 0, 0, 100, 15, 1, 'system', NOW()),
 -- 逻辑删除
-('sys_warehouse', 'isdeleted', '是否删除', 'int', 'number', NULL, 0, 0, 0, 0, 0, NULL, 16, 0, 'system', NOW())
+('sys_warehouse', 'is_deleted', '是否删除', 'int', 'number', NULL, 0, 0, 0, 0, 0, NULL, 16, 0, 'system', NOW())
 ON DUPLICATE KEY UPDATE
     title = VALUES(title),
     data_type = VALUES(data_type),
@@ -96,7 +96,7 @@ ON DUPLICATE KEY UPDATE
 
 -- 2.1 表级元数据
 INSERT INTO sys_table_meta (table_code, table_name, module, entity_class, service_class, permission_code, page_size, is_tree, status, remark, is_deleted_column, create_by, create_time) 
-VALUES ('sys_warehouse_receiver', '仓库收货信息', 'base', 'com.abtk.product.dao.gengrator.entity.WarehouseReceiver', 'com.abtk.product.service.sys.service.WarehouseReceiverService', 'base:warehouseReceiver', 20, 0, 1, '仓库收货地址信息管理', 'isDeleted', 'system', NOW())
+VALUES ('sys_warehouse_receiver', '仓库收货信息', 'base', 'com.abtk.product.dao.gengrator.entity.WarehouseReceiver', 'com.abtk.product.service.sys.service.WarehouseReceiverService', 'base:warehouseReceiver', 20, 0, 1, '仓库收货地址信息管理', 'is_deleted', 'system', NOW())
 ON DUPLICATE KEY UPDATE 
     table_name = VALUES(table_name),
     entity_class = VALUES(entity_class),

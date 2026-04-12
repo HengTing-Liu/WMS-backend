@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS sys_customer (
     remark              VARCHAR(500)            NULL COMMENT '备注',
 
     -- 系统字段
-    isdeleted           TINYINT(1)              DEFAULT 0 COMMENT '是否删除：0-正常 1-已删除',
+    is_deleted          TINYINT(1)              DEFAULT 0 COMMENT '是否删除：0-正常 1-已删除',
     create_by           VARCHAR(50)             NULL COMMENT '创建人',
     create_time         DATETIME                DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_by           VARCHAR(50)             NULL COMMENT '修改人',
@@ -40,6 +40,6 @@ CREATE TABLE IF NOT EXISTS sys_customer (
     UNIQUE KEY uk_customer_code (customer_code),
     INDEX idx_customer_name (customer_name),
     INDEX idx_is_enabled (is_enabled),
-    INDEX idx_isdeleted (isdeleted),
+    INDEX idx_is_deleted (is_deleted),
     INDEX idx_province_city (province, city)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='客户档案表';

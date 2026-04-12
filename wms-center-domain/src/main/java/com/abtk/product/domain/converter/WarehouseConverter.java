@@ -31,7 +31,7 @@ public interface WarehouseConverter {
         @Mapping(target = "createBy", ignore = true),
         @Mapping(target = "updateTime", ignore = true),
         @Mapping(target = "updateBy", ignore = true),
-        @Mapping(target = "isdeleted", ignore = true),
+        @Mapping(target = "isDeleted", ignore = true),
         @Mapping(target = "searchValue", ignore = true)
     })
     Warehouse requestToEntity(WarehouseRequest request);

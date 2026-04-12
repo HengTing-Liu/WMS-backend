@@ -43,7 +43,7 @@ public class Warehouse extends BaseEntity implements Serializable {
     private Integer isEnabled;
 
     /** 逻辑删除：0-未删除 1-已删除 */
-    private Integer isdeleted;
+    private Integer isDeleted;
 
     // Getter和Setter方法
     public Long getId() {
@@ -134,11 +134,11 @@ public class Warehouse extends BaseEntity implements Serializable {
         this.isEnabled = isEnabled;
     }
 
-    public Integer getIsdeleted() {
-        return isdeleted;
+    public Integer getIsDeleted() {
+        return isDeleted;
     }
 
-    public void setIsdeleted(Integer isdeleted) {
-        this.isdeleted = isdeleted;
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }
