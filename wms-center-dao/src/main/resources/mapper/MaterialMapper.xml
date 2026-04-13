@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.abtk.product.dao.mapper.MaterialMapper">
+
 	<resultMap type="com.abtk.product.dao.entity.Material" id="MaterialResult">
 		<id property="id" column="id"/>
 		<result property="materialCode" column="material_code"/>
@@ -13,16 +14,42 @@
 		<result property="createTime" column="create_time"/>
 		<result property="updateBy" column="update_by"/>
 		<result property="updateTime" column="update_time"/>
-		<result property="delFlag" column="del_flag"/>
+		<result property="isDeleted" column="is_deleted"/>
+		<result property="materialEnName" column="material_en_name"/>
+		<result property="exportName" column="export_name"/>
+		<result property="brand" column="brand"/>
+		<result property="itemNo" column="item_no"/>
+		<result property="packageSpec" column="package_spec"/>
+		<result property="storageCondition" column="storage_condition"/>
+		<result property="transportCondition" column="transport_condition"/>
+		<result property="length" column="length"/>
+		<result property="width" column="width"/>
+		<result property="height" column="height"/>
+		<result property="logisticsPackage" column="logistics_package"/>
+		<result property="boxModel" column="box_model"/>
+		<result property="outerPackage" column="outer_package"/>
+		<result property="requireQc" column="require_qc"/>
+		<result property="supplierBrand" column="supplier_brand"/>
+		<result property="supplierItemNo" column="supplier_item_no"/>
+		<result property="supplierSpec" column="supplier_spec"/>
+		<result property="erpSyncRemark" column="erp_sync_remark"/>
+		<result property="remark" column="remark"/>
 	</resultMap>
+
 	<sql id="selectMaterialVo">
 		SELECT id, material_code, material_name, spec, unit, category, status,
-		       create_by, create_time, update_by, update_time, del_flag
-		FROM sys_material WHERE del_flag = 0
+		       create_by, create_time, update_by, update_time, is_deleted,
+		       material_en_name, export_name, brand, item_no, package_spec,
+		       storage_condition, transport_condition, length, width, height,
+		       logistics_package, box_model, outer_package, require_qc,
+		       supplier_brand, supplier_item_no, supplier_spec, erp_sync_remark, remark
+		FROM sys_material WHERE is_deleted = 0
 	</sql>
+
 	<select id="selectById" parameterType="Long" resultMap="MaterialResult">
 		<include refid="selectMaterialVo"/> AND id = #{id}
 	</select>
+
 	<select id="selectList" parameterType="com.abtk.product.dao.entity.Material" resultMap="MaterialResult">
 		<include refid="selectMaterialVo"/>
 		<if test="materialCode != null and materialCode != ''">AND material_code LIKE CONCAT('%', #{materialCode}, '%')</if>
@@ -31,8 +58,10 @@
 		<if test="unit != null and unit != ''">AND unit = #{unit}</if>
 		<if test="category != null and category != ''">AND category LIKE CONCAT('%', #{category}, '%')</if>
 		<if test="status != null">AND status = #{status}</if>
+		<if test="brand != null and brand != ''">AND brand LIKE CONCAT('%', #{brand}, '%')</if>
 		ORDER BY create_time DESC
 	</select>
+
 	<select id="selectExactList" parameterType="com.abtk.product.dao.entity.Material" resultMap="MaterialResult">
 		<include refid="selectMaterialVo"/>
 		<if test="materialCode != null and materialCode != ''">AND material_code = #{materialCode}</if>
@@ -43,20 +72,37 @@
 		<if test="status != null">AND status = #{status}</if>
 		ORDER BY create_time DESC
 	</select>
+
 	<select id="selectByKeyword" parameterType="String" resultMap="MaterialResult">
 		<include refid="selectMaterialVo"/>
 		<if test="keyword != null and keyword != ''">
 			AND (material_code LIKE CONCAT('%', #{keyword}, '%')
 			     OR material_name LIKE CONCAT('%', #{keyword}, '%')
 			     OR spec LIKE CONCAT('%', #{keyword}, '%')
-			     OR category LIKE CONCAT('%', #{keyword}, '%'))
+			     OR category LIKE CONCAT('%', #{keyword}, '%')
+			     OR brand LIKE CONCAT('%', #{keyword}, '%'))
 		</if>
 		ORDER BY create_time DESC
 	</select>
+
 	<insert id="insert" parameterType="com.abtk.product.dao.entity.Material" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO sys_material (material_code, material_name, spec, unit, category, status, create_by, create_time)
-		VALUES (#{materialCode}, #{materialName}, #{spec}, #{unit}, #{category}, #{status}, #{createBy}, NOW())
+		INSERT INTO sys_material (
+			material_code, material_name, spec, unit, category, status,
+			create_by, material_en_name, export_name, brand, item_no,
+			package_spec, storage_condition, transport_condition,
+			length, width, height, logistics_package, box_model, outer_package,
+			require_qc, supplier_brand, supplier_item_no, supplier_spec,
+			erp_sync_remark, remark
+		) VALUES (
+			#{materialCode}, #{materialName}, #{spec}, #{unit}, #{category}, #{status},
+			#{createBy}, #{materialEnName}, #{exportName}, #{brand}, #{itemNo},
+			#{packageSpec}, #{storageCondition}, #{transportCondition},
+			#{length}, #{width}, #{height}, #{logisticsPackage}, #{boxModel}, #{outerPackage},
+			#{requireQc}, #{supplierBrand}, #{supplierItemNo}, #{supplierSpec},
+			#{erpSyncRemark}, #{remark}
+		)
 	</insert>
+
 	<update id="update" parameterType="com.abtk.product.dao.entity.Material">
 		UPDATE sys_material
 		<set>
@@ -67,18 +113,41 @@
 			<if test="category != null">category = #{category},</if>
 			<if test="status != null">status = #{status},</if>
 			<if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+			<if test="materialEnName != null">material_en_name = #{materialEnName},</if>
+			<if test="exportName != null">export_name = #{exportName},</if>
+			<if test="brand != null">brand = #{brand},</if>
+			<if test="itemNo != null">item_no = #{itemNo},</if>
+			<if test="packageSpec != null">package_spec = #{packageSpec},</if>
+			<if test="storageCondition != null">storage_condition = #{storageCondition},</if>
+			<if test="transportCondition != null">transport_condition = #{transportCondition},</if>
+			<if test="length != null">length = #{length},</if>
+			<if test="width != null">width = #{width},</if>
+			<if test="height != null">height = #{height},</if>
+			<if test="logisticsPackage != null">logistics_package = #{logisticsPackage},</if>
+			<if test="boxModel != null">box_model = #{boxModel},</if>
+			<if test="outerPackage != null">outer_package = #{outerPackage},</if>
+			<if test="requireQc != null">require_qc = #{requireQc},</if>
+			<if test="supplierBrand != null">supplier_brand = #{supplierBrand},</if>
+			<if test="supplierItemNo != null">supplier_item_no = #{supplierItemNo},</if>
+			<if test="supplierSpec != null">supplier_spec = #{supplierSpec},</if>
+			<if test="erpSyncRemark != null">erp_sync_remark = #{erpSyncRemark},</if>
+			<if test="remark != null">remark = #{remark},</if>
 			update_time = NOW()
 		</set>
-		WHERE id = #{id} AND del_flag = 0
+		WHERE id = #{id} AND is_deleted = 0
 	</update>
+
 	<update id="deleteById" parameterType="Long">
-		UPDATE sys_material SET del_flag = 1, update_time = NOW() WHERE id = #{id} AND del_flag = 0
+		UPDATE sys_material SET is_deleted = 1, update_time = NOW() WHERE id = #{id} AND is_deleted = 0
 	</update>
+
 	<select id="checkMaterialCodeExists" resultType="int">
-		SELECT COUNT(1) FROM sys_material WHERE material_code = #{materialCode} AND del_flag = 0
+		SELECT COUNT(1) FROM sys_material WHERE material_code = #{materialCode} AND is_deleted = 0
 		<if test="excludeId != null">AND id != #{excludeId}</if>
 	</select>
+
 	<update id="updateStatus" parameterType="Long">
-		UPDATE sys_material SET status = #{status}, update_time = NOW() WHERE id = #{id} AND del_flag = 0
+		UPDATE sys_material SET status = #{status}, update_time = NOW() WHERE id = #{id} AND is_deleted = 0
 	</update>
+
 </mapper>

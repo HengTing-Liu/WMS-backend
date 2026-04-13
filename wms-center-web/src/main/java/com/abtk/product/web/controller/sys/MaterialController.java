@@ -24,11 +24,11 @@ public class MaterialController extends BaseController {
 
     @GetMapping("/list")
     @Operation(summary = "物料分页列表", description = "支持按物料编码、名称、分类、状态、UDI标识筛选")
-    @Parameter(name = "page", description = "页码", required = false)
-    @Parameter(name = "size", description = "每页条数", required = false)
+    @Parameter(name = "pageNum", description = "页码", required = false)
+    @Parameter(name = "pageSize", description = "每页条数", required = false)
     public R<TableDataInfo> page(
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) Integer pageNum,
+            @RequestParam(required = false) Integer pageSize,
             @RequestParam(required = false) String materialCode,
             @RequestParam(required = false) String materialName,
             @RequestParam(required = false) String category,

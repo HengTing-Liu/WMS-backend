@@ -39,15 +39,12 @@ public class TableMetaRequest extends BaseRequest {
     @Schema(description = "默认分页大小")
     private Integer pageSize = 20;
 
-    @Schema(description = "是否树形表")
-    private Boolean isTree = false;
+    @Schema(description = "是否树形表: 0-否 1-是")
+    private Integer isTree = 0;
 
     @Schema(description = "状态(0-禁用,1-启用)")
     private Integer status = 1;
 
     @Schema(description = "备注")
     private String remark;
-
-    @Schema(description = "逻辑删除字段名")
-    private String isDeletedColumn;
 }

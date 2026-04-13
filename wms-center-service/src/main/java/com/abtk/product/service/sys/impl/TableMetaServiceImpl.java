@@ -67,9 +67,6 @@ public class TableMetaServiceImpl implements TableMetaService {
         if (tableMeta.getStatus() == null) {
             tableMeta.setStatus(1);
         }
-        if (StringUtils.isEmpty(tableMeta.getIsDeletedColumn())) {
-            tableMeta.setIsDeletedColumn("is_deleted");
-        }
 
         // 设置创建人
         String username = SecurityUtils.getUsername();

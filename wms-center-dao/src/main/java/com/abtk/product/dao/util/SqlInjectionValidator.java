@@ -25,7 +25,9 @@ public class SqlInjectionValidator {
             "wms_stock_in", "wms_stock_out", "wms_transfer",
             "wms_stock_take", "wms_check",
             // 仓库相关表
-            "sys_warehouse", "sys_warehouse_receiver"
+            "sys_warehouse", "sys_warehouse_receiver",
+            // 低代码动态业务表
+            "sys_material", "sys_basic_data", "sys_material_category"
     ));
 
     /** 允许访问的字段名白名单 */

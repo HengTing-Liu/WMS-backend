@@ -35,7 +35,7 @@
     <!-- params 中的 key（字段名）必须在 Service 层通过 SAFE_FIELD_PATTERN 校验 -->
     <select id="selectList" resultType="java.util.Map">
         SELECT * FROM ${tableCode}
-        WHERE ${deleteColumn} = '0'
+        WHERE ${deleteColumn} = 0
         <if test="params != null and params.size > 0">
             <foreach collection="params" item="value" index="key" open="AND " separator=" AND " close="">
                 <if test="value != null and value != ''">
@@ -43,18 +43,24 @@
                 </if>
             </foreach>
         </if>
+        <if test="dataScope != null and dataScope != ''">
+            AND (${dataScope})
+        </if>
     </select>
 
     <!-- 查询所有（支持搜索参数和逻辑删除列） -->
     <select id="selectAll" resultType="java.util.Map">
         SELECT * FROM ${tableCode}
-        WHERE ${deleteColumn} = '0'
+        WHERE ${deleteColumn} = 0
         <if test="params != null and params.size > 0">
             <foreach collection="params" item="value" index="key" open="AND " separator=" AND " close="">
                 <if test="value != null and value != ''">
                     ${key} = #{value}
                 </if>
             </foreach>
+        </if>
+        <if test="dataScope != null and dataScope != ''">
+            AND (${dataScope})
         </if>
     </select>
 

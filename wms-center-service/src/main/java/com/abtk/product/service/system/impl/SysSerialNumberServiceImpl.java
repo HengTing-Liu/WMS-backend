@@ -43,7 +43,7 @@ public class SysSerialNumberServiceImpl implements ISysSerialNumberService {
 
     @Override
     public List<SysSerialNumberResponse> queryByCondition(SysSerialNumberRequest request) {
-        SysSerialNumber condition = SysSerialNumberConverter.INSTANCE.requestToEntity(request);
+        SysSerialNumber condition = buildCondition(request);
         List<SysSerialNumber> list = sysSerialNumberMapper.queryAll(condition);
         return list.stream()
                 .map(SysSerialNumberConverter.INSTANCE::entityToResponse)
@@ -61,8 +61,50 @@ public class SysSerialNumberServiceImpl implements ISysSerialNumberService {
 
     @Override
     public long count(SysSerialNumberRequest request) {
-        SysSerialNumber condition = SysSerialNumberConverter.INSTANCE.requestToEntity(request);
+        SysSerialNumber condition = new SysSerialNumber();
+        if (request.getId() != null) condition.setId(request.getId());
+        if (request.getRuleName() != null) condition.setName(request.getRuleName());
+        if (request.getPrefix() != null) condition.setPrefix(request.getPrefix());
+        if (request.getSuffix() != null) condition.setSuffix(request.getSuffix());
+        if (request.getStatus() != null) condition.setIsEnabled("0".equals(request.getStatus()) ? 1 : 0);
         return sysSerialNumberMapper.count(condition);
+    }
+
+    private SysSerialNumber buildCondition(SysSerialNumberRequest request) {
+        SysSerialNumber condition = new SysSerialNumber();
+        if (request.getId() != null) condition.setId(request.getId());
+        if (request.getRuleName() != null) condition.setName(request.getRuleName());
+        if (request.getPrefix() != null) condition.setPrefix(request.getPrefix());
+        if (request.getSuffix() != null) condition.setSuffix(request.getSuffix());
+        if (request.getSeqLength() != null) condition.setDigitLength(request.getSeqLength());
+        if (request.getMaxSeq() != null) condition.setStartValue(request.getMaxSeq());
+        if (request.getCurrentSeq() != null) condition.setCurrentValue(request.getCurrentSeq());
+        if (request.getDateFormat() != null) condition.setNumberType(dateFormatToNumberType(request.getDateFormat()));
+        if (request.getResetType() != null) condition.setResetRule(resetTypeToResetRule(request.getResetType()));
+        if (request.getDescription() != null) condition.setRemark(request.getDescription());
+        if (request.getStatus() != null) condition.setIsEnabled("0".equals(request.getStatus()) ? 1 : 0);
+        return condition;
+    }
+
+    private Integer dateFormatToNumberType(String dateFormat) {
+        if (dateFormat == null || dateFormat.isEmpty()) return 0;
+        switch (dateFormat) {
+            case "yyyy": return 1;
+            case "yyyyMM": return 2;
+            case "yyyyMMdd": return 3;
+            default: return 0;
+        }
+    }
+
+    private String resetTypeToResetRule(String resetType) {
+        if (resetType == null) return "0";
+        switch (resetType) {
+            case "NEVER": return "0";
+            case "YEAR": return "1";
+            case "MONTH": return "2";
+            case "DAY": return "3";
+            default: return "0";
+        }
     }
 
     @Override
@@ -74,8 +116,7 @@ public class SysSerialNumberServiceImpl implements ISysSerialNumberService {
 
     @Override
     public SysSerialNumberResponse insert(SysSerialNumberRequest request, String createBy) {
-        SysSerialNumber entity = SysSerialNumberConverter.INSTANCE.requestToEntity(request);
-        // 初始化当前值为起始值（新增时总是从起始值开始）
+        SysSerialNumber entity = buildCondition(request);
         if (entity.getStartValue() != null) {
             entity.setCurrentValue(entity.getStartValue());
         } else if (entity.getCurrentValue() == null) {
@@ -94,9 +135,8 @@ public class SysSerialNumberServiceImpl implements ISysSerialNumberService {
         if (request.getId() == null) {
             throw new RuntimeException(i18nService.getMessage("system.param.error"));
         }
-        SysSerialNumber entity = SysSerialNumberConverter.INSTANCE.requestToEntity(request);
+        SysSerialNumber entity = buildCondition(request);
         entity.setUpdateBy(updateBy);
-        // 编辑时不更新当前序号，currentValue 只在生成流水号时自动变更
         entity.setCurrentValue(null);
         return sysSerialNumberMapper.update(entity);
     }

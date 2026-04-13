@@ -14,6 +14,7 @@ import com.abtk.product.service.sys.service.CrudService;
 import com.abtk.product.service.system.service.I18nService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 /**
  * 通用 CRUD 服务实现
  */
+@Slf4j
 @Service
 public class CrudServiceImpl implements CrudService {
 
@@ -59,15 +61,12 @@ public class CrudServiceImpl implements CrudService {
     private I18nService i18nService;
 
     /**
-     * 从 sys_table_meta 获取表的逻辑删除列名
+     * 获取表的逻辑删除列名
      * @param tableCode 表标识
-     * @return 删除列名，未配置则返回默认值 is_deleted
+     * @return 删除列名
      */
     private String getDeleteColumn(String tableCode) {
-        TableMeta meta = tableMetaMapper.selectByTableCode(tableCode);
-        if (meta != null && StringUtils.isNotEmpty(meta.getIsDeletedColumn())) {
-            return meta.getIsDeletedColumn();
-        }
+        // sys_material/sys_warehouse/sys_warehouse_receiver 等低代码表均使用 is_deleted 列，逻辑删除值 = 0
         return DEFAULT_DELETE_COLUMN;
     }
 
@@ -86,20 +85,23 @@ public class CrudServiceImpl implements CrudService {
     @Override
     public TableDataInfo list(String tableCode, Map<String, Object> params, Integer pageNum, Integer pageSize) {
         SqlInjectionValidator.validateTable(tableCode);
-        // 过滤掉分页参数，避免被当作查询条件
-        Map<String, Object> searchParams = new HashMap<>();
+        // 过滤分页参数和已有的 dataScope key（dataScope 由 injectDataScope 注入原始 SQL，通过单独参数传给 mapper）
+        Map<String, Object> filteredParams = new HashMap<>();
         if (params != null) {
-            Map<String, Object> finalSearchParams = searchParams;
             params.forEach((key, value) -> {
-                if (!PAGE_PARAMS.contains(key) && value != null && !"".equals(value)) {
-                    finalSearchParams.put(key, value);
+                if (!PAGE_PARAMS.contains(key)
+                        && !"dataScope".equals(key)
+                        && value != null && !"".equals(value)) {
+                    filteredParams.put(key, value);
                 }
             });
         }
-        searchParams = CrudPermissionUtil.injectDataScope(searchParams);
+        // 数据权限注入（直接修改 filteredParams，注入 dataScope raw SQL 片段）
+        CrudPermissionUtil.injectDataScope(filteredParams);
         PageHelper.startPage(pageNum, pageSize);
         String deleteColumn = getDeleteColumn(tableCode);
-        List<Map<String, Object>> list = dynamicMapper.selectList(tableCode, searchParams, deleteColumn);
+        String dataScope = (String) filteredParams.remove("dataScope");
+        List<Map<String, Object>> list = dynamicMapper.selectList(tableCode, filteredParams, deleteColumn, dataScope);
         PageInfo<Map<String, Object>> pageInfo = new PageInfo<>(list);
         TableDataInfo dataTable = new TableDataInfo();
         dataTable.setRows(list);
@@ -110,19 +112,21 @@ public class CrudServiceImpl implements CrudService {
     @Override
     public List<Map<String, Object>> listAll(String tableCode, Map<String, Object> params) {
         SqlInjectionValidator.validateTable(tableCode);
-        // 过滤掉空值参数
-        Map<String, Object> searchParams = new HashMap<>();
+        // 过滤分页参数
+        Map<String, Object> filteredParams = new HashMap<>();
         if (params != null) {
-            Map<String, Object> finalSearchParams = searchParams;
             params.forEach((key, value) -> {
-                if (!PAGE_PARAMS.contains(key) && value != null && !"".equals(value)) {
-                    finalSearchParams.put(key, value);
+                if (!PAGE_PARAMS.contains(key)
+                        && !"dataScope".equals(key)
+                        && value != null && !"".equals(value)) {
+                    filteredParams.put(key, value);
                 }
             });
         }
-        searchParams = CrudPermissionUtil.injectDataScope(searchParams);
+        CrudPermissionUtil.injectDataScope(filteredParams);
         String deleteColumn = getDeleteColumn(tableCode);
-        return dynamicMapper.selectAll(tableCode, searchParams, deleteColumn);
+        String dataScope = (String) filteredParams.remove("dataScope");
+        return dynamicMapper.selectAll(tableCode, filteredParams, deleteColumn, dataScope);
     }
 
     @Override
@@ -233,24 +237,25 @@ public class CrudServiceImpl implements CrudService {
         SqlInjectionValidator.validateTable(tableCode);
 
         // 过滤掉分页参数
-        Map<String, Object> searchParams = new HashMap<>();
+        Map<String, Object> filteredParams = new HashMap<>();
         if (params != null) {
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 if (!PAGE_PARAMS.contains(key) && value != null && !"".equals(value)) {
-                    searchParams.put(key, value);
+                    filteredParams.put(key, value);
                 }
             }
         }
         // 注入数据权限
-        searchParams = CrudPermissionUtil.injectDataScope(searchParams);
+        CrudPermissionUtil.injectDataScope(filteredParams);
 
         // 获取逻辑删除列
         String deleteColumn = getDeleteColumn(tableCode);
+        String dataScope = (String) filteredParams.remove("dataScope");
 
         // 查询全部数据（不分页）
-        List<Map<String, Object>> dataList = dynamicMapper.selectAll(tableCode, searchParams, deleteColumn);
+        List<Map<String, Object>> dataList = dynamicMapper.selectAll(tableCode, filteredParams, deleteColumn, dataScope);
 
         // 将数据 Map 的 key 从下划线转为驼峰（与 ColumnMeta.field 格式保持一致）
         List<Map<String, Object>> normalizedDataList = new ArrayList<>();

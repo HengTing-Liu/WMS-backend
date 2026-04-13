@@ -78,11 +78,8 @@ public class WmsTableMetaResponse extends BaseResponse {
     @Schema(description = "状态：0=禁用，1=启用")
     private Integer status;
 
-    /**
-     * 逻辑删除字段
-     */
-    @Schema(description = "逻辑删除字段")
-    private String isDeletedColumn;
+    @Schema(description = "备注")
+    private String remark;
 
     /**
      * 是否有数据权限：0=否，1=是

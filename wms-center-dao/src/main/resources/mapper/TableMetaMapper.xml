@@ -16,7 +16,6 @@
         <result property="isTree" column="is_tree"/>
         <result property="status" column="status"/>
         <result property="remark" column="remark"/>
-        <result property="isDeletedColumn" column="is_deleted_column"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -60,12 +59,11 @@
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sys_table_meta (
             table_code, table_name, module, entity_class, service_class,
-            permission_code, page_size, is_tree, status, remark,
-            is_deleted_column, create_by, create_time
+            permission_code, page_size, is_tree, status, remark, create_by, create_time
         ) VALUES (
             #{tableCode}, #{tableName}, #{module}, #{entityClass}, #{serviceClass},
             #{permissionCode}, #{pageSize}, #{isTree}, #{status}, #{remark},
-            #{isDeletedColumn}, #{createBy}, NOW()
+            #{createBy}, NOW()
         )
     </insert>
 
@@ -80,7 +78,6 @@
             is_tree = #{isTree},
             status = #{status},
             remark = #{remark},
-            is_deleted_column = #{isDeletedColumn},
             update_by = #{updateBy},
             update_time = NOW()
         WHERE id = #{id}

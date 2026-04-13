@@ -83,9 +83,7 @@ public class WmsTableMetaServiceImpl implements IWmsTableMetaService {
         if (wmsTableMeta.getHasDataPermission() == null) {
             wmsTableMeta.setHasDataPermission(0);
         }
-        if (wmsTableMeta.getIsDeletedColumn() == null) {
-            wmsTableMeta.setIsDeletedColumn("is_deleted");
-        }
+
         if (wmsTableMeta.getPermissionField() == null) {
             wmsTableMeta.setPermissionField("dept_id");
         }

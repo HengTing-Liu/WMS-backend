@@ -93,12 +93,6 @@ public class WmsTableMeta extends BaseEntity implements Serializable {
     private Integer status;
 
     /**
-     * 逻辑删除字段
-     */
-    @Schema(description = "逻辑删除字段")
-    private String isDeletedColumn;
-
-    /**
      * 是否有数据权限：0=否，1=是
      */
     @Excel(name = "是否有数据权限", type = Type.ALL, readConverterExp = "0=否,1=是")

@@ -159,13 +159,12 @@ public class MetaPublishServiceImpl implements MetaPublishService {
         List<String> errors = new ArrayList<>();
         List<String> warnings = new ArrayList<>();
 
-        // 主键校验：必须有且只有一个主键字段
+        // 主键校验：最多只能有1个，若无则系统自动兜底（id自增主键）
         long pkCount = columns.stream().filter(c -> Boolean.TRUE.equals(c.getPrimaryKey())).count();
-        if (pkCount == 0) {
-            errors.add("表缺少主键字段，请在字段元数据中标记主键");
-        } else if (pkCount > 1) {
+        if (pkCount > 1) {
             errors.add("主键字段不能超过1个，当前有 " + pkCount + " 个");
         }
+        // pkCount == 0 时不报错，系统会在生成 DDL 时自动兜底 id 自增主键
 
         // 字段重名校验
         Set<String> fieldNames = new HashSet<>();
@@ -188,10 +187,6 @@ public class MetaPublishServiceImpl implements MetaPublishService {
             }
         }
 
-        // 逻辑删除字段建议校验
-        if (tableMeta.getIsDeletedColumn() == null || StringUtils.isEmpty(tableMeta.getIsDeletedColumn())) {
-            warnings.add("建议配置逻辑删除字段，以便低代码运行时支持数据过滤");
-        }
 
         MetaPublishPlanResponse.ValidationResult result = new MetaPublishPlanResponse.ValidationResult();
         result.setPassed(errors.isEmpty());
@@ -369,17 +364,33 @@ public class MetaPublishServiceImpl implements MetaPublishService {
 
         List<String> columnDefs = new ArrayList<>();
 
+        // 若没有主键字段，自动兜底 id 自增主键
+        boolean hasPk = columns.stream().anyMatch(c -> Boolean.TRUE.equals(c.getPrimaryKey()));
+        if (!hasPk) {
+            columnDefs.add("  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID'");
+        }
+
         for (ColumnMeta col : columns) {
             columnDefs.add(generateColumnDefinition(col, true));
         }
 
-        // 如果表元数据配置了逻辑删除字段
-        if (tableMeta.getIsDeletedColumn() != null && !StringUtils.isEmpty(tableMeta.getIsDeletedColumn())) {
-            String delCol = tableMeta.getIsDeletedColumn().trim();
-            columnDefs.add("  `" + delCol + "` CHAR(1) NOT NULL DEFAULT '0' COMMENT '逻辑删除标记'");
-        }
+        String delCol = "is_deleted";
+        columnDefs.add("  `" + delCol + "` CHAR(1) NOT NULL DEFAULT '0' COMMENT '逻辑删除标记'");
+
 
         sb.append(String.join(",\n", columnDefs));
+
+        // 主键约束
+        if (!hasPk) {
+            sb.append(",\n  PRIMARY KEY (`id`)");
+        } else {
+            List<String> pkFields = columns.stream()
+                    .filter(c -> Boolean.TRUE.equals(c.getPrimaryKey()))
+                    .map(c -> "`" + c.getField() + "`")
+                    .collect(Collectors.toList());
+            sb.append(",\n  PRIMARY KEY (").append(String.join(", ", pkFields)).append(")");
+        }
+
         sb.append("\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='").append(escapeComment(tableMeta.getTableName())).append("'");
         return sb.toString();
     }

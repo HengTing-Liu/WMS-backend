@@ -26,7 +26,7 @@
 
 - **表编码唯一性校验**：新增/更新时调用 `selectCountByTableCodeExcludeId`，重复则抛异常
 - **删除关联检查**：删除前检查 `sys_column_meta` 和 `sys_table_operation` 关联数量，有关联则拒绝删除
-- **逻辑删除**：Mapper XML 使用物理删除（注：数据库表使用 `is_deleted_column` 字段标记，实际删除由框架层面处理）
+- **逻辑删除**：Mapper XML 使用逻辑删除（is_deleted = 1）
 - **自动填充**：create_by / update_by / create_time / update_time 由 Service 层自动填充
 
 ## 4. 自测结果
@@ -37,5 +37,4 @@
 
 | 问题 | 说明 | 建议 |
 |------|------|------|
-| 逻辑删除 | Mapper XML 使用物理删除，需确认框架层是否已处理逻辑删除 | 确认 sys_table_meta 是否使用 MyBatis-Plus 或拦截器处理逻辑删除 |
 | create_by / update_by | 当前硬编码为 "system"，建议从 SecurityContext 获取实际登录用户 | 下次迭代改进 |

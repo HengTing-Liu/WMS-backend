@@ -44,10 +44,7 @@ public class LowcodeTreeServiceImpl implements LowcodeTreeService {
     private I18nService i18nService;
 
     private String getDeleteColumn(String tableCode) {
-        TableMeta meta = tableMetaMapper.selectByTableCode(tableCode);
-        if (meta != null && StringUtils.isNotEmpty(meta.getIsDeletedColumn())) {
-            return meta.getIsDeletedColumn();
-        }
+
         return DEFAULT_DELETE_COLUMN;
     }
 

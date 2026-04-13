@@ -64,10 +64,6 @@ public class TableMetaResponse extends BaseResponse {
     @Schema(description = "备注")
     private String remark;
 
-    @Excel(name = "逻辑删除字段名")
-    @Schema(description = "逻辑删除字段名")
-    private String isDeletedColumn;
-
     @Excel(name = "创建人")
     @Schema(description = "创建人")
     private String createBy;

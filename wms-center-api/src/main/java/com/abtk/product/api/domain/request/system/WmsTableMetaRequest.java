@@ -98,13 +98,6 @@ public class WmsTableMetaRequest extends BaseRequest {
     private String remark;
 
     /**
-     * 逻辑删除字段
-     */
-    @Size(max = 50, message = "逻辑删除字段长度不能超过50个字符")
-    @Schema(description = "逻辑删除字段")
-    private String isDeletedColumn;
-
-    /**
      * 是否有数据权限：0=否，1=是
      */
     @Schema(description = "是否有数据权限：0=否，1=是")

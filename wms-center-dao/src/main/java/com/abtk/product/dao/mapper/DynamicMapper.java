@@ -17,20 +17,22 @@ import java.util.Map;
 public interface DynamicMapper {
 
     /**
-     * 动态查询列表（支持自定义删除列名）
+     * 动态查询列表（动态删除列 + 动态搜索参数）
      * @param tableCode 表名（必须通过 SqlInjectionValidator.validateTable 校验）
      * @param params 查询参数（字段名keys必须通过 SqlInjectionValidator.validateFieldFormat 校验）
      * @param deleteColumn 删除标志列名（必须通过 SqlInjectionValidator.validateFieldFormat 校验）
+     * @param dataScope 数据权限 raw SQL 片段（由 CrudPermissionUtil 注入，直接拼入 WHERE，非查询参数）
      */
-    List<Map<String, Object>> selectList(@Param("tableCode") String tableCode, @Param("params") Map<String, Object> params, @Param("deleteColumn") String deleteColumn);
+    List<Map<String, Object>> selectList(@Param("tableCode") String tableCode, @Param("params") Map<String, Object> params, @Param("deleteColumn") String deleteColumn, @Param("dataScope") String dataScope);
 
     /**
      * 查询所有（支持自定义删除列名）
      * @param tableCode 表名（必须通过 SqlInjectionValidator.validateTable 校验）
      * @param params 查询参数（字段名keys必须通过 SqlInjectionValidator.validateFieldFormat 校验）
      * @param deleteColumn 删除标志列名（必须通过 SqlInjectionValidator.validateFieldFormat 校验）
+     * @param dataScope 数据权限 raw SQL 片段（由 CrudPermissionUtil 注入）
      */
-    List<Map<String, Object>> selectAll(@Param("tableCode") String tableCode, @Param("params") Map<String, Object> params, @Param("deleteColumn") String deleteColumn);
+    List<Map<String, Object>> selectAll(@Param("tableCode") String tableCode, @Param("params") Map<String, Object> params, @Param("deleteColumn") String deleteColumn, @Param("dataScope") String dataScope);
 
     /**
      * 根据ID查询

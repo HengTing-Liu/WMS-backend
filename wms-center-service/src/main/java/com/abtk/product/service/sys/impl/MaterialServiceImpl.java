@@ -37,7 +37,7 @@ public class MaterialServiceImpl implements MaterialService {
         if (materialMapper.checkMaterialCodeExists(material.getMaterialCode(), null) > 0) {
             throw new RuntimeException("物料编码已存在");
         }
-        material.setDelFlag(0);
+        material.setIsDeleted(0);
         material.setCreateBy("system");
         materialMapper.insert(material);
         return material.getId();
