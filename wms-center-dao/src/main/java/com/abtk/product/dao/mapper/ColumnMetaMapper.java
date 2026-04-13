@@ -29,6 +29,8 @@ public interface ColumnMetaMapper {
      */
     int update(ColumnMeta columnMeta);
 
+    int updateSortOrder(Long id, Integer sortOrder);
+
     /**
      * 根据ID删除
      */

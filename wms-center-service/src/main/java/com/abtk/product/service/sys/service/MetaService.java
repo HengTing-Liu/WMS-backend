@@ -39,6 +39,11 @@ public interface MetaService {
     List<ColumnMeta> getColumnMetaList(String tableCode);
 
     /**
+     * 根据ID查询字段元数据
+     */
+    ColumnMeta getColumnMetaById(Long id);
+
+    /**
      * 查询操作按钮列表
      */
     List<TableOperation> getOperationList(String tableCode);
@@ -87,6 +92,21 @@ public interface MetaService {
      * 删除字段元数据
      */
     void deleteColumnMeta(Long id);
+
+    /**
+     * 新增字段元数据
+     */
+    void addColumnMeta(ColumnMeta column);
+
+    /**
+     * 更新字段元数据
+     */
+    void updateColumnMeta(ColumnMeta column);
+
+    /**
+     * 批量更新字段排序号
+     */
+    void batchUpdateColumnSort(List<ColumnMeta> columns);
 
     /**
      * 删除操作按钮

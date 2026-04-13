@@ -12,64 +12,69 @@
         <result property="dataType" column="data_type"/>
         <result property="formType" column="form_type"/>
         <result property="dictType" column="dict_type"/>
-        <result property="linkageJson" column="linkage_json"/>
         <result property="showInList" column="show_in_list"/>
         <result property="showInForm" column="show_in_form"/>
         <result property="showInExport" column="show_in_export"/>
         <result property="searchable" column="searchable"/>
-        <result property="sortable" column="sortable"/>
+        <result property="sortable" column="is_sortable"/>
         <result property="required" column="required"/>
         <result property="width" column="width"/>
         <result property="sortOrder" column="sort_order"/>
+        <result property="remark" column="remark"/>
+        <result property="status" column="status"/>
         <result property="rulesJson" column="rules_json"/>
         <result property="placeholder" column="placeholder"/>
-        <result property="defaultValue" column="default_value"/>
-        <result property="status" column="status"/>
-        <result property="remark" column="remark"/>
         <result property="componentProps" column="component_props"/>
         <result property="dataSource" column="data_source"/>
         <result property="apiUrl" column="api_url"/>
         <result property="labelField" column="label_field"/>
         <result property="valueField" column="value_field"/>
-        <result property="colSpan" column="col_span"/>
-        <result property="sectionKey" column="section_key"/>
-        <result property="i18nKey" column="i18n_key"/>
-        <result property="visibleCondition" column="visible_condition"/>
         <result property="columnName" column="column_name"/>
-        <result property="columnType" column="column_type"/>
-        <result property="primaryKey" column="primary_key"/>
-        <result property="nullable" column="nullable"/>
-        <result property="columnSize" column="column_size"/>
-        <result property="decimalDigits" column="decimal_digits"/>
+        <result property="defaultValue" column="default_value"/>
+        <result property="createBy" column="created_by"/>
+        <result property="createTime" column="created_at"/>
+        <result property="updateBy" column="updated_by"/>
+        <result property="updateTime" column="updated_at"/>
     </resultMap>
 
     <select id="selectByTableCode" resultMap="ColumnMetaResult">
-        SELECT * FROM sys_column_meta
-        WHERE table_code = #{tableCode} AND status = 1
+        SELECT id, table_code, field, title, data_type, form_type, dict_type,
+               show_in_list, show_in_form, show_in_export, searchable, is_sortable,
+               required, width, sort_order, remark, status, rules_json, placeholder,
+               component_props, data_source, api_url, label_field, value_field,
+               column_name, default_value,
+               created_by, created_at, updated_by, updated_at
+        FROM sys_column_meta
+        WHERE table_code = #{tableCode} AND status = 1 AND is_deleted = 0
         ORDER BY sort_order
     </select>
 
     <select id="selectById" resultMap="ColumnMetaResult">
-        SELECT * FROM sys_column_meta WHERE id = #{id}
+        SELECT id, table_code, field, title, data_type, form_type, dict_type,
+               show_in_list, show_in_form, show_in_export, searchable, is_sortable,
+               required, width, sort_order, remark, status, rules_json, placeholder,
+               component_props, data_source, api_url, label_field, value_field,
+               column_name, default_value,
+               created_by, created_at, updated_by, updated_at
+        FROM sys_column_meta
+        WHERE id = #{id}
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sys_column_meta (
             table_code, field, title, data_type, form_type, dict_type,
-            show_in_list, show_in_form, searchable, sortable, required,
-            width, sort_order, rules_json, placeholder, default_value, status,
+            show_in_list, show_in_form, show_in_export, searchable, is_sortable,
+            required, width, sort_order, remark, status, rules_json, placeholder,
             component_props, data_source, api_url, label_field, value_field,
-            col_span, section_key, i18n_key, visible_condition, remark,
-            linkage_json, column_name, column_type, primary_key, nullable,
-            column_size, decimal_digits
+            column_name, default_value,
+            created_by, created_at, updated_by, updated_at
         ) VALUES (
             #{tableCode}, #{field}, #{title}, #{dataType}, #{formType}, #{dictType},
-            #{showInList}, #{showInForm}, #{searchable}, #{sortable}, #{required},
-            #{width}, #{sortOrder}, #{rulesJson}, #{placeholder}, #{defaultValue}, #{status},
+            #{showInList}, #{showInForm}, #{showInExport}, #{searchable}, #{sortable},
+            #{required}, #{width}, #{sortOrder}, #{remark}, #{status}, #{rulesJson}, #{placeholder},
             #{componentProps}, #{dataSource}, #{apiUrl}, #{labelField}, #{valueField},
-            #{colSpan}, #{sectionKey}, #{i18nKey}, #{visibleCondition}, #{remark},
-            #{linkageJson}, #{columnName}, #{columnType}, #{primaryKey}, #{nullable},
-            #{columnSize}, #{decimalDigits}
+            #{columnName}, #{defaultValue},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
         )
     </insert>
 
@@ -83,32 +88,31 @@
             dict_type = #{dictType},
             show_in_list = #{showInList},
             show_in_form = #{showInForm},
+            show_in_export = #{showInExport},
             searchable = #{searchable},
-            sortable = #{sortable},
+            is_sortable = #{sortable},
             required = #{required},
             width = #{width},
             sort_order = #{sortOrder},
+            remark = #{remark},
+            status = #{status},
             rules_json = #{rulesJson},
             placeholder = #{placeholder},
-            default_value = #{defaultValue},
-            status = #{status},
             component_props = #{componentProps},
             data_source = #{dataSource},
             api_url = #{apiUrl},
             label_field = #{labelField},
             value_field = #{valueField},
-            col_span = #{colSpan},
-            section_key = #{sectionKey},
-            i18n_key = #{i18nKey},
-            visible_condition = #{visibleCondition},
-            remark = #{remark},
-            linkage_json = #{linkageJson},
             column_name = #{columnName},
-            column_type = #{columnType},
-            primary_key = #{primaryKey},
-            nullable = #{nullable},
-            column_size = #{columnSize},
-            decimal_digits = #{decimalDigits}
+            default_value = #{defaultValue},
+            updated_by = #{updateBy},
+            updated_at = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateSortOrder">
+        UPDATE sys_column_meta
+        SET sort_order = #{sortOrder}
         WHERE id = #{id}
     </update>
 

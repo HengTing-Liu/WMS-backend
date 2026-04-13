@@ -146,6 +146,11 @@ public class MetaServiceImpl implements MetaService {
     }
 
     @Override
+    public ColumnMeta getColumnMetaById(Long id) {
+        return columnMetaMapper.selectById(id);
+    }
+
+    @Override
     public List<TableOperation> getOperationList(String tableCode) {
         return tableOperationMapper.selectByTableCode(tableCode);
     }
@@ -267,6 +272,28 @@ public class MetaServiceImpl implements MetaService {
     @Transactional(rollbackFor = Exception.class)
     public void deleteColumnMeta(Long id) {
         columnMetaMapper.deleteById(id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void addColumnMeta(ColumnMeta column) {
+        columnMetaMapper.insert(column);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateColumnMeta(ColumnMeta column) {
+        columnMetaMapper.update(column);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchUpdateColumnSort(List<ColumnMeta> columns) {
+        for (ColumnMeta col : columns) {
+            if (col.getId() != null && col.getSortOrder() != null) {
+                columnMetaMapper.updateSortOrder(col.getId(), col.getSortOrder());
+            }
+        }
     }
 
     @Override

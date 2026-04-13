@@ -10,6 +10,7 @@ import com.abtk.product.common.web.controller.BaseController;
 import com.abtk.product.dao.entity.ColumnMeta;
 import com.abtk.product.dao.entity.TableMeta;
 import com.abtk.product.dao.entity.TableOperation;
+import com.abtk.product.biz.sys.TableMetaBiz;
 import com.abtk.product.service.sys.service.MetaService;
 import com.abtk.product.web.security.annotation.RequiresPermissions;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,6 +37,9 @@ public class MetaController extends BaseController {
 
     @Autowired
     private MetaService metaService;
+
+    @Autowired
+    private TableMetaBiz tableMetaBiz;
 
     /**
      * 表元数据分页列表查询
@@ -125,6 +129,19 @@ public class MetaController extends BaseController {
     }
 
     /**
+     * 获取字段元数据详情
+     */
+    @Operation(summary = "获取字段元数据详情", description = "根据ID获取字段元数据详情")
+    @RequiresPermissions("system:meta:table:query")
+    @GetMapping("/column/{id}")
+    public R<ColumnMeta> getColumnMetaById(
+            @Parameter(description = "字段元数据ID", required = true)
+            @PathVariable Long id) {
+        ColumnMeta data = metaService.getColumnMetaById(id);
+        return R.ok(data);
+    }
+
+    /**
      * 获取字段 Schema（前端友好格式）
      */
     @Operation(summary = "获取字段 Schema", description = "根据表标识获取字段元数据的前端友好 Schema，低代码动态渲染专用，无需权限")
@@ -201,16 +218,17 @@ public class MetaController extends BaseController {
     }
 
     /**
-     * 创建表元数据
+     * 创建表元数据（走 biz 层，自动注入 BaseEntity 固定字段）
      */
     @Operation(summary = "创建表元数据")
     @RequiresPermissions("system:meta:table:manage")
     @PostMapping("/table")
-    public R<Void> createTableMeta(@RequestBody @Valid TableMetaRequest request) {
-        TableMeta tableMeta = new TableMeta();
-        BeanUtils.copyProperties(request, tableMeta);
-        metaService.saveTableMeta(tableMeta);
-        return R.ok();
+    public R<Long> createTableMeta(@RequestBody @Valid TableMetaRequest request) {
+        R<Long> result = tableMetaBiz.add(request);
+        if (result.getCode() != 200) {
+            return result;
+        }
+        return result;
     }
 
     /**
@@ -256,10 +274,25 @@ public class MetaController extends BaseController {
         return R.ok();
     }
 
+
     /**
-     * 批量保存字段元数据
+     * 批量更新字段排序号
      */
-    @Operation(summary = "保存字段元数据", description = "批量保存字段元数据配置")
+    @Operation(summary = "批量更新字段排序号")
+    @RequiresPermissions("system:meta:table:manage")
+    @PutMapping("/column/sort")
+    public R<Void> batchUpdateColumnSort(@RequestBody List<ColumnMetaRequest> requests) {
+        List<ColumnMeta> columns = requests.stream().map(req -> {
+            ColumnMeta column = new ColumnMeta();
+            BeanUtils.copyProperties(req, column);
+            return column;
+        }).collect(Collectors.toList());
+        metaService.batchUpdateColumnSort(columns);
+        return R.ok();
+    }
+
+    /**
+     * 保存字段元数据
     @RequiresPermissions("system:meta:table:manage")
     @PostMapping("/column/save/{tableCode}")
     public R<Void> saveColumnMeta(
@@ -286,6 +319,35 @@ public class MetaController extends BaseController {
             @Parameter(description = "字段元数据ID", required = true)
             @PathVariable Long id) {
         metaService.deleteColumnMeta(id);
+        return R.ok();
+    }
+
+    /**
+     * 新增字段元数据
+     */
+    @Operation(summary = "新增字段元数据")
+    @RequiresPermissions("system:meta:table:manage")
+    @PostMapping("/column")
+    public R<Void> addColumnMeta(@RequestBody ColumnMetaRequest request) {
+        ColumnMeta column = new ColumnMeta();
+        BeanUtils.copyProperties(request, column);
+        metaService.addColumnMeta(column);
+        return R.ok();
+    }
+
+    /**
+     * 更新字段元数据
+     */
+    @Operation(summary = "更新字段元数据")
+    @RequiresPermissions("system:meta:table:manage")
+    @PutMapping("/column/{id}")
+    public R<Void> updateColumnMeta(
+            @PathVariable Long id,
+            @RequestBody ColumnMetaRequest request) {
+        ColumnMeta column = new ColumnMeta();
+        BeanUtils.copyProperties(request, column);
+        column.setId(id);
+        metaService.updateColumnMeta(column);
         return R.ok();
     }
 
