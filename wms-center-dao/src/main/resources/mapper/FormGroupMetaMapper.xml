@@ -14,15 +14,15 @@
         <result property="defaultOpen" column="default_open"/>
         <result property="status" column="status"/>
         <result property="remarks" column="remarks"/>
-        <result property="createBy" column="created_by"/>
-        <result property="createTime" column="created_at"/>
-        <result property="updateBy" column="updated_by"/>
-        <result property="updateTime" column="updated_at"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
     </resultMap>
 
     <select id="selectByTableCode" resultMap="FormGroupMetaResult">
         SELECT id, table_code, group_code, group_title, group_type, sort_order,
-               default_open, status, remarks, created_by, created_at, updated_by, updated_at
+               default_open, status, remarks, create_by, create_time, update_by, update_time
         FROM sys_form_group_meta
         WHERE table_code = #{tableCode}
         ORDER BY sort_order, id
@@ -30,7 +30,7 @@
 
     <select id="selectById" resultMap="FormGroupMetaResult">
         SELECT id, table_code, group_code, group_title, group_type, sort_order,
-               default_open, status, remarks, created_by, created_at, updated_by, updated_at
+               default_open, status, remarks, create_by, create_time, update_by, update_time
         FROM sys_form_group_meta
         WHERE id = #{id}
     </select>
@@ -38,7 +38,7 @@
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sys_form_group_meta (
             table_code, group_code, group_title, group_type, sort_order,
-            default_open, status, remarks, created_by, created_at, updated_by, updated_at
+            default_open, status, remarks, create_by, create_time, update_by, update_time
         ) VALUES (
             #{tableCode}, #{groupCode}, #{groupTitle}, #{groupType}, #{sortOrder},
             #{defaultOpen}, #{status}, #{remarks}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
@@ -55,8 +55,8 @@
             default_open = #{defaultOpen},
             status = #{status},
             remarks = #{remarks},
-            updated_by = #{updateBy},
-            updated_at = #{updateTime}
+            update_by = #{updateBy},
+            update_time = #{updateTime}
         WHERE id = #{id}
     </update>
 

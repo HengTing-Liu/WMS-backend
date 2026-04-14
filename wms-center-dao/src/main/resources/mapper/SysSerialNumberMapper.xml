@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.abtk.product.dao.mapper.SysSerialNumberMapper">
 
@@ -19,14 +19,14 @@
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateBy" column="update_by" jdbcType="VARCHAR"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
-        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="remarks" column="remarks" jdbcType="VARCHAR"/>
         <result property="isDeleted" column="is_deleted" jdbcType="VARCHAR"/>
     </resultMap>
 
     <!--查询单个-->
     <select id="queryById" resultMap="SysSerialNumberMap">
         select
-        id, name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, usage_scope, create_by, create_time, update_by, update_time, remark, is_deleted
+        id, name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, usage_scope, create_by, create_time, update_by, update_time, remarks, is_deleted
         from sys_serial_number
         where id = #{id} and is_deleted = '0'
     </select>
@@ -34,7 +34,7 @@
     <!--查询指定行数据-->
     <select id="queryAll" resultMap="SysSerialNumberMap">
         select
-        id, name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, usage_scope, create_by, create_time, update_by, update_time, remark, is_deleted
+        id, name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, usage_scope, create_by, create_time, update_by, update_time, remarks, is_deleted
         from sys_serial_number
         <where>
             is_deleted = '0'
@@ -86,8 +86,8 @@
             <if test="updateTime != null">
                 and update_time = #{updateTime}
             </if>
-            <if test="remark != null and remark != ''">
-                and remark = #{remark}
+            <if test="remarks != null and remarks != ''">
+                and remarks = #{remarks}
             </if>
         </where>
     </select>
@@ -146,15 +146,15 @@
             <if test="updateTime != null">
                 and update_time = #{updateTime}
             </if>
-            <if test="remark != null and remark != ''">
-                and remark = #{remark}
+            <if test="remarks != null and remarks != ''">
+                and remarks = #{remarks}
             </if>
         </where>
     </select>
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into sys_serial_number(name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, usage_scope, create_by, create_time, update_by, update_time, remark)
+        insert into sys_serial_number(name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, usage_scope, create_by, create_time, update_by, update_time, remarks)
         values (
         #{name}
         ,
@@ -186,12 +186,12 @@
         ,
         #{updateTime}
         ,
-        #{remark}
+        #{remarks}
         )
     </insert>
 
     <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
-        insert into sys_serial_number(name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, usage_scope, create_by, create_time, update_by, update_time, remark)
+        insert into sys_serial_number(name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, usage_scope, create_by, create_time, update_by, update_time, remarks)
         values
         <foreach collection="entities" item="entity" separator=",">
             (
@@ -225,13 +225,13 @@
             ,
             #{entity.updateTime}
             ,
-            #{entity.remark}
+            #{entity.remarks}
             )
         </foreach>
     </insert>
 
     <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
-        insert into sys_serial_number(name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, usage_scope, create_by, create_time, update_by, update_time, remark)
+        insert into sys_serial_number(name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, usage_scope, create_by, create_time, update_by, update_time, remarks)
         values
         <foreach collection="entities" item="entity" separator=",">
             (
@@ -265,7 +265,7 @@
             ,
             #{entity.updateTime}
             ,
-            #{entity.remark}
+            #{entity.remarks}
             )
         </foreach>
         on duplicate key update
@@ -284,7 +284,7 @@
         create_time = values(create_time),
         update_by = values(update_by),
         update_time = values(update_time),
-        remark = values(remark)
+        remarks = values(remarks)
     </insert>
 
     <!--通过主键修改数据-->
@@ -336,8 +336,8 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
-            <if test="remark != null and remark != ''">
-                remark = #{remark},
+            <if test="remarks != null and remarks != ''">
+                remarks = #{remarks},
             </if>
             update_time = now(),
         </set>
@@ -346,13 +346,13 @@
 
     <!--通过主键删除-->
     <delete id="deleteById">
-        update sys_serial_number set is_deleted = '1', update_by = #{updateBy}, update_time = now(), remark = CONCAT(remark, '|', #{updateBy}, '删除', NOW()) where id = #{id}
+        update sys_serial_number set is_deleted = '1', update_by = #{updateBy}, update_time = now(), remarks = CONCAT(remarks, '|', #{updateBy}, '删除', NOW()) where id = #{id}
     </delete>
 
 
     <delete id="deleteBatchByIds">
         update sys_serial_number
-        set is_deleted = '1', update_by = #{updateBy}, update_time = now(), remark = CONCAT(remark, '|', #{updateBy}, '删除', NOW())
+        set is_deleted = '1', update_by = #{updateBy}, update_time = now(), remarks = CONCAT(remarks, '|', #{updateBy}, '删除', NOW())
         where id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
@@ -409,8 +409,8 @@
                 <if test="item.updateTime != null">
                     update_time = #{item.updateTime},
                 </if>
-                <if test="item.remark != null and item.remark != ''">
-                    remark = #{item.remark},
+                <if test="item.remarks != null and item.remarks != ''">
+                    remarks = #{item.remarks},
                 </if>
                 update_time = now(),
             </set>

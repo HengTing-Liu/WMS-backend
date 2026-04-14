@@ -25,26 +25,26 @@ import java.util.Comparator;
 import java.util.stream.Collectors;
 
 /**
- * 通用 CRUD 服务实现
+ * 闂備緡鍋呭銊╁极?CRUD 闂佸搫鐗嗙粔瀛樻叏閻旇　鍋撻崷顓炰户妤?
  */
 @Slf4j
 @Service
 public class CrudServiceImpl implements CrudService {
 
-    /** sys_user 表标识 */
+    /** sys_user 闁荤偞绋忛崝宥夋偉閿濆洦瀚?*/
     private static final String SYS_USER_TABLE = "sys_user";
 
-    /** sys_user 主键列名 */
+    /** sys_user 婵炴垶鎸搁…鐑藉极椤撱垹绀嗘俊銈傚亾闁?*/
     private static final String SYS_USER_PK = "user_id";
 
-    /** 默认逻辑删除列名（下划线格式，与数据库列名规范一致） */
+    /** 婵帗绋掗…鍫ヮ敇婵犳碍鐒婚柡鍕箳鐢棝鏌涢幒鏂库枅婵炲懎閰ｅ畷姘旈埀顒勫箖閺囥垺鏅柛顐ｇ矌閻熸捇鏌涢幒鎾崇闁搞倕閰ｅ浠嬫偂鎼达絿顢呴梺鎸庣☉婵傛梻绮畝鍕瀬闁绘鐗嗙粊锕傚箹鐎涙ɑ灏柛顭戜邯瀹曘儱顓奸崼顐ｇ秷闂佽偐鍘ч崯鈺冪博閹绢喗鍤婇弶鍫濆⒔缁€?*/
     private static final String DEFAULT_DELETE_COLUMN = "is_deleted";
 
-    /** 分页参数名（需要从查询条件中排除） */
+    /** 闂佸憡甯掑Λ婵嬪Υ婢舵劕鐭楅柛灞剧⊕濞堝爼鏌涘顒傗枌缂佽鲸鐟╁Λ渚€鍩€椤掑倹鍟哄ù锝夘棑閻倝鏌＄仦璇插姤妞ゆ洘顨婂鍫曞灳閸欏鍋ㄦ繛鎴炴惄閸樼晫鏁幘缁樷挃闁靛牆绻掔粈?*/
     private static final Set<String> PAGE_PARAMS = new HashSet<>(
             Arrays.asList("pageNum", "pageSize", "orderByColumn", "isAsc")
     );
-    /** 字段名白名单正则：仅允许字母、数字、下划线 */
+    /** 闁诲孩绋掗〃鍡涱敊瀹€鍕Е鐎广儱娲﹂銈夋煕濮橆剛孝鐎规洜鍠庨～銏ゆ晲閸涱厾浠ч梺鎸庣⊕閻喚鍒掓惔銊ョ濞达絿鐡旈崯鍛存倵濞戞瑯娈曢柣锔界箞婵″瓨鎷呯憴鍕啀闁诲孩绋掗妵婊堝焵椤戞寧顦风紒妤€鎳樺畷姘跺箳閺傛寧鐤?*/
     private static final java.util.regex.Pattern SAFE_FIELD_PATTERN =
             java.util.regex.Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
 
@@ -61,19 +61,19 @@ public class CrudServiceImpl implements CrudService {
     private I18nService i18nService;
 
     /**
-     * 获取表的逻辑删除列名
-     * @param tableCode 表标识
-     * @return 删除列名
+     * 闂佸吋鍎抽崲鑼躲亹閸モ晜鍋橀柕濞у嫮鏆犻梻渚囧亝濡叉帞娆㈤锕€绀嗛柣妯肩帛閻濈喖鏌涢幒鎿冩當闁?
+     * @param tableCode 闁荤偞绋忛崝宥夋偉閿濆洦瀚?
+     * @return 闂佸憡甯炴繛鈧繛鍛叄瀹曟艾螖閳ь剟骞?
      */
     private String getDeleteColumn(String tableCode) {
-        // sys_material/sys_warehouse/sys_warehouse_receiver 等低代码表均使用 is_deleted 列，逻辑删除值 = 0
+        // sys_material/sys_warehouse/sys_warehouse_receiver 缂備焦绋戦ˇ顔剧礊閸℃顩烽柨婵嗘川閸ㄦ娊鎮跺☉鏍у婵炵厧瀛╅幏鍛崉閵婏附娈?is_deleted 闂佸憡甯楅〃鎰濠靛鐒婚柡鍕箳鐢棝鏌涢幒鏂库枅婵炲懎閰ｅ畷?= 0
         return DEFAULT_DELETE_COLUMN;
     }
 
     /**
-     * 获取表的主键列名
-     * @param tableCode 表标识
-     * @return 主键列名
+     * 闂佸吋鍎抽崲鑼躲亹閸モ晜鍋橀柕濞у嫮鏆犳繛鎴炴尭椤兘寮銏犵婵°倐鍋撻柟?
+     * @param tableCode 闁荤偞绋忛崝宥夋偉閿濆洦瀚?
+     * @return 婵炴垶鎸搁…鐑藉极椤撱垹绀嗘俊銈傚亾闁?
      */
     private String getPkColumn(String tableCode) {
         if (SYS_USER_TABLE.equals(tableCode)) {
@@ -85,18 +85,18 @@ public class CrudServiceImpl implements CrudService {
     @Override
     public TableDataInfo list(String tableCode, Map<String, Object> params, Integer pageNum, Integer pageSize) {
         SqlInjectionValidator.validateTable(tableCode);
-        // 过滤分页参数和已有的 dataScope key（dataScope 由 injectDataScope 注入原始 SQL，通过单独参数传给 mapper）
+        // 闁哄鏅涘ú锕傚箮閵堝绀嗛柛鈩冪◤閳ь剙顦靛畷锝夊磼濞戞瑦顔嶉梺鍛婄矊閼活垶宕欓敓鐘插珘濠㈣泛鏈悾?dataScope key闂佹寧绋戝鎭唗aScope 闂?injectDataScope 濠电偛顦崝宀勫矗閸℃稑鍌ㄩ柣鏂款殠濞?SQL闂佹寧绋戦惌鍌炲焵椤掍椒浜㈢紒璇插暣瀹曪繝寮撮悩宸痪闂佸憡鐟ラ崐褰掑汲閻旂顕遍柣妯兼暩閼?mapper闂?
         Map<String, Object> filteredParams = new HashMap<>();
         if (params != null) {
             params.forEach((key, value) -> {
                 if (!PAGE_PARAMS.contains(key)
                         && !"dataScope".equals(key)
                         && value != null && !"".equals(value)) {
-                    filteredParams.put(key, value);
+                    filteredParams.put(toSqlFieldName(key), value);
                 }
             });
         }
-        // 数据权限注入（直接修改 filteredParams，注入 dataScope raw SQL 片段）
+        // 闂佽桨鑳舵晶妤€鐣垫笟鈧鍫曞礃椤旂瓔鈧瑦绻涙径鍫濆闁告瑥妫濋弫宥夊醇閵忥紕鍑介梺瑙勪航閸庝即骞堥妸鈺佺哗?filteredParams闂佹寧绋戦張顒勫极閻愬搫绀?dataScope raw SQL 闂佺粯顨呭ú锕傤敊瀹€鍕櫖?
         CrudPermissionUtil.injectDataScope(filteredParams);
         PageHelper.startPage(pageNum, pageSize);
         String deleteColumn = getDeleteColumn(tableCode);
@@ -112,14 +112,14 @@ public class CrudServiceImpl implements CrudService {
     @Override
     public List<Map<String, Object>> listAll(String tableCode, Map<String, Object> params) {
         SqlInjectionValidator.validateTable(tableCode);
-        // 过滤分页参数
+        // 闁哄鏅涘ú锕傚箮閵堝绀嗛柛鈩冪◤閳ь剙顦靛畷锝夊磼濞戞瑦顔?
         Map<String, Object> filteredParams = new HashMap<>();
         if (params != null) {
             params.forEach((key, value) -> {
                 if (!PAGE_PARAMS.contains(key)
                         && !"dataScope".equals(key)
                         && value != null && !"".equals(value)) {
-                    filteredParams.put(key, value);
+                    filteredParams.put(toSqlFieldName(key), value);
                 }
             });
         }
@@ -144,35 +144,38 @@ public class CrudServiceImpl implements CrudService {
     @Transactional(rollbackFor = Exception.class)
     public Long create(String tableCode, Map<String, Object> data) {
         SqlInjectionValidator.validateTable(tableCode);
-        data.put("create_time", new Date());
-        data.put("create_by", "system");
-        // 新增记录时，默认 isEnabled = 1（启用），除非前端明确传入 false/0
-        Object isEnabledVal = data.get("isEnabled");
+
+        Map<String, Object> normalizedData = normalizeDataKeysForSql(data);
+        normalizedData.put("create_time", new Date());
+        normalizedData.put("create_by", "system");
+
+        Object isEnabledVal = normalizedData.get("is_enabled");
         if (isEnabledVal == null) {
-            data.put("isEnabled", 1);
+            normalizedData.put("is_enabled", 1);
         } else {
-            // 将各种形式的值统一转为 1 或 0
             if (Boolean.TRUE.equals(isEnabledVal) || "true".equals(String.valueOf(isEnabledVal)) || "1".equals(String.valueOf(isEnabledVal))) {
-                data.put("isEnabled", 1);
+                normalizedData.put("is_enabled", 1);
             } else {
-                data.put("isEnabled", 0);
+                normalizedData.put("is_enabled", 0);
             }
         }
-        if (SYS_USER_TABLE.equals(tableCode) && data.containsKey("user_id")) {
-            data.put("id", data.get("user_id"));
+
+        if (SYS_USER_TABLE.equals(tableCode) && normalizedData.containsKey("user_id")) {
+            normalizedData.put("id", normalizedData.get("user_id"));
         }
-        // 校验所有字段名
-        for (String key : data.keySet()) {
+
+        for (String key : normalizedData.keySet()) {
             if (!SAFE_FIELD_PATTERN.matcher(key).matches()) {
-                throw new ServiceException("非法的字段名: " + key);
+                throw new ServiceException("闂堢偞纭堕惃鍕摟濞堥潧鎮? " + key);
             }
         }
-        // 分离列名和值，使用参数化查询
-        List<String> columns = new ArrayList<>(data.keySet());
+
+        List<String> columns = new ArrayList<>(normalizedData.keySet());
         List<Object> values = new ArrayList<>();
         for (String col : columns) {
-            values.add(data.get(col));
+            values.add(normalizedData.get(col));
         }
+
         dynamicMapper.insertParam(tableCode, columns, values);
         Map<String, Object> lastId = dynamicMapper.selectLastInsertId();
         if (lastId != null && lastId.get("id") != null) {
@@ -185,22 +188,28 @@ public class CrudServiceImpl implements CrudService {
     @Transactional(rollbackFor = Exception.class)
     public void update(String tableCode, Long id, Map<String, Object> data) {
         SqlInjectionValidator.validateTable(tableCode);
-        data.put("update_time", new Date());
-        data.put("update_by", "system");
-        // sys_user 表没有 id 列，需要移除 data 中的 id 键避免 "Unknown column 'id'" 错误
+
+        String pkColumn = getPkColumn(tableCode);
+        Map<String, Object> normalizedData = normalizeDataKeysForSql(data);
+        normalizedData.put("update_time", new Date());
+        normalizedData.put("update_by", "system");
+
+        normalizedData.remove(pkColumn);
+        normalizedData.remove("id");
+        normalizedData.remove("create_time");
+        normalizedData.remove("create_by");
+
         if (SYS_USER_TABLE.equals(tableCode)) {
-            data.remove("id");
+            normalizedData.remove("id");
         }
-        // 校验所有字段名
-        for (String key : data.keySet()) {
+
+        for (String key : normalizedData.keySet()) {
             if (!SAFE_FIELD_PATTERN.matcher(key).matches()) {
-                throw new ServiceException("非法的字段名: " + key);
+                throw new ServiceException("闂堢偞纭堕惃鍕摟濞堥潧鎮? " + key);
             }
         }
-        // 获取主键列名
-        String pkColumn = getPkColumn(tableCode);
-        // 使用参数化更新
-        dynamicMapper.updateParam(tableCode, data, pkColumn, id);
+
+        dynamicMapper.updateParam(tableCode, normalizedData, pkColumn, id);
     }
 
     @Override
@@ -227,8 +236,9 @@ public class CrudServiceImpl implements CrudService {
     @Override
     public boolean checkUnique(String tableCode, String field, String value, Long excludeId) {
         SqlInjectionValidator.validateTable(tableCode);
-        SqlInjectionValidator.validateField(field);
-        Long count = dynamicMapper.checkUnique(tableCode, field, value, excludeId);
+        String sqlField = toSqlFieldName(field);
+        SqlInjectionValidator.validateField(sqlField);
+        Long count = dynamicMapper.checkUnique(tableCode, sqlField, value, excludeId);
         return count == 0;
     }
 
@@ -236,28 +246,28 @@ public class CrudServiceImpl implements CrudService {
     public Map<String, Object> exportList(String tableCode, Map<String, Object> params) {
         SqlInjectionValidator.validateTable(tableCode);
 
-        // 过滤掉分页参数
+        // 闁哄鏅涘ú锕傚箮閵堝绠冲璺猴工閻庤顪冮妶澶嬫锭鐎殿噮鍓熷?
         Map<String, Object> filteredParams = new HashMap<>();
         if (params != null) {
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
                 if (!PAGE_PARAMS.contains(key) && value != null && !"".equals(value)) {
-                    filteredParams.put(key, value);
+                    filteredParams.put(toSqlFieldName(key), value);
                 }
             }
         }
-        // 注入数据权限
+        // 濠电偛顦崝宀勫矗閸℃稑鏋侀柣妤€鐗嗙粊锕傛煛婢跺﹤鏆ｆ俊?
         CrudPermissionUtil.injectDataScope(filteredParams);
 
-        // 获取逻辑删除列
+        // 闂佸吋鍎抽崲鑼躲亹閸ヮ剚鐒婚柡鍕箳鐢棝鏌涢幒鏂库枅婵炲懎閰ｅ畷?
         String deleteColumn = getDeleteColumn(tableCode);
         String dataScope = (String) filteredParams.remove("dataScope");
 
-        // 查询全部数据（不分页）
+        // 闂佸搫琚崕鎾敋濡ゅ懎绀傞柕濞炬櫅閸斻儵鏌℃担鍝勵暭鐎规挷绶氶弫宥夊醇濠婂懐鎲归梺鍛婂笒濡繈濡存径鎰櫖?
         List<Map<String, Object>> dataList = dynamicMapper.selectAll(tableCode, filteredParams, deleteColumn, dataScope);
 
-        // 将数据 Map 的 key 从下划线转为驼峰（与 ColumnMeta.field 格式保持一致）
+        // 闁诲繐绻愬Λ娆撳汲閻旂厧绠?Map 闂?key 婵炲濮寸花鑲╃箔閸涙潙绀嗛柟鐑樻煥濞堢娀寮堕悜鍡楀幐閻犳劗鍠愰妵娆撴偂鎼粹剝些闂佹寧绋戦悧鍛箔?ColumnMeta.field 闂佸搫绉堕崢褏妲愰埄鍐攳婵犻潧娲ら惁顔尖槈閹绢垰浜鹃梺鑲╂焿閹活亞妲?
         List<Map<String, Object>> normalizedDataList = new ArrayList<>();
         for (Map<String, Object> row : dataList) {
             Map<String, Object> normalizedRow = new HashMap<>();
@@ -269,14 +279,14 @@ public class CrudServiceImpl implements CrudService {
             normalizedDataList.add(normalizedRow);
         }
 
-        // 获取导出字段配置
+        // 闂佸吋鍎抽崲鑼躲亹閸モ斁鍋撻悽闈涘付闁搞値鍘鹃埀顒佺⊕椤ㄥ棝顢欏畝鍕厐鐎广儱娲ㄩ弸?
         List<ColumnMeta> exportColumns = columnMetaMapper.selectByTableCode(tableCode);
         List<ColumnMeta> exportableColumns = exportColumns.stream()
                 .filter(col -> col.getShowInExport() == null || col.getShowInExport() == 1)
                 .sorted(Comparator.comparing(ColumnMeta::getSortOrder, Comparator.nullsLast(Comparator.naturalOrder())))
                 .collect(Collectors.toList());
 
-        // 构建结果
+        // 闂佸搫顑呯€氼剛绱撻幘鍓佺＜闁规儳顕禍?
         Map<String, Object> result = new HashMap<>();
         result.put("dataList", normalizedDataList);
         result.put("columns", exportableColumns);
@@ -284,8 +294,8 @@ public class CrudServiceImpl implements CrudService {
     }
 
     /**
-     * SQL 字段名转驼峰命名
-     * 例如: warehouse_code -> warehouseCode, is_enabled -> isEnabled
+     * SQL 闁诲孩绋掗〃鍡涱敊瀹€鍕Е鐎广儱鐗婄粊顔碱渻閸︻厼甯堕柛銏＄叀瀹曘劑鎸婃径瀣偓?
+     * 婵炴挻鑹鹃鍛淬€? warehouse_code -> warehouseCode, is_enabled -> isEnabled
      */
     private String sqlFieldToCamelCase(String sqlField) {
         if (sqlField == null || sqlField.isEmpty()) {
@@ -307,5 +317,46 @@ public class CrudServiceImpl implements CrudService {
             }
         }
         return result.toString();
+    }
+    /**
+     * 闁告挸绉堕?camelCase 閻庢稒顨嗛宀勫触瀹ュ牊绁?SQL snake_case闁挎稒绋戦崙锟犲及?snake_case 闁告帗鐟ョ敮顐﹀冀閻ゎ垳绠查柛?     */
+    private String toSqlFieldName(String fieldName) {
+        if (fieldName == null || fieldName.isEmpty()) {
+            return fieldName;
+        }
+        if (fieldName.indexOf('_') >= 0) {
+            return fieldName;
+        }
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < fieldName.length(); i++) {
+            char c = fieldName.charAt(i);
+            if (Character.isUpperCase(c)) {
+                if (i > 0) {
+                    result.append('_');
+                }
+                result.append(Character.toLowerCase(c));
+            } else {
+                result.append(c);
+            }
+        }
+        return result.toString();
+    }
+
+    /**
+     * 鐟滅増甯婄粩鎾礌閺嶃劍娈堕柟璇″枛閻⊙冣枔闂堟稒鍊冲☉?SQL snake_case闁挎稒绋撻埞?key 闁煎浜滄慨鈺勭疀閻ｅ本娈?
+     */
+    private Map<String, Object> normalizeDataKeysForSql(Map<String, Object> data) {
+        Map<String, Object> normalized = new LinkedHashMap<>();
+        if (data == null || data.isEmpty()) {
+            return normalized;
+        }
+        data.forEach((key, value) -> {
+            if (key == null || key.trim().isEmpty()) {
+                return;
+            }
+            String sqlKey = toSqlFieldName(key.trim());
+            normalized.put(sqlKey, value);
+        });
+        return normalized;
     }
 }

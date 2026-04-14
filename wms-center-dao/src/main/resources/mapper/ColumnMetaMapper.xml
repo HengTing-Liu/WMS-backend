@@ -29,7 +29,6 @@
         <result property="apiUrl" column="api_url"/>
         <result property="labelField" column="label_field"/>
         <result property="valueField" column="value_field"/>
-        <result property="colSpan" column="form_col_span"/>
         <result property="sectionKey" column="section_key"/>
         <result property="sectionTitle" column="section_title"/>
         <result property="sectionOrder" column="section_order"/>
@@ -37,10 +36,10 @@
         <result property="sectionOpen" column="section_open"/>
         <result property="columnName" column="column_name"/>
         <result property="defaultValue" column="default_value"/>
-        <result property="createBy" column="created_by"/>
-        <result property="createTime" column="created_at"/>
-        <result property="updateBy" column="updated_by"/>
-        <result property="updateTime" column="updated_at"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
     </resultMap>
 
     <select id="selectByTableCode" resultMap="ColumnMetaResult">
@@ -48,9 +47,9 @@
                show_in_list, show_in_form, show_in_export, searchable, is_sortable,
                required, width, sort_order, remarks, status, rules_json, placeholder,
                component_props, data_source, api_url, label_field, value_field,
-               form_col_span, section_key, section_title, section_order, section_type, section_open,
+               section_key, section_title, section_order, section_type, section_open,
                column_name, default_value,
-               created_by, created_at, updated_by, updated_at
+               create_by, create_time, update_by, update_time
         FROM sys_column_meta
         WHERE table_code = #{tableCode} AND status = 1 AND is_deleted = 0
         ORDER BY sort_order
@@ -61,9 +60,9 @@
                show_in_list, show_in_form, show_in_export, searchable, is_sortable,
                required, width, sort_order, remarks, status, rules_json, placeholder,
                component_props, data_source, api_url, label_field, value_field,
-               form_col_span, section_key, section_title, section_order, section_type, section_open,
+               section_key, section_title, section_order, section_type, section_open,
                column_name, default_value,
-               created_by, created_at, updated_by, updated_at
+               create_by, create_time, update_by, update_time
         FROM sys_column_meta
         WHERE id = #{id}
     </select>
@@ -74,15 +73,15 @@
             show_in_list, show_in_form, show_in_export, searchable, is_sortable,
             required, width, sort_order, remarks, status, rules_json, placeholder,
             component_props, data_source, api_url, label_field, value_field,
-            form_col_span, section_key, section_title, section_order, section_type, section_open,
+            section_key, section_title, section_order, section_type, section_open,
             column_name, default_value,
-            created_by, created_at, updated_by, updated_at
+            create_by, create_time, update_by, update_time
         ) VALUES (
             #{tableCode}, #{field}, #{title}, #{dataType}, #{formType}, #{dictType},
             #{showInList}, #{showInForm}, #{showInExport}, #{searchable}, #{sortable},
             #{required}, #{width}, #{sortOrder}, #{remarks}, #{status}, #{rulesJson}, #{placeholder},
             #{componentProps}, #{dataSource}, #{apiUrl}, #{labelField}, #{valueField},
-            #{colSpan}, #{sectionKey}, #{sectionTitle}, #{sectionOrder}, #{sectionType}, #{sectionOpen},
+            #{sectionKey}, #{sectionTitle}, #{sectionOrder}, #{sectionType}, #{sectionOpen},
             #{columnName}, #{defaultValue},
             #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
         )
@@ -113,7 +112,6 @@
             api_url = #{apiUrl},
             label_field = #{labelField},
             value_field = #{valueField},
-            form_col_span = #{colSpan},
             section_key = #{sectionKey},
             section_title = #{sectionTitle},
             section_order = #{sectionOrder},
@@ -121,8 +119,8 @@
             section_open = #{sectionOpen},
             column_name = #{columnName},
             default_value = #{defaultValue},
-            updated_by = #{updateBy},
-            updated_at = #{updateTime}
+            update_by = #{updateBy},
+            update_time = #{updateTime}
         WHERE id = #{id}
     </update>
 

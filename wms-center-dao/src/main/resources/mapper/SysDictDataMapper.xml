@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -21,7 +21,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</resultMap>
 	
 	<sql id="selectDictDataVo">
-        select dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remark 
+        select dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remarks 
 		from sys_dict_data
     </sql>
 
@@ -82,7 +82,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="listClass != null">list_class = #{listClass},</if>
  			<if test="isDefault != null and isDefault != ''">is_default = #{isDefault},</if>
  			<if test="status != null">status = #{status},</if>
- 			<if test="remark != null">remark = #{remark},</if>
+ 			<if test="remarks != null">remarks = #{remarks},</if>
  			<if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
  			update_time = sysdate()
  		</set>
@@ -103,7 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="listClass != null and listClass != ''">list_class,</if>
  			<if test="isDefault != null and isDefault != ''">is_default,</if>
  			<if test="status != null">status,</if>
- 			<if test="remark != null and remark != ''">remark,</if>
+ 			<if test="remarks != null and remarks != ''">remarks,</if>
  			<if test="createBy != null and createBy != ''">create_by,</if>
  			create_time
  		)values(
@@ -115,7 +115,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="listClass != null and listClass != ''">#{listClass},</if>
  			<if test="isDefault != null and isDefault != ''">#{isDefault},</if>
  			<if test="status != null">#{status},</if>
- 			<if test="remark != null and remark != ''">#{remark},</if>
+ 			<if test="remarks != null and remarks != ''">#{remarks},</if>
  			<if test="createBy != null and createBy != ''">#{createBy},</if>
  			sysdate()
  		)

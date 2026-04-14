@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -18,12 +18,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<result property="createTime"         column="create_time"           />
 		<result property="updateBy"           column="update_by"             />
 		<result property="updateTime"         column="update_time"           />
-		<result property="remark"             column="remark"                />
+		<result property="remarks"             column="remarks"                />
 	</resultMap>
 	
 	<sql id="selectRoleVo">
 	    select distinct r.role_id, r.role_name, r.role_key, r.role_sort, r.data_scope, r.menu_check_strictly, r.dept_check_strictly,
-            r.status, r.del_flag, r.create_time, r.remark 
+            r.status, r.del_flag, r.create_time, r.remarks 
         from sys_role r
 	        left join sys_user_role ur on ur.role_id = r.role_id
 	        left join sys_user u on u.user_id = ur.user_id
@@ -103,7 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="menuCheckStrictly != null">menu_check_strictly,</if>
  			<if test="deptCheckStrictly != null">dept_check_strictly,</if>
  			<if test="status != null and status != ''">status,</if>
- 			<if test="remark != null and remark != ''">remark,</if>
+ 			<if test="remarks != null and remarks != ''">remarks,</if>
  			<if test="createBy != null and createBy != ''">create_by,</if>
  			create_time
  		)values(
@@ -115,7 +115,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="menuCheckStrictly != null">#{menuCheckStrictly},</if>
  			<if test="deptCheckStrictly != null">#{deptCheckStrictly},</if>
  			<if test="status != null and status != ''">#{status},</if>
- 			<if test="remark != null and remark != ''">#{remark},</if>
+ 			<if test="remarks != null and remarks != ''">#{remarks},</if>
  			<if test="createBy != null and createBy != ''">#{createBy},</if>
  			sysdate()
  		)
@@ -131,7 +131,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="menuCheckStrictly != null">menu_check_strictly = #{menuCheckStrictly},</if>
  			<if test="deptCheckStrictly != null">dept_check_strictly = #{deptCheckStrictly},</if>
  			<if test="status != null and status != ''">status = #{status},</if>
- 			<if test="remark != null">remark = #{remark},</if>
+ 			<if test="remarks != null">remarks = #{remarks},</if>
  			<if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
  			update_time = sysdate()
  		</set>

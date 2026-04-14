@@ -40,7 +40,7 @@ public class MetaPermissionInitializer {
 
                 // 插入新菜单按钮
                 jdbcTemplate.update(
-                    "INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, menu_type, perms, icon, visible, status, create_by, update_by, remark) " +
+                    "INSERT INTO sys_menu (menu_name, parent_id, order_num, path, component, menu_type, perms, icon, visible, status, create_by, update_by, remarks) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     "元数据查询", parentId, 10, "meta/column/schema",
                     "system/meta/column/schema", "C", "system:meta:query",

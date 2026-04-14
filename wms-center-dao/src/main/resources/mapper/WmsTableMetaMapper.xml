@@ -13,7 +13,7 @@
         <result property="pageSize" column="page_size" jdbcType="INTEGER"/>
         <result property="isTree" column="is_tree" jdbcType="TINYINT"/>
         <result property="status" column="status" jdbcType="TINYINT"/>
-        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="remarks" column="remarks" jdbcType="VARCHAR"/>
         <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateBy" column="update_by" jdbcType="VARCHAR"/>
@@ -99,7 +99,7 @@
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">
         insert into sys_table_meta(
             table_code, table_name, module, entity_class, service_class, permission_code,
-            page_size, is_tree, status, remark, create_by, create_time, update_by, update_time,
+            page_size, is_tree, status, remarks, create_by, create_time, update_by, update_time,
             has_data_permission, permission_field, permission_scope
         ) values (
             #{tableCode}, #{tableName}, #{module}, #{entityClass}, #{serviceClass}, #{permissionCode},
@@ -163,7 +163,7 @@
                 status = #{status},
             </if>
             <if test="remarks != null">
-                remarks = #{remarks},
+            remarks = #{remarks},
             </if>
             <if test="hasDataPermission != null">
                 has_data_permission = #{hasDataPermission},

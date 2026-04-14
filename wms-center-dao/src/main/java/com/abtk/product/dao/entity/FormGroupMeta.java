@@ -19,4 +19,5 @@ public class FormGroupMeta extends BaseEntity {
     private Integer sortOrder;
     private Integer defaultOpen;
     private Integer status;
+    private String remarks;
 }
