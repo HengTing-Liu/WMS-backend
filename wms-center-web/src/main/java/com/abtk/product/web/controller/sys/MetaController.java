@@ -1,6 +1,7 @@
 package com.abtk.product.web.controller.sys;
 
 import com.abtk.product.api.domain.request.sys.ColumnMetaRequest;
+import com.abtk.product.api.domain.request.sys.FormGroupMetaRequest;
 import com.abtk.product.api.domain.request.sys.TableMetaQueryRequest;
 import com.abtk.product.common.web.page.TableDataInfo;
 import com.abtk.product.api.domain.request.sys.TableMetaRequest;
@@ -8,6 +9,7 @@ import com.abtk.product.api.domain.response.sys.ColumnMetaVO;
 import com.abtk.product.common.domain.R;
 import com.abtk.product.common.web.controller.BaseController;
 import com.abtk.product.dao.entity.ColumnMeta;
+import com.abtk.product.dao.entity.FormGroupMeta;
 import com.abtk.product.dao.entity.TableMeta;
 import com.abtk.product.dao.entity.TableOperation;
 import com.abtk.product.biz.sys.TableMetaBiz;
@@ -27,7 +29,6 @@ import java.util.stream.Collectors;
 
 /**
  * 元数据管理Controller
- * 提供表元数据、字段元数据、操作按钮的查询和管理接口
  */
 @Slf4j
 @Tag(name = "元数据管理", description = "动态表单元数据管理接口")
@@ -44,7 +45,7 @@ public class MetaController extends BaseController {
     /**
      * 表元数据分页列表查询
      */
-    @Operation(summary = "表元数据分页列表", description = "支持按表编码、表名称、模块模糊搜索")
+    @Operation(summary = "表元数据分页列表", description = "支持按表编码、表名称、模块查询")
     @RequiresPermissions("system:meta:table:query")
     @GetMapping("/table")
     public R<?> listTableMeta(TableMetaQueryRequest queryRequest) {
@@ -54,7 +55,7 @@ public class MetaController extends BaseController {
     }
 
     /**
-     * 获取表元数据（低代码页面运行时拉取，与 column/schema、operation/list 一致，仅需登录）
+     * 获取表元数据（低代码页面运行时拉取，供 column/schema 及 operation/list 共用，只需登录）
      */
     @Operation(summary = "获取表元数据", description = "根据表标识获取完整的表元数据，包含字段和操作按钮配置")
     @GetMapping("/table/{tableCode}")
@@ -141,10 +142,24 @@ public class MetaController extends BaseController {
         return R.ok(data);
     }
 
+    @Operation(summary = "获取表单分组元数据", description = "根据表标识获取表单分组元数据列表")
+    @RequiresPermissions("system:meta:table:query")
+    @GetMapping("/group/list/{tableCode}")
+    public R<List<FormGroupMeta>> listFormGroupMeta(@PathVariable String tableCode) {
+        return R.ok(metaService.getFormGroupMetaList(tableCode));
+    }
+
+    @Operation(summary = "获取表单分组元数据详情", description = "根据ID获取表单分组元数据详情")
+    @RequiresPermissions("system:meta:table:query")
+    @GetMapping("/group/{id}")
+    public R<FormGroupMeta> getFormGroupMetaById(@PathVariable Long id) {
+        return R.ok(metaService.getFormGroupMetaById(id));
+    }
+
     /**
-     * 获取字段 Schema（前端友好格式）
+     * 获取字段Schema（前端格式化）
      */
-    @Operation(summary = "获取字段 Schema", description = "根据表标识获取字段元数据的前端友好 Schema，低代码动态渲染专用，无需权限")
+    @Operation(summary = "获取字段Schema", description = "根据表标识获取字段元数据的前端格式化Schema，低代码动态渲染专用，无需权限")
     @GetMapping("/column/schema")
     public R<List<ColumnMetaVO>> getColumnSchema(
             @Parameter(description = "表标识", required = true)
@@ -182,7 +197,7 @@ public class MetaController extends BaseController {
     }
 
     /**
-     * 创建/更新操作按钮
+     * 保存操作按钮
      */
     @Operation(summary = "保存操作按钮", description = "新增或更新操作按钮配置")
     @RequiresPermissions("system:meta:edit")
@@ -209,7 +224,7 @@ public class MetaController extends BaseController {
     /**
      * 批量更新操作按钮排序
      */
-    @Operation(summary = "更新操作按钮排序", description = "批量更新操作按钮排序号")
+    @Operation(summary = "更新操作按钮排序", description = "批量更新操作按钮排序序号")
     @RequiresPermissions("system:meta:edit")
     @PutMapping("/operation/sort")
     public R<Void> sortOperations(@RequestBody List<TableOperation> operations) {
@@ -251,7 +266,7 @@ public class MetaController extends BaseController {
     /**
      * 删除表元数据
      */
-    @Operation(summary = "删除表元数据", description = "根据ID删除表元数据（逻辑删除）")
+    @Operation(summary = "删除表元数据", description = "根据ID删除表元数据（级联删除）")
     @RequiresPermissions("system:meta:table:manage")
     @DeleteMapping("/table/{id}")
     public R<Void> deleteTableMeta(
@@ -274,11 +289,10 @@ public class MetaController extends BaseController {
         return R.ok();
     }
 
-
     /**
-     * 批量更新字段排序号
+     * 批量更新字段排序序号
      */
-    @Operation(summary = "批量更新字段排序号")
+    @Operation(summary = "批量更新字段排序序号")
     @RequiresPermissions("system:meta:table:manage")
     @PutMapping("/column/sort")
     public R<Void> batchUpdateColumnSort(@RequestBody List<ColumnMetaRequest> requests) {
@@ -293,6 +307,8 @@ public class MetaController extends BaseController {
 
     /**
      * 保存字段元数据
+     */
+    @Operation(summary = "保存字段元数据")
     @RequiresPermissions("system:meta:table:manage")
     @PostMapping("/column/save/{tableCode}")
     public R<Void> saveColumnMeta(
@@ -312,7 +328,7 @@ public class MetaController extends BaseController {
     /**
      * 删除字段元数据
      */
-    @Operation(summary = "删除字段元数据", description = "根据ID删除字段元数据（逻辑删除）")
+    @Operation(summary = "删除字段元数据", description = "根据ID删除字段元数据（级联删除）")
     @RequiresPermissions("system:meta:table:manage")
     @DeleteMapping("/column/{id}")
     public R<Void> deleteColumnMeta(
@@ -351,10 +367,52 @@ public class MetaController extends BaseController {
         return R.ok();
     }
 
+    @Operation(summary = "新增表单分组元数据")
+    @RequiresPermissions("system:meta:table:manage")
+    @PostMapping("/group")
+    public R<FormGroupMeta> addFormGroupMeta(@RequestBody FormGroupMetaRequest request) {
+        FormGroupMeta formGroupMeta = new FormGroupMeta();
+        BeanUtils.copyProperties(request, formGroupMeta);
+        return R.ok(metaService.saveFormGroupMeta(formGroupMeta));
+    }
+
+    @Operation(summary = "更新表单分组元数据")
+    @RequiresPermissions("system:meta:table:manage")
+    @PutMapping("/group/{id}")
+    public R<FormGroupMeta> updateFormGroupMeta(
+            @PathVariable Long id,
+            @RequestBody FormGroupMetaRequest request) {
+        FormGroupMeta formGroupMeta = new FormGroupMeta();
+        BeanUtils.copyProperties(request, formGroupMeta);
+        formGroupMeta.setId(id);
+        return R.ok(metaService.saveFormGroupMeta(formGroupMeta));
+    }
+
+    @Operation(summary = "批量更新表单分组排序")
+    @RequiresPermissions("system:meta:table:manage")
+    @PutMapping("/group/sort")
+    public R<Void> batchUpdateFormGroupSort(@RequestBody List<FormGroupMetaRequest> requests) {
+        List<FormGroupMeta> groups = requests.stream().map(req -> {
+            FormGroupMeta group = new FormGroupMeta();
+            BeanUtils.copyProperties(req, group);
+            return group;
+        }).collect(Collectors.toList());
+        metaService.batchUpdateFormGroupSort(groups);
+        return R.ok();
+    }
+
+    @Operation(summary = "删除表单分组元数据")
+    @RequiresPermissions("system:meta:table:manage")
+    @DeleteMapping("/group/{id}")
+    public R<Void> deleteFormGroupMeta(@PathVariable Long id) {
+        metaService.deleteFormGroupMeta(id);
+        return R.ok();
+    }
+
     /**
      * 删除操作按钮
      */
-    @Operation(summary = "删除操作按钮", description = "根据ID删除操作按钮配置（逻辑删除）")
+    @Operation(summary = "删除操作按钮", description = "根据ID删除操作按钮配置（级联删除）")
     @RequiresPermissions("system:meta:table:manage")
     @DeleteMapping("/operation/{id}")
     public R<Void> deleteOperation(

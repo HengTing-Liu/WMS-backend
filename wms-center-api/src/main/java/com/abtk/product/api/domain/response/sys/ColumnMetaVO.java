@@ -72,6 +72,18 @@ public class ColumnMetaVO {
     @Schema(description = "字段分组标识（如 basic/basicInfo/extra）")
     private String sectionKey;
 
+    @Schema(description = "字段分组标题")
+    private String sectionTitle;
+
+    @Schema(description = "字段分组排序")
+    private Integer sectionOrder;
+
+    @Schema(description = "字段分组容器类型(card/collapse)")
+    private String sectionType;
+
+    @Schema(description = "字段分组是否默认展开: 0-否 1-是")
+    private Integer sectionOpen;
+
     @Schema(description = "多语言 key")
     private String i18nKey;
 

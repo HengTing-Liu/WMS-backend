@@ -98,7 +98,7 @@ public class Material implements Serializable {
     private String erpSyncRemark;
 
     /** 备注 */
-    private String remark;
+    private String remarks;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -160,6 +160,6 @@ public class Material implements Serializable {
     public void setSupplierSpec(String supplierSpec) { this.supplierSpec = supplierSpec; }
     public String getErpSyncRemark() { return erpSyncRemark; }
     public void setErpSyncRemark(String erpSyncRemark) { this.erpSyncRemark = erpSyncRemark; }
-    public String getRemark() { return remark; }
-    public void setRemark(String remark) { this.remark = remark; }
+    public String getRemarks() { return remarks; }
+    public void setRemarks(String remarks) { this.remarks = remarks; }
 }

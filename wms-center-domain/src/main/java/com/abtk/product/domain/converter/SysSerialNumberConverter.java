@@ -33,7 +33,6 @@ public interface SysSerialNumberConverter {
         @Mapping(source = "seqLength", target = "digitLength"),
         @Mapping(source = "currentSeq", target = "currentValue"),
         @Mapping(source = "maxSeq", target = "startValue"),
-        @Mapping(source = "description", target = "remark"),
         @Mapping(source = "dateFormat", target = "numberType", qualifiedByName = "dateFormatToNumberType"),
         @Mapping(source = "resetType", target = "resetRule", qualifiedByName = "resetTypeToResetRule"),
         @Mapping(source = "status", target = "isEnabled", qualifiedByName = "statusToIsEnabled")
@@ -48,7 +47,7 @@ public interface SysSerialNumberConverter {
         @Mapping(source = "digitLength", target = "seqLength"),
         @Mapping(source = "currentValue", target = "currentSeq"),
         @Mapping(source = "startValue", target = "maxSeq"),
-        @Mapping(source = "remark", target = "description"),
+        @Mapping(target = "description", ignore = true),
         @Mapping(source = "numberType", target = "dateFormat", qualifiedByName = "numberTypeToDateFormat"),
         @Mapping(source = "resetRule", target = "resetType", qualifiedByName = "resetRuleToResetType"),
         @Mapping(source = "isEnabled", target = "status", qualifiedByName = "isEnabledToStatus"),

@@ -60,7 +60,7 @@ public class SysDataPermissionField extends BaseEntity {
     private Integer status;
     
     /** 备注 */
-    private String remark;
+    private String remarks;
     
     // ==================== 构造方法 ====================
     
@@ -169,12 +169,12 @@ public class SysDataPermissionField extends BaseEntity {
         this.status = status;
     }
     
-    public String getRemark() {
-        return remark;
+    public String getRemarks() {
+        return remarks;
     }
     
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
     
     // ==================== 业务方法 ====================

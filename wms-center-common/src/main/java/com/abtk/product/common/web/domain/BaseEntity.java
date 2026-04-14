@@ -37,7 +37,7 @@ public class BaseEntity implements Serializable
     private Date updateTime;
 
     /** 备注 */
-    private String remark;
+    private String remarks;
 
     /** 请求参数 */
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -93,14 +93,14 @@ public class BaseEntity implements Serializable
         this.updateTime = updateTime;
     }
 
-    public String getRemark()
+    public String getRemarks()
     {
-        return remark;
+        return remarks;
     }
 
-    public void setRemark(String remark)
+    public void setRemarks(String remarks)
     {
-        this.remark = remark;
+        this.remarks = remarks;
     }
 
     public Map<String, Object> getParams()

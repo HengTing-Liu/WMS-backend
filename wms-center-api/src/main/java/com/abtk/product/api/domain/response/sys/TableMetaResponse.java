@@ -62,7 +62,7 @@ public class TableMetaResponse extends BaseResponse {
 
     @Excel(name = "备注")
     @Schema(description = "备注")
-    private String remark;
+    private String remarks;
 
     @Excel(name = "创建人")
     @Schema(description = "创建人")

@@ -17,7 +17,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<result property="district"           column="district" />
 		<result property="address"            column="address" />
 		<result property="isEnabled"          column="is_enabled" />
-		<result property="remark"             column="remark" />
+		<result property="remarks"             column="remarks" />
 		<result property="createBy"            column="create_by" />
 		<result property="createTime"         column="create_time" />
 		<result property="updateBy"           column="update_by" />
@@ -28,7 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<sql id="selectCustomerVo">
         SELECT id, customer_code, customer_name, contact_person, contact_phone,
                mobile, email, province, city, district, address,
-               is_enabled, remark, create_by, create_time, update_by, update_time
+               is_enabled, remarks, create_by, create_time, update_by, update_time
 		FROM sys_customer
 		WHERE is_deleted = 0
     </sql>
@@ -88,7 +88,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			district,
 			address,
 			is_enabled,
-			remark,
+			remarks,
 			create_by,
 			create_time
 		) VALUES (
@@ -103,7 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			#{district},
 			#{address},
 			#{isEnabled},
-			#{remark},
+			#{remarks},
 			#{createBy},
 			NOW()
 		)
@@ -123,7 +123,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="district != null">district = #{district},</if>
 			<if test="address != null">address = #{address},</if>
 			<if test="isEnabled != null">is_enabled = #{isEnabled},</if>
-			<if test="remark != null">remark = #{remark},</if>
+			<if test="remarks != null">remarks = #{remarks},</if>
 			<if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
 			update_time = NOW()
 		</set>

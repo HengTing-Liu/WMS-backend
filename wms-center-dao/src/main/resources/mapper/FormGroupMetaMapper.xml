@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abtk.product.dao.mapper.FormGroupMetaMapper">
+
+    <resultMap id="FormGroupMetaResult" type="com.abtk.product.dao.entity.FormGroupMeta">
+        <id property="id" column="id"/>
+        <result property="tableCode" column="table_code"/>
+        <result property="groupCode" column="group_code"/>
+        <result property="groupTitle" column="group_title"/>
+        <result property="groupType" column="group_type"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="defaultOpen" column="default_open"/>
+        <result property="status" column="status"/>
+        <result property="remarks" column="remarks"/>
+        <result property="createBy" column="created_by"/>
+        <result property="createTime" column="created_at"/>
+        <result property="updateBy" column="updated_by"/>
+        <result property="updateTime" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectByTableCode" resultMap="FormGroupMetaResult">
+        SELECT id, table_code, group_code, group_title, group_type, sort_order,
+               default_open, status, remarks, created_by, created_at, updated_by, updated_at
+        FROM sys_form_group_meta
+        WHERE table_code = #{tableCode}
+        ORDER BY sort_order, id
+    </select>
+
+    <select id="selectById" resultMap="FormGroupMetaResult">
+        SELECT id, table_code, group_code, group_title, group_type, sort_order,
+               default_open, status, remarks, created_by, created_at, updated_by, updated_at
+        FROM sys_form_group_meta
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_form_group_meta (
+            table_code, group_code, group_title, group_type, sort_order,
+            default_open, status, remarks, created_by, created_at, updated_by, updated_at
+        ) VALUES (
+            #{tableCode}, #{groupCode}, #{groupTitle}, #{groupType}, #{sortOrder},
+            #{defaultOpen}, #{status}, #{remarks}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE sys_form_group_meta
+        SET table_code = #{tableCode},
+            group_code = #{groupCode},
+            group_title = #{groupTitle},
+            group_type = #{groupType},
+            sort_order = #{sortOrder},
+            default_open = #{defaultOpen},
+            status = #{status},
+            remarks = #{remarks},
+            updated_by = #{updateBy},
+            updated_at = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateSortOrder">
+        UPDATE sys_form_group_meta
+        SET sort_order = #{sortOrder}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM sys_form_group_meta WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByTableCode">
+        DELETE FROM sys_form_group_meta WHERE table_code = #{tableCode}
+    </delete>
+
+</mapper>

@@ -26,7 +26,7 @@
     <!-- 基础列 -->
     <sql id="Base_Column_List">
         id, table_code, table_name, module, entity_class, service_class, permission_code,
-        page_size, is_tree, status, remark, create_by, create_time, update_by, update_time,
+        page_size, is_tree, status, remarks, create_by, create_time, update_by, update_time,
         has_data_permission, permission_field, permission_scope
     </sql>
 
@@ -115,7 +115,7 @@
                 <when test="status != null">#{status}</when>
                 <otherwise>1</otherwise>
             </choose>,
-            #{remark}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime},
+            #{remarks}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime},
             <choose>
                 <when test="hasDataPermission != null">#{hasDataPermission}</when>
                 <otherwise>0</otherwise>
@@ -162,8 +162,8 @@
             <if test="status != null">
                 status = #{status},
             </if>
-            <if test="remark != null">
-                remark = #{remark},
+            <if test="remarks != null">
+                remarks = #{remarks},
             </if>
             <if test="hasDataPermission != null">
                 has_data_permission = #{hasDataPermission},

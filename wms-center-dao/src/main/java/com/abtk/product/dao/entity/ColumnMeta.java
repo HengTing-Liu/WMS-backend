@@ -69,7 +69,7 @@ public class ColumnMeta extends BaseEntity {
     private Integer status;
 
     /** 备注 */
-    private String remark;
+    private String remarks;
 
     /** 数据库列名（原始） */
     private String columnName;
@@ -109,6 +109,18 @@ public class ColumnMeta extends BaseEntity {
 
     /** 字段分组标识 */
     private String sectionKey;
+
+    /** 字段分组标题 */
+    private String sectionTitle;
+
+    /** 字段分组排序 */
+    private Integer sectionOrder;
+
+    /** 字段分组容器类型 */
+    private String sectionType;
+
+    /** 字段分组是否默认展开: 0-否 1-是 */
+    private Integer sectionOpen;
 
     /** 多语言 key */
     private String i18nKey;

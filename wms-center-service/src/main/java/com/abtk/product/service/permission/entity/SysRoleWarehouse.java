@@ -32,7 +32,7 @@ public class SysRoleWarehouse extends BaseEntity {
     private Integer status;
     
     /** 备注 */
-    private String remark;
+    private String remarks;
     
     // ==================== 构造方法 ====================
     
@@ -86,12 +86,12 @@ public class SysRoleWarehouse extends BaseEntity {
         this.status = status;
     }
     
-    public String getRemark() {
-        return remark;
+    public String getRemarks() {
+        return remarks;
     }
     
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
     
     @Override

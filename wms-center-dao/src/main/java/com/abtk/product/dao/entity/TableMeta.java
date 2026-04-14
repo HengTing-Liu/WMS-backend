@@ -43,7 +43,7 @@ public class TableMeta extends BaseEntity {
     private Integer status;
 
     /** 备注 */
-    private String remark;
+    private String remarks;
 
     /** 表字段列表（非数据库字段） */
     private transient List<ColumnMeta> columns;

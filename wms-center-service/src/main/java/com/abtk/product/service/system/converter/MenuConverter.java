@@ -66,7 +66,7 @@ public class MenuConverter {
         meta.setKeepAlive("0".equals(menu.getIsCache()));
 
         // 固定标签页（可自定义逻辑，这里假设 remark="affix" 表示固定）
-        meta.setAffixTab("1".equals(menu.getRemark())); // 或根据业务扩展
+        meta.setAffixTab("1".equals(menu.getRemarks())); // 或根据业务扩展
 
         // 隐藏菜单：visible="1" 表示隐藏，status="1" 表示停用
         boolean hideInMenu = "1".equals(menu.getVisible()) || "1".equals(menu.getStatus());

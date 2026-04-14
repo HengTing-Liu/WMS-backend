@@ -186,7 +186,7 @@ public class DeptDataPermission extends BaseEntity {
                 .append("updateBy", getUpdateBy())
                 .append("updateTime", getUpdateTime())
                 .append("deleted", getDeleted())
-                .append("remark", getRemark())
+                .append("remarks", getRemarks())
                 .toString();
     }
 }

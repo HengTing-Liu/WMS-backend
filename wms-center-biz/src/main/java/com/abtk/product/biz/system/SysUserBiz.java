@@ -94,7 +94,7 @@ public class SysUserBiz extends AbstractBiz {
         vo.setUsername(loginUser.getUsername());
         vo.setAvatar(loginUser.getSysUser().getAvatar());
         vo.setHomePath(loginUser.getDefaultPage());
-        vo.setDesc(loginUser.getSysUser().getRemark());
+        vo.setDesc(loginUser.getSysUser().getRemarks());
         vo.setPermissions(permissions);
         return R.ok(vo);
     }

@@ -40,7 +40,7 @@ public class TableMetaBiz {
     @Autowired
     private I18nService i18nService;
 
-    /** BaseEntity 固定字段（不含 createBy/createTime/updateBy/updateTime/remark 本身） */
+    /** BaseEntity 固定字段（不含 createBy/createTime/updateBy/updateTime） */
     private static final List<ColumnMeta> BASE_ENTITY_COLUMNS = buildBaseEntityColumns();
 
     private static List<ColumnMeta> buildBaseEntityColumns() {
@@ -120,23 +120,23 @@ public class TableMetaBiz {
         updateTime.setColSpan(24);
         columns.add(updateTime);
 
-        // remark
-        ColumnMeta remark = new ColumnMeta();
-        remark.setField("remark");
-        remark.setTitle("备注");
-        remark.setColumnName("remark");
-        remark.setDataType("string");
-        remark.setFormType("textarea");
-        remark.setShowInList(0);
-        remark.setShowInForm(1);
-        remark.setShowInExport(1);
-        remark.setSearchable(0);
-        remark.setSortable(0);
-        remark.setRequired(0);
-        remark.setSortOrder(999);
-        remark.setStatus(1);
-        remark.setColSpan(24);
-        columns.add(remark);
+        // remarks
+        ColumnMeta remarks = new ColumnMeta();
+        remarks.setField("remarks");
+        remarks.setTitle("备注");
+        remarks.setColumnName("remarks");
+        remarks.setDataType("string");
+        remarks.setFormType("textarea");
+        remarks.setShowInList(0);
+        remarks.setShowInForm(1);
+        remarks.setShowInExport(1);
+        remarks.setSearchable(0);
+        remarks.setSortable(0);
+        remarks.setRequired(0);
+        remarks.setSortOrder(999);
+        remarks.setStatus(1);
+        remarks.setColSpan(24);
+        columns.add(remarks);
 
         // isDeleted（逻辑删除标记）
         ColumnMeta isDeleted = new ColumnMeta();

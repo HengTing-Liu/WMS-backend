@@ -92,7 +92,7 @@ public class SysRoleResponse {
      * 备注
      */
     @Schema(description = "备注")
-    private String remark;
+    private String remarks;
 
     /**
      * 菜单ID数组

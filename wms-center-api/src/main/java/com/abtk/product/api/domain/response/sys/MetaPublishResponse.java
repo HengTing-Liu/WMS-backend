@@ -26,7 +26,7 @@ public class MetaPublishResponse {
     private String publishBy;
     private String publishByName;
     private LocalDateTime publishTime;
-    private String remark;
+    private String remarks;
     private LocalDateTime createdAt;
 
     /** 明细列表 */

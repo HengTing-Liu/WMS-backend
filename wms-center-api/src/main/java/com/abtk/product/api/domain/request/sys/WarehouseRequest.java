@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 /**
@@ -21,12 +20,26 @@ public class WarehouseRequest extends BaseRequest {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 仓库类型
+     */
+    @Size(max = 50, message = "仓库类型长度不能超过50")
+    @Schema(description = "仓库类型")
+    private String warehouseType;
+
+    /**
      * 仓库编码
      */
     @NotBlank(message = "仓库编码不能为空")
-    @Size(max = 50, message = "仓库编码长度不能超过50")
+    @Size(max = 100, message = "仓库编码长度不能超过100")
     @Schema(description = "仓库编码")
     private String warehouseCode;
+
+    /**
+     * 所在地
+     */
+    @Size(max = 100, message = "所在地长度不能超过100")
+    @Schema(description = "所在地")
+    private String warehouseLocation;
 
     /**
      * 仓库名称
@@ -79,17 +92,36 @@ public class WarehouseRequest extends BaseRequest {
     private String deptNameFullPath;
 
     /**
-     * 所属公司
+     * ERP公司编码
      */
-    @NotBlank(message = "所属公司不能为空")
-    @Size(max = 100, message = "所属公司长度不能超过100")
-    @Schema(description = "所属公司")
-    private String company;
+    @Size(max = 50, message = "ERP公司编码长度不能超过50")
+    @Schema(description = "ERP公司编码")
+    private String erpCompanyCode;
+
+    /**
+     * ERP公司名称
+     */
+    @Size(max = 100, message = "ERP公司名称长度不能超过100")
+    @Schema(description = "ERP公司名称")
+    private String erpCompanyName;
+
+    /**
+     * ERP仓库编码
+     */
+    @Size(max = 50, message = "ERP仓库编码长度不能超过50")
+    @Schema(description = "ERP仓库编码")
+    private String erpWarehouseCode;
+
+    /**
+     * ERP货位编码
+     */
+    @Size(max = 50, message = "ERP货位编码长度不能超过50")
+    @Schema(description = "ERP货位编码")
+    private String erpLocationCode;
 
     /**
      * 是否启用：0-禁用 1-启用
      */
-    @NotNull(message = "是否启用不能为空")
     @Schema(description = "是否启用")
     private Integer isEnabled;
 
@@ -98,5 +130,5 @@ public class WarehouseRequest extends BaseRequest {
      */
     @Size(max = 500, message = "备注长度不能超过500")
     @Schema(description = "备注")
-    private String remark;
+    private String remarks;
 }

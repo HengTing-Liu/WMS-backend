@@ -1,4 +1,4 @@
-﻿-- ============================================
+-- ============================================
 -- 动态表单模块 - 用户管理表元数据初始化
 -- 更新日期: 2026-03-20
 -- ============================================
@@ -63,7 +63,7 @@ INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, dic
 -- 更新时间
 ('sys_user', 'updateTime', '更新时间', 'datetime', 'datetime', '', 0, 0, 0, 1, 0, 160, 19, 1, 'system', NOW()),
 -- 备注
-('sys_user', 'remark', '备注', 'string', 'textarea', '', 0, 1, 0, 0, 0, NULL, 20, 1, 'system', NOW())
+('sys_user', 'remarks', '备注', 'string', 'textarea', '', 0, 1, 0, 0, 0, NULL, 20, 1, 'system', NOW())
 ON DUPLICATE KEY UPDATE 
     title = VALUES(title),
     data_type = VALUES(data_type),

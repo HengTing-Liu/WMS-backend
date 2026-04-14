@@ -79,7 +79,7 @@ public class WmsTableMetaResponse extends BaseResponse {
     private Integer status;
 
     @Schema(description = "备注")
-    private String remark;
+    private String remarks;
 
     /**
      * 是否有数据权限：0=否，1=是

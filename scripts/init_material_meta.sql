@@ -59,7 +59,7 @@ VALUES
 ('sys_material', 'brand', '品牌', 'string', 'input', 0, 1, 1, 0, 0, 120, 73, 1, 'system', NOW(), 'brand'),
 ('sys_material', 'itemNo', '货号', 'string', 'input', 0, 1, 1, 0, 0, 120, 74, 1, 'system', NOW(), 'item_no'),
 ('sys_material', 'erpSyncRemark', 'ERP同步备注', 'string', 'textarea', 0, 1, 0, 0, 0, NULL, 80, 1, 'system', NOW(), 'erp_sync_remark'),
-('sys_material', 'remark', '备注', 'string', 'textarea', 0, 1, 0, 0, 0, NULL, 90, 1, 'system', NOW(), 'remark'),
+('sys_material', 'remarks', '备注', 'string', 'textarea', 0, 1, 0, 0, 0, NULL, 90, 1, 'system', NOW(), 'remarks'),
 ('sys_material', 'createBy', '创建人', 'string', 'input', 0, 0, 0, 0, 0, 100, 95, 1, 'system', NOW(), 'create_by'),
 ('sys_material', 'createTime', '创建时间', 'datetime', 'datetime', 1, 0, 0, 1, 0, 170, 96, 1, 'system', NOW(), 'create_time'),
 ('sys_material', 'updateBy', '更新人', 'string', 'input', 0, 0, 0, 0, 0, 100, 97, 1, 'system', NOW(), 'update_by'),

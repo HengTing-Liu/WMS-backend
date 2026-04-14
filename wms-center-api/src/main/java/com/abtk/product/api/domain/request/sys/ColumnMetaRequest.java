@@ -35,11 +35,15 @@ public class ColumnMetaRequest implements Serializable {
     private String valueField;
     private Integer colSpan;
     private String sectionKey;
+    private String sectionTitle;
+    private Integer sectionOrder;
+    private String sectionType;
+    private Integer sectionOpen;
     private String i18nKey;
     private String visibleCondition;
     // 补全缺失字段
     private String linkageJson;
-    private String remark;
+    private String remarks;
     private String columnName;
     private String columnType;
     private Boolean primaryKey;

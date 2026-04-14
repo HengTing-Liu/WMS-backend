@@ -46,7 +46,7 @@ public class Customer extends BaseEntity implements java.io.Serializable {
     private Integer isEnabled;
 
     /** 备注 */
-    private String remark;
+    private String remarks;
 
     /** 逻辑删除：0-未删除 1-已删除 */
     private Integer isDeleted;
@@ -148,12 +148,12 @@ public class Customer extends BaseEntity implements java.io.Serializable {
         this.isEnabled = isEnabled;
     }
 
-    public String getRemark() {
-        return remark;
+    public String getRemarks() {
+        return remarks;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
 
     public Integer getIsDeleted() {

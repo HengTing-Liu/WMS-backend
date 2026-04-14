@@ -6,17 +6,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 	<resultMap type="com.abtk.product.dao.entity.Warehouse" id="WarehouseResult">
 		<id     property="id"                  column="id" />
+		<result property="warehouseType"       column="warehouse_type" />
 		<result property="warehouseCode"       column="warehouse_code" />
-		<result property="warehouseName"       column="warehouse_name" />
+		<result property="warehouseLocation"   column="warehouse_location" />
+		<result property="warehouseName"      column="warehouse_name" />
 		<result property="temperatureZone"     column="temperature_zone" />
 		<result property="qualityZone"         column="quality_zone" />
 		<result property="employeeCode"        column="employee_code" />
 		<result property="employeeName"        column="employee_name" />
 		<result property="deptCode"            column="dept_code" />
 		<result property="deptNameFullPath"    column="dept_name_full_path" />
-		<result property="company"             column="company" />
+		<result property="erpCompanyCode"      column="erp_company_code" />
+		<result property="erpCompanyName"      column="erp_company_name" />
+		<result property="erpWarehouseCode"    column="erp_warehouse_code" />
+		<result property="erpLocationCode"     column="erp_location_code" />
 		<result property="isEnabled"           column="is_enabled" />
-		<result property="remark"              column="remark" />
+		<result property="remarks"              column="remarks" />
 		<result property="createBy"            column="create_by" />
 		<result property="createTime"          column="create_time" />
 		<result property="updateBy"            column="update_by" />
@@ -25,9 +30,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</resultMap>
 
 	<sql id="selectWarehouseVo">
-        SELECT id, warehouse_code, warehouse_name, temperature_zone, quality_zone,
-               employee_code, employee_name, dept_code, dept_name_full_path, company,
-               is_enabled, remark, create_by, create_time, update_by, update_time
+        SELECT id, warehouse_type, warehouse_code, warehouse_location, warehouse_name,
+               temperature_zone, quality_zone, employee_code, employee_name,
+               dept_code, dept_name_full_path,
+               erp_company_code, erp_company_name, erp_warehouse_code, erp_location_code,
+               is_enabled, remarks, create_by, create_time, update_by, update_time
 		FROM sys_warehouse
 		WHERE is_deleted = 0
     </sql>
@@ -45,8 +52,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="warehouseName != null and warehouseName != ''">
 			AND warehouse_name LIKE CONCAT('%', #{warehouseName}, '%')
 		</if>
-		<if test="company != null and company != ''">
-			AND company = #{company}
+		<if test="warehouseType != null and warehouseType != ''">
+			AND warehouse_type = #{warehouseType}
+		</if>
+		<if test="erpCompanyCode != null and erpCompanyCode != ''">
+			AND erp_company_code = #{erpCompanyCode}
 		</if>
 		<if test="isEnabled != null">
 			AND is_enabled = #{isEnabled}
@@ -56,7 +66,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 	<insert id="insert" parameterType="com.abtk.product.dao.entity.Warehouse" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO sys_warehouse(
+			warehouse_type,
 			warehouse_code,
+			warehouse_location,
 			warehouse_name,
 			temperature_zone,
 			quality_zone,
@@ -64,13 +76,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			employee_name,
 			dept_code,
 			dept_name_full_path,
-			company,
+			erp_company_code,
+			erp_company_name,
+			erp_warehouse_code,
+			erp_location_code,
 			is_enabled,
-			remark,
+			remarks,
 			create_by,
 			create_time
 		) VALUES (
+			#{warehouseType},
 			#{warehouseCode},
+			#{warehouseLocation},
 			#{warehouseName},
 			#{temperatureZone},
 			#{qualityZone},
@@ -78,9 +95,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			#{employeeName},
 			#{deptCode},
 			#{deptNameFullPath},
-			#{company},
+			#{erpCompanyCode},
+			#{erpCompanyName},
+			#{erpWarehouseCode},
+			#{erpLocationCode},
 			#{isEnabled},
-			#{remark},
+			#{remarks},
 			#{createBy},
 			NOW()
 		)
@@ -89,7 +109,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<update id="update" parameterType="com.abtk.product.dao.entity.Warehouse">
 		UPDATE sys_warehouse
 		<set>
+			<if test="warehouseType != null">warehouse_type = #{warehouseType},</if>
 			<if test="warehouseCode != null and warehouseCode != ''">warehouse_code = #{warehouseCode},</if>
+			<if test="warehouseLocation != null">warehouse_location = #{warehouseLocation},</if>
 			<if test="warehouseName != null and warehouseName != ''">warehouse_name = #{warehouseName},</if>
 			<if test="temperatureZone != null">temperature_zone = #{temperatureZone},</if>
 			<if test="qualityZone != null">quality_zone = #{qualityZone},</if>
@@ -97,9 +119,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="employeeName != null">employee_name = #{employeeName},</if>
 			<if test="deptCode != null">dept_code = #{deptCode},</if>
 			<if test="deptNameFullPath != null">dept_name_full_path = #{deptNameFullPath},</if>
-			<if test="company != null">company = #{company},</if>
+			<if test="erpCompanyCode != null">erp_company_code = #{erpCompanyCode},</if>
+			<if test="erpCompanyName != null">erp_company_name = #{erpCompanyName},</if>
+			<if test="erpWarehouseCode != null">erp_warehouse_code = #{erpWarehouseCode},</if>
+			<if test="erpLocationCode != null">erp_location_code = #{erpLocationCode},</if>
 			<if test="isEnabled != null">is_enabled = #{isEnabled},</if>
-			<if test="remark != null">remark = #{remark},</if>
+			<if test="remarks != null">remarks = #{remarks},</if>
 			<if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
 			update_time = NOW()
 		</set>
@@ -134,12 +159,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 
 	<select id="selectDistinctCompany" resultType="String">
-		SELECT DISTINCT company
+		SELECT DISTINCT erp_company_name
 		FROM sys_warehouse
 		WHERE is_deleted = 0
-		AND company IS NOT NULL
-		AND company != ''
-		ORDER BY company
+		AND erp_company_name IS NOT NULL
+		AND erp_company_name != ''
+		ORDER BY erp_company_name
 	</select>
 
 </mapper>

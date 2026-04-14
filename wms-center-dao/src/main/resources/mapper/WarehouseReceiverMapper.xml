@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -16,7 +16,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<result property="detailedAddress"     column="detailed_address" />
 		<result property="postalCode"          column="postal_code" />
 		<result property="isDefault"           column="is_default" />
-		<result property="remark"              column="remark" />
+		<result property="remarks"              column="remarks" />
 		<result property="createBy"            column="create_by" />
 		<result property="createTime"          column="create_time" />
 		<result property="updateBy"            column="update_by" />
@@ -26,7 +26,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 	<sql id="selectWarehouseReceiverVo">
         SELECT id, warehouse_code, consignee, phone_number, country, province,
-               city, district, detailed_address, postal_code, is_default, remark,
+               city, district, detailed_address, postal_code, is_default, remarks,
                create_by, create_time, update_by, update_time
 		FROM sys_warehouse_receiver
 		WHERE is_deleted = 0
@@ -55,7 +55,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			detailed_address,
 			postal_code,
 			is_default,
-			remark,
+			remarks,
 			create_by,
 			create_time
 		) VALUES (
@@ -69,7 +69,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			#{detailedAddress},
 			#{postalCode},
 			#{isDefault},
-			#{remark},
+			#{remarks},
 			#{createBy},
 			NOW()
 		)
@@ -88,7 +88,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="detailedAddress != null and detailedAddress != ''">detailed_address = #{detailedAddress},</if>
 			<if test="postalCode != null">postal_code = #{postalCode},</if>
 			<if test="isDefault != null">is_default = #{isDefault},</if>
-			<if test="remark != null">remark = #{remark},</if>
+			<if test="remarks != null">remarks = #{remarks},</if>
 			<if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
 			update_time = NOW()
 		</set>

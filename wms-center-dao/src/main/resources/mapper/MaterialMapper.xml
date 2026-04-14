@@ -33,7 +33,7 @@
 		<result property="supplierItemNo" column="supplier_item_no"/>
 		<result property="supplierSpec" column="supplier_spec"/>
 		<result property="erpSyncRemark" column="erp_sync_remark"/>
-		<result property="remark" column="remark"/>
+		<result property="remarks" column="remarks"/>
 	</resultMap>
 
 	<sql id="selectMaterialVo">
@@ -42,7 +42,7 @@
 		       material_en_name, export_name, brand, item_no, package_spec,
 		       storage_condition, transport_condition, length, width, height,
 		       logistics_package, box_model, outer_package, require_qc,
-		       supplier_brand, supplier_item_no, supplier_spec, erp_sync_remark, remark
+		       supplier_brand, supplier_item_no, supplier_spec, erp_sync_remark, remarks
 		FROM sys_material WHERE is_deleted = 0
 	</sql>
 
@@ -92,14 +92,14 @@
 			package_spec, storage_condition, transport_condition,
 			length, width, height, logistics_package, box_model, outer_package,
 			require_qc, supplier_brand, supplier_item_no, supplier_spec,
-			erp_sync_remark, remark
+			erp_sync_remark, remarks
 		) VALUES (
 			#{materialCode}, #{materialName}, #{spec}, #{unit}, #{category}, #{status},
 			#{createBy}, #{materialEnName}, #{exportName}, #{brand}, #{itemNo},
 			#{packageSpec}, #{storageCondition}, #{transportCondition},
 			#{length}, #{width}, #{height}, #{logisticsPackage}, #{boxModel}, #{outerPackage},
 			#{requireQc}, #{supplierBrand}, #{supplierItemNo}, #{supplierSpec},
-			#{erpSyncRemark}, #{remark}
+			#{erpSyncRemark}, #{remarks}
 		)
 	</insert>
 
@@ -131,7 +131,7 @@
 			<if test="supplierItemNo != null">supplier_item_no = #{supplierItemNo},</if>
 			<if test="supplierSpec != null">supplier_spec = #{supplierSpec},</if>
 			<if test="erpSyncRemark != null">erp_sync_remark = #{erpSyncRemark},</if>
-			<if test="remark != null">remark = #{remark},</if>
+			<if test="remarks != null">remarks = #{remarks},</if>
 			update_time = NOW()
 		</set>
 		WHERE id = #{id} AND is_deleted = 0

@@ -105,5 +105,5 @@ public class CustomerRequest extends BaseRequest implements Serializable {
      */
     @Size(max = 500, message = "备注长度不能超过500")
     @Schema(description = "备注")
-    private String remark;
+    private String remarks;
 }

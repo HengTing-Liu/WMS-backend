@@ -94,5 +94,5 @@ public class SysPermissionRequest extends BaseRequest {
      */
     @Size(max = 500, message = "备注长度不能超过500个字符")
     @Schema(description = "备注")
-    private String remark;
+    private String remarks;
 }

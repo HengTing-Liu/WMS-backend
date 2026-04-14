@@ -118,5 +118,5 @@ public class WmsTableMeta extends BaseEntity implements Serializable {
      */
     @Excel(name = "备注", type = Type.ALL)
     @Schema(description = "备注")
-    private String remark;
+    private String remarks;
 }

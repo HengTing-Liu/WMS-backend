@@ -62,7 +62,7 @@ VALUES
 -- 是否启用
 ('sys_warehouse', 'isEnabled', '状态', 'int', 'switch', 1, 1, 1, 0, 1, 80, 14, 1, 'system', NOW(), 'is_enabled'),
 -- 备注
-('sys_warehouse', 'remark', '备注', 'string', 'textarea', 0, 1, 0, 0, 0, NULL, 15, 1, 'system', NOW(), 'remark'),
+('sys_warehouse', 'remarks', '备注', 'string', 'textarea', 0, 1, 0, 0, 0, NULL, 15, 1, 'system', NOW(), 'remarks'),
 -- 创建时间
 ('sys_warehouse', 'createTime', '创建时间', 'datetime', 'datetime', 1, 0, 0, 1, 0, 170, 16, 1, 'system', NOW(), 'create_time'),
 -- 创建人（隐藏）
@@ -149,7 +149,7 @@ VALUES
 -- 是否默认
 ('sys_warehouse_receiver', 'isDefault', '默认地址', 'int', 'switch', 1, 1, 1, 0, 0, 100, 10, 1, 'system', NOW(), 'is_default'),
 -- 备注
-('sys_warehouse_receiver', 'remark', '备注', 'string', 'textarea', 0, 1, 0, 0, 0, NULL, 11, 1, 'system', NOW(), 'remark'),
+('sys_warehouse_receiver', 'remarks', '备注', 'string', 'textarea', 0, 1, 0, 0, 0, NULL, 11, 1, 'system', NOW(), 'remarks'),
 -- 创建时间
 ('sys_warehouse_receiver', 'createTime', '创建时间', 'datetime', 'datetime', 1, 0, 0, 1, 0, 170, 12, 1, 'system', NOW(), 'create_time'),
 -- 创建人（隐藏）
@@ -247,7 +247,7 @@ VALUES
 -- 更新时间（隐藏）
 ('sys_user', 'updateTime', '更新时间', 'datetime', 'datetime', 0, 0, 0, 1, 0, 160, 15, 1, 'system', NOW(), 'update_time'),
 -- 备注
-('sys_user', 'remark', '备注', 'string', 'textarea', 0, 1, 0, 0, 0, NULL, 16, 1, 'system', NOW(), 'remark'),
+('sys_user', 'remarks', '备注', 'string', 'textarea', 0, 1, 0, 0, 0, NULL, 16, 1, 'system', NOW(), 'remarks'),
 -- 删除标志（隐藏）
 ('sys_user', 'delFlag', '删除标志', 'string', 'input', 0, 0, 0, 0, 0, NULL, 17, 1, 'system', NOW(), 'del_flag')
 ON DUPLICATE KEY UPDATE

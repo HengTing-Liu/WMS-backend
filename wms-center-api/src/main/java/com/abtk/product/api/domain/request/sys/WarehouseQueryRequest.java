@@ -17,6 +17,12 @@ public class WarehouseQueryRequest extends BaseRequest {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 仓库类型
+     */
+    @Schema(description = "仓库类型")
+    private String warehouseType;
+
+    /**
      * 仓库编码
      */
     @Schema(description = "仓库编码")
@@ -29,10 +35,10 @@ public class WarehouseQueryRequest extends BaseRequest {
     private String warehouseName;
 
     /**
-     * 所属公司
+     * ERP公司编码
      */
-    @Schema(description = "所属公司")
-    private String company;
+    @Schema(description = "ERP公司编码")
+    private String erpCompanyCode;
 
     /**
      * 是否启用

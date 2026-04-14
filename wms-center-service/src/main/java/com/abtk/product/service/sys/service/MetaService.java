@@ -3,6 +3,7 @@ package com.abtk.product.service.sys.service;
 import com.abtk.product.api.domain.request.sys.TableMetaQueryRequest;
 import com.abtk.product.api.domain.response.sys.ColumnMetaVO;
 import com.abtk.product.dao.entity.ColumnMeta;
+import com.abtk.product.dao.entity.FormGroupMeta;
 import com.abtk.product.dao.entity.TableMeta;
 import com.abtk.product.dao.entity.TableOperation;
 
@@ -42,6 +43,16 @@ public interface MetaService {
      * 根据ID查询字段元数据
      */
     ColumnMeta getColumnMetaById(Long id);
+
+    /**
+     * 查询表单分组元数据列表
+     */
+    List<FormGroupMeta> getFormGroupMetaList(String tableCode);
+
+    /**
+     * 根据ID查询表单分组元数据
+     */
+    FormGroupMeta getFormGroupMetaById(Long id);
 
     /**
      * 查询操作按钮列表
@@ -107,6 +118,21 @@ public interface MetaService {
      * 批量更新字段排序号
      */
     void batchUpdateColumnSort(List<ColumnMeta> columns);
+
+    /**
+     * 保存表单分组元数据
+     */
+    FormGroupMeta saveFormGroupMeta(FormGroupMeta formGroupMeta);
+
+    /**
+     * 批量更新表单分组排序
+     */
+    void batchUpdateFormGroupSort(List<FormGroupMeta> groups);
+
+    /**
+     * 删除表单分组元数据
+     */
+    void deleteFormGroupMeta(Long id);
 
     /**
      * 删除操作按钮

@@ -595,7 +595,7 @@ public class MetaPublishServiceImpl implements MetaPublishService {
         publish.setVersion(nextVersion);
         publish.setStatus(MetaPublish.STATUS_PENDING);
         publish.setForced(Boolean.TRUE.equals(request.getForced()));
-        publish.setRemark(request.getRemark());
+        publish.setRemarks(request.getRemarks());
         publish.setPublishBy(SecurityUtils.getUsername());
         publishMapper.insert(publish);
 
@@ -779,7 +779,7 @@ public class MetaPublishServiceImpl implements MetaPublishService {
         response.setPublishBy(publish.getPublishBy());
         response.setPublishByName(publish.getPublishByName());
         response.setPublishTime(publish.getPublishTime());
-        response.setRemark(publish.getRemark());
+        response.setRemarks(publish.getRemarks());
         response.setCreatedAt(publish.getCreatedAt());
 
         if (details != null) {

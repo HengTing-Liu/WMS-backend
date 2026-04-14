@@ -49,5 +49,5 @@ public class BaseResponse implements Serializable {
      * 更新者
      */
     @Schema(description = "备注", example = "sss")
-    private String remark;
+    private String remarks;
 }

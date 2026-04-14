@@ -248,7 +248,7 @@ public class SysRole extends BaseEntity
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
-            .append("remark", getRemark())
+            .append("remarks", getRemarks())
             .toString();
     }
 }

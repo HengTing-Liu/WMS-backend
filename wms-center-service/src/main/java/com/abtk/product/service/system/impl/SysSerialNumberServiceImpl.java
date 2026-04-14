@@ -81,7 +81,6 @@ public class SysSerialNumberServiceImpl implements ISysSerialNumberService {
         if (request.getCurrentSeq() != null) condition.setCurrentValue(request.getCurrentSeq());
         if (request.getDateFormat() != null) condition.setNumberType(dateFormatToNumberType(request.getDateFormat()));
         if (request.getResetType() != null) condition.setResetRule(resetTypeToResetRule(request.getResetType()));
-        if (request.getDescription() != null) condition.setRemark(request.getDescription());
         if (request.getStatus() != null) condition.setIsEnabled("0".equals(request.getStatus()) ? 1 : 0);
         return condition;
     }

@@ -25,7 +25,7 @@ public interface SysRoleConverter {
      */
     @Mappings({
         @Mapping(source = "menuIds", target = "menuIds"),
-        @Mapping(source = "remark", target = "remark")
+        @Mapping(source = "remarks", target = "remarks")
     })
     SysRole requestToEntity(SysRoleRequest request);
 

@@ -20,7 +20,7 @@
         <result property="required" column="required"/>
         <result property="width" column="width"/>
         <result property="sortOrder" column="sort_order"/>
-        <result property="remark" column="remark"/>
+        <result property="remarks" column="remarks"/>
         <result property="status" column="status"/>
         <result property="rulesJson" column="rules_json"/>
         <result property="placeholder" column="placeholder"/>
@@ -29,6 +29,12 @@
         <result property="apiUrl" column="api_url"/>
         <result property="labelField" column="label_field"/>
         <result property="valueField" column="value_field"/>
+        <result property="colSpan" column="form_col_span"/>
+        <result property="sectionKey" column="section_key"/>
+        <result property="sectionTitle" column="section_title"/>
+        <result property="sectionOrder" column="section_order"/>
+        <result property="sectionType" column="section_type"/>
+        <result property="sectionOpen" column="section_open"/>
         <result property="columnName" column="column_name"/>
         <result property="defaultValue" column="default_value"/>
         <result property="createBy" column="created_by"/>
@@ -40,8 +46,9 @@
     <select id="selectByTableCode" resultMap="ColumnMetaResult">
         SELECT id, table_code, field, title, data_type, form_type, dict_type,
                show_in_list, show_in_form, show_in_export, searchable, is_sortable,
-               required, width, sort_order, remark, status, rules_json, placeholder,
+               required, width, sort_order, remarks, status, rules_json, placeholder,
                component_props, data_source, api_url, label_field, value_field,
+               form_col_span, section_key, section_title, section_order, section_type, section_open,
                column_name, default_value,
                created_by, created_at, updated_by, updated_at
         FROM sys_column_meta
@@ -52,8 +59,9 @@
     <select id="selectById" resultMap="ColumnMetaResult">
         SELECT id, table_code, field, title, data_type, form_type, dict_type,
                show_in_list, show_in_form, show_in_export, searchable, is_sortable,
-               required, width, sort_order, remark, status, rules_json, placeholder,
+               required, width, sort_order, remarks, status, rules_json, placeholder,
                component_props, data_source, api_url, label_field, value_field,
+               form_col_span, section_key, section_title, section_order, section_type, section_open,
                column_name, default_value,
                created_by, created_at, updated_by, updated_at
         FROM sys_column_meta
@@ -64,15 +72,17 @@
         INSERT INTO sys_column_meta (
             table_code, field, title, data_type, form_type, dict_type,
             show_in_list, show_in_form, show_in_export, searchable, is_sortable,
-            required, width, sort_order, remark, status, rules_json, placeholder,
+            required, width, sort_order, remarks, status, rules_json, placeholder,
             component_props, data_source, api_url, label_field, value_field,
+            form_col_span, section_key, section_title, section_order, section_type, section_open,
             column_name, default_value,
             created_by, created_at, updated_by, updated_at
         ) VALUES (
             #{tableCode}, #{field}, #{title}, #{dataType}, #{formType}, #{dictType},
             #{showInList}, #{showInForm}, #{showInExport}, #{searchable}, #{sortable},
-            #{required}, #{width}, #{sortOrder}, #{remark}, #{status}, #{rulesJson}, #{placeholder},
+            #{required}, #{width}, #{sortOrder}, #{remarks}, #{status}, #{rulesJson}, #{placeholder},
             #{componentProps}, #{dataSource}, #{apiUrl}, #{labelField}, #{valueField},
+            #{colSpan}, #{sectionKey}, #{sectionTitle}, #{sectionOrder}, #{sectionType}, #{sectionOpen},
             #{columnName}, #{defaultValue},
             #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
         )
@@ -94,7 +104,7 @@
             required = #{required},
             width = #{width},
             sort_order = #{sortOrder},
-            remark = #{remark},
+            remarks = #{remarks},
             status = #{status},
             rules_json = #{rulesJson},
             placeholder = #{placeholder},
@@ -103,6 +113,12 @@
             api_url = #{apiUrl},
             label_field = #{labelField},
             value_field = #{valueField},
+            form_col_span = #{colSpan},
+            section_key = #{sectionKey},
+            section_title = #{sectionTitle},
+            section_order = #{sectionOrder},
+            section_type = #{sectionType},
+            section_open = #{sectionOpen},
             column_name = #{columnName},
             default_value = #{defaultValue},
             updated_by = #{updateBy},

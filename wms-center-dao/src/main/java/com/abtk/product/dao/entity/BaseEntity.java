@@ -41,9 +41,9 @@ public class BaseEntity implements Serializable
     @Excel(name = "更新时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss", type = Excel.Type.EXPORT)
     private Date updateTime;
 
-    /** 备注 */
+    /** 备注（对应数据库 remarks 字段） */
     @Excel(name = "备注",  type = Excel.Type.EXPORT)
-    private String remark;
+    private String remarks;
 
     /** 请求参数 */
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -99,14 +99,14 @@ public class BaseEntity implements Serializable
         this.updateTime = updateTime;
     }
 
-    public String getRemark()
+    public String getRemarks()
     {
-        return remark;
+        return remarks;
     }
 
-    public void setRemark(String remark)
+    public void setRemarks(String remarks)
     {
-        this.remark = remark;
+        this.remarks = remarks;
     }
 
     public Map<String, Object> getParams()

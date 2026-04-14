@@ -19,5 +19,5 @@ public class MetaPublishPlanRequest {
     private Boolean forced = false;
 
     /** 备注 */
-    private String remark;
+    private String remarks;
 }

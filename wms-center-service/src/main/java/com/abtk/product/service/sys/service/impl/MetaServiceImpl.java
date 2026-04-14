@@ -5,11 +5,13 @@ import com.abtk.product.api.domain.response.sys.ColumnMetaVO;
 import com.abtk.product.api.domain.response.sys.DictOptionVO;
 import com.abtk.product.common.exception.ServiceException;
 import com.abtk.product.dao.entity.ColumnMeta;
+import com.abtk.product.dao.entity.FormGroupMeta;
 import com.abtk.product.dao.entity.SysDictData;
 import com.abtk.product.dao.entity.TableMeta;
 import com.abtk.product.dao.entity.TableOperation;
 import com.abtk.product.dao.mapper.ColumnMetaMapper;
 import com.abtk.product.dao.mapper.DynamicMapper;
+import com.abtk.product.dao.mapper.FormGroupMetaMapper;
 import com.abtk.product.dao.mapper.SysDictDataMapper;
 import com.abtk.product.dao.mapper.TableMetaMapper;
 import com.abtk.product.dao.mapper.TableOperationMapper;
@@ -28,6 +30,8 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +51,9 @@ public class MetaServiceImpl implements MetaService {
 
     @Autowired
     private ColumnMetaMapper columnMetaMapper;
+
+    @Autowired
+    private FormGroupMetaMapper formGroupMetaMapper;
 
     @Autowired
     private TableOperationMapper tableOperationMapper;
@@ -151,6 +158,16 @@ public class MetaServiceImpl implements MetaService {
     }
 
     @Override
+    public List<FormGroupMeta> getFormGroupMetaList(String tableCode) {
+        return formGroupMetaMapper.selectByTableCode(tableCode);
+    }
+
+    @Override
+    public FormGroupMeta getFormGroupMetaById(Long id) {
+        return formGroupMetaMapper.selectById(id);
+    }
+
+    @Override
     public List<TableOperation> getOperationList(String tableCode) {
         return tableOperationMapper.selectByTableCode(tableCode);
     }
@@ -243,6 +260,7 @@ public class MetaServiceImpl implements MetaService {
         }
         // 级联删除关联配置，保证前端“删除表元数据”可一次完成
         columnMetaMapper.deleteByTableCode(existing.getTableCode());
+        formGroupMetaMapper.deleteByTableCode(existing.getTableCode());
         tableOperationMapper.deleteByTableCode(existing.getTableCode());
         tableMetaMapper.deleteById(id);
 
@@ -298,6 +316,37 @@ public class MetaServiceImpl implements MetaService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public FormGroupMeta saveFormGroupMeta(FormGroupMeta formGroupMeta) {
+        if (formGroupMeta.getId() == null) {
+            formGroupMeta.setCreateBy("system");
+            formGroupMeta.setCreateTime(new Date());
+            formGroupMetaMapper.insert(formGroupMeta);
+        } else {
+            formGroupMeta.setUpdateBy("system");
+            formGroupMeta.setUpdateTime(new Date());
+            formGroupMetaMapper.update(formGroupMeta);
+        }
+        return formGroupMeta;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchUpdateFormGroupSort(List<FormGroupMeta> groups) {
+        for (FormGroupMeta group : groups) {
+            if (group.getId() != null && group.getSortOrder() != null) {
+                formGroupMetaMapper.updateSortOrder(group.getId(), group.getSortOrder());
+            }
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteFormGroupMeta(Long id) {
+        formGroupMetaMapper.deleteById(id);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteOperation(Long id) {
         tableOperationMapper.deleteById(id);
     }
@@ -337,7 +386,7 @@ public class MetaServiceImpl implements MetaService {
                 }
             }
             return ColumnMetaVO.builder()
-                .code(col.getField())
+                .code(toCamelCase(col.getField()))
                 .label(col.getTitle())
                 .type(col.getDataType())
                 .formType(col.getFormType())
@@ -356,9 +405,32 @@ public class MetaServiceImpl implements MetaService {
                 .options(options)
                 .colSpan(col.getColSpan())
                 .sectionKey(col.getSectionKey())
+                .sectionTitle(col.getSectionTitle())
+                .sectionOrder(col.getSectionOrder())
+                .sectionType(col.getSectionType())
+                .sectionOpen(col.getSectionOpen())
                 .i18nKey(col.getI18nKey())
                 .visibleCondition(col.getVisibleCondition())
                 .build();
         }).collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * 蛇形转驼峰（统一前端 fieldCode 为驼峰，与后端 Entity 字段名一致）
+     */
+    private static final Pattern UNDERSCORE_PATTERN = Pattern.compile("_([a-z])");
+
+    private String toCamelCase(String snakeCase) {
+        if (snakeCase == null || snakeCase.isEmpty()) {
+            return snakeCase;
+        }
+        Matcher m = UNDERSCORE_PATTERN.matcher(snakeCase);
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            m.appendReplacement(sb, m.group(1).toUpperCase());
+        }
+        m.appendTail(sb);
+        // 首字母是否大写取决于原字符串
+        return sb.toString();
     }
 }

@@ -12,8 +12,14 @@ public class Warehouse extends BaseEntity implements Serializable {
     /** 主键ID */
     private Long id;
 
+    /** 仓库类型 */
+    private String warehouseType;
+
     /** 仓库编码 */
     private String warehouseCode;
+
+    /** 所在地 */
+    private String warehouseLocation;
 
     /** 仓库名称 */
     private String warehouseName;
@@ -36,11 +42,23 @@ public class Warehouse extends BaseEntity implements Serializable {
     /** 责任部门全路径 */
     private String deptNameFullPath;
 
-    /** 所属公司 */
-    private String company;
+    /** ERP公司编码 */
+    private String erpCompanyCode;
+
+    /** ERP公司名称 */
+    private String erpCompanyName;
+
+    /** ERP仓库编码 */
+    private String erpWarehouseCode;
+
+    /** ERP货位编码 */
+    private String erpLocationCode;
 
     /** 是否启用：0-禁用 1-启用 */
     private Integer isEnabled;
+
+    /** 备注（对应数据库 remarks 字段） */
+    private String remarks;
 
     /** 逻辑删除：0-未删除 1-已删除 */
     private Integer isDeleted;
@@ -54,12 +72,28 @@ public class Warehouse extends BaseEntity implements Serializable {
         this.id = id;
     }
 
+    public String getWarehouseType() {
+        return warehouseType;
+    }
+
+    public void setWarehouseType(String warehouseType) {
+        this.warehouseType = warehouseType;
+    }
+
     public String getWarehouseCode() {
         return warehouseCode;
     }
 
     public void setWarehouseCode(String warehouseCode) {
         this.warehouseCode = warehouseCode;
+    }
+
+    public String getWarehouseLocation() {
+        return warehouseLocation;
+    }
+
+    public void setWarehouseLocation(String warehouseLocation) {
+        this.warehouseLocation = warehouseLocation;
     }
 
     public String getWarehouseName() {
@@ -118,12 +152,36 @@ public class Warehouse extends BaseEntity implements Serializable {
         this.deptNameFullPath = deptNameFullPath;
     }
 
-    public String getCompany() {
-        return company;
+    public String getErpCompanyCode() {
+        return erpCompanyCode;
     }
 
-    public void setCompany(String company) {
-        this.company = company;
+    public void setErpCompanyCode(String erpCompanyCode) {
+        this.erpCompanyCode = erpCompanyCode;
+    }
+
+    public String getErpCompanyName() {
+        return erpCompanyName;
+    }
+
+    public void setErpCompanyName(String erpCompanyName) {
+        this.erpCompanyName = erpCompanyName;
+    }
+
+    public String getErpWarehouseCode() {
+        return erpWarehouseCode;
+    }
+
+    public void setErpWarehouseCode(String erpWarehouseCode) {
+        this.erpWarehouseCode = erpWarehouseCode;
+    }
+
+    public String getErpLocationCode() {
+        return erpLocationCode;
+    }
+
+    public void setErpLocationCode(String erpLocationCode) {
+        this.erpLocationCode = erpLocationCode;
     }
 
     public Integer getIsEnabled() {
@@ -132,6 +190,14 @@ public class Warehouse extends BaseEntity implements Serializable {
 
     public void setIsEnabled(Integer isEnabled) {
         this.isEnabled = isEnabled;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
     }
 
     public Integer getIsDeleted() {

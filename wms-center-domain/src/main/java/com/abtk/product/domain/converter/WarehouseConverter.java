@@ -45,11 +45,22 @@ public interface WarehouseConverter {
         }
         WarehouseResponse response = new WarehouseResponse();
         response.setId(entity.getId());
+        response.setWarehouseType(entity.getWarehouseType());
         response.setWarehouseCode(entity.getWarehouseCode());
+        response.setWarehouseLocation(entity.getWarehouseLocation());
         response.setWarehouseName(entity.getWarehouseName());
         response.setTemperatureZone(entity.getTemperatureZone());
-        response.setCompany(entity.getCompany());
-        response.setStatus(entity.getIsEnabled() == 1 ? "ENABLED" : "DISABLED");
+        response.setQualityZone(entity.getQualityZone());
+        response.setEmployeeCode(entity.getEmployeeCode());
+        response.setEmployeeName(entity.getEmployeeName());
+        response.setDeptCode(entity.getDeptCode());
+        response.setDeptNameFullPath(entity.getDeptNameFullPath());
+        response.setErpCompanyCode(entity.getErpCompanyCode());
+        response.setErpCompanyName(entity.getErpCompanyName());
+        response.setErpWarehouseCode(entity.getErpWarehouseCode());
+        response.setErpLocationCode(entity.getErpLocationCode());
+        response.setIsEnabled(entity.getIsEnabled());
+        response.setRemarks(entity.getRemarks());
         if (entity.getCreateTime() != null) {
             response.setGmtCreate(LocalDateTime.ofInstant(entity.getCreateTime().toInstant(), ZoneId.systemDefault()));
         }

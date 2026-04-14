@@ -46,5 +46,5 @@ public class TableMetaRequest extends BaseRequest {
     private Integer status = 1;
 
     @Schema(description = "备注")
-    private String remark;
+    private String remarks;
 }

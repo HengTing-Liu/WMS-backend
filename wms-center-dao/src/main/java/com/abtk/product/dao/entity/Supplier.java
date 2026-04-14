@@ -20,7 +20,7 @@ public class Supplier implements Serializable {
     private java.util.Date createTime;
     private String updateBy;
     private java.util.Date updateTime;
-    private String remark;
+    private String remarks;
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getSupplierCode() { return supplierCode; }
@@ -53,6 +53,6 @@ public class Supplier implements Serializable {
     public void setUpdateBy(String updateBy) { this.updateBy = updateBy; }
     public java.util.Date getUpdateTime() { return updateTime; }
     public void setUpdateTime(java.util.Date updateTime) { this.updateTime = updateTime; }
-    public String getRemark() { return remark; }
-    public void setRemark(String remark) { this.remark = remark; }
+    public String getRemarks() { return remarks; }
+    public void setRemarks(String remarks) { this.remarks = remarks; }
 }
