@@ -20,7 +20,7 @@ public class SysRoleResponse {
      * 角色ID
      */
     @Schema(description = "角色ID")
-    private Long roleId;
+    private Long id;
 
     /**
      * 角色名称

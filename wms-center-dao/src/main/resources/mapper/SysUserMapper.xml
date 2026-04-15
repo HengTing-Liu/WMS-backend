@@ -39,7 +39,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 	
     <resultMap id="RoleResult" type="SysRole">
-        <id     property="roleId"       column="role_id"        />
+        <id     property="id"       column="id"        />
         <result property="roleName"     column="role_name"      />
         <result property="roleKey"      column="role_key"       />
         <result property="roleSort"     column="role_sort"      />
@@ -50,11 +50,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<sql id="selectUserVo">
         select u.user_id, u.dept_id, u.user_name, u.nick_name, u.email, u.avatar, u.phonenumber, u.password, u.sex, u.status, u.is_deleted, u.login_ip, u.login_date, u.pwd_update_date, u.create_by, u.create_time, u.remarks, 
         d.dept_id, d.parent_id, d.ancestors, d.dept_name, d.order_num, d.leader, d.status as dept_status,
-        r.role_id, r.role_name, r.role_key, r.role_sort, r.data_scope, r.status as role_status
+        r.id, r.role_name, r.role_key, r.role_sort, r.data_scope, r.status as role_status
         from sys_user u
 		    left join sys_dept d on u.dept_id = d.dept_id
 		    left join sys_user_role ur on u.user_id = ur.user_id
-		    left join sys_role r on r.role_id = ur.role_id
+		    left join sys_role r on r.id = ur.role_id
     </sql>
     
     <select id="selectUserList" parameterType="SysUser" resultMap="SysUserResult">
@@ -91,8 +91,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	    from sys_user u
 			 left join sys_dept d on u.dept_id = d.dept_id
 			 left join sys_user_role ur on u.user_id = ur.user_id
-			 left join sys_role r on r.role_id = ur.role_id
-	    where u.is_deleted = '0' and r.role_id = #{roleId}
+			 left join sys_role r on r.id = ur.role_id
+	    where u.is_deleted = '0' and r.id = #{roleId}
 	    <if test="userName != null and userName != ''">
 			AND u.user_name like concat('%', #{userName}, '%')
 		</if>
@@ -108,8 +108,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	    from sys_user u
 			 left join sys_dept d on u.dept_id = d.dept_id
 			 left join sys_user_role ur on u.user_id = ur.user_id
-			 left join sys_role r on r.role_id = ur.role_id
-	    where u.is_deleted = '0' and (r.role_id != #{roleId} or r.role_id IS NULL)
+			 left join sys_role r on r.id = ur.role_id
+	    where u.is_deleted = '0' and (r.id != #{roleId} or r.id IS NULL)
 	    and u.user_id not in (select u.user_id from sys_user u inner join sys_user_role ur on u.user_id = ur.user_id and ur.role_id = #{roleId})
 	    <if test="userName != null and userName != ''">
 			AND u.user_name like concat('%', #{userName}, '%')

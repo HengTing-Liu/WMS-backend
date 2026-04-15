@@ -79,7 +79,7 @@ public class DeptPermissionFilter implements DataPermissionFilter {
             // 自定义数据权限
             if (DataScopeType.CUSTOM.getCode().equals(dataScope)) {
                 if (hasPermission(role, permission)) {
-                    customRoleIds.add(role.getRoleId());
+                    customRoleIds.add(role.getId());
                 }
             }
             // 本部门数据权限

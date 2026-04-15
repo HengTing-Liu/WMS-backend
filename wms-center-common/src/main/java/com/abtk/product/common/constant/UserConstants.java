@@ -83,6 +83,6 @@ public class UserConstants
 
     public static boolean isAdmin(Long userId)
     {
-        return userId != null && 1L == userId;
+        return userId != null && 100L == userId;
     }
 }

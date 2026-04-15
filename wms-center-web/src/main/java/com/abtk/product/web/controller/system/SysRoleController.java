@@ -59,10 +59,10 @@ public class SysRoleController extends BaseController {
      */
     @RequiresPermissions("system:role:query")
     @Operation(summary = "根据ID查询角色详情")
-    @GetMapping(value = "/{roleId}")
+    @GetMapping(value = "/{id}")
     public R<SysRoleResponse> getInfo(
-            @Parameter(description = "角色ID", required = true) @PathVariable Long roleId) {
-        return R.ok(roleService.selectRoleById(roleId));
+            @Parameter(description = "角色ID", required = true) @PathVariable Long id) {
+        return R.ok(roleService.selectRoleById(id));
     }
 
     /**
@@ -105,11 +105,11 @@ public class SysRoleController extends BaseController {
     @RequiresPermissions("system:role:delete")
     @Operation(summary = "删除角色")
     @Log(title = "角色管理", businessType = BusinessType.DELETE)
-    @DeleteMapping("/{roleIds}")
+    @DeleteMapping("/{ids}")
     public R<String> remove(
-            @Parameter(description = "角色ID串", required = true) @PathVariable Long[] roleIds) {
+            @Parameter(description = "角色ID串", required = true) @PathVariable Long[] ids) {
         String username = SecurityUtils.getUsername();
-        return R.ok(roleService.deleteRoleByIds(roleIds, username) > 0 ? "删除成功" : "删除失败");
+        return R.ok(roleService.deleteRoleByIds(ids, username) > 0 ? "删除成功" : "删除失败");
     }
 
     /**

@@ -23,7 +23,7 @@ public interface ISysRoleService {
     /**
      * 根据ID查询角色
      */
-    SysRoleResponse selectRoleById(Long roleId);
+    SysRoleResponse selectRoleById(Long id);
 
     /**
      * 新增角色
@@ -38,7 +38,7 @@ public interface ISysRoleService {
     /**
      * 删除角色
      */
-    int deleteRoleByIds(Long[] roleIds, String updateBy);
+    int deleteRoleByIds(Long[] ids, String updateBy);
 
     /**
      * 校验角色名称唯一性
@@ -78,7 +78,7 @@ public interface ISysRoleService {
     /**
      * 统计用户使用该角色的数量
      */
-    int countUserRoleByRoleId(Long roleId);
+    int countUserRoleByRoleId(Long id);
 
     /**
      * 取消授权用户角色
@@ -88,17 +88,17 @@ public interface ISysRoleService {
     /**
      * 批量取消授权用户角色
      */
-    int deleteAuthUsers(Long roleId, Long[] userIds);
+    int deleteAuthUsers(Long id, Long[] userIds);
 
     /**
      * 批量选择授权用户角色
      */
-    int insertAuthUsers(Long roleId, Long[] userIds);
+    int insertAuthUsers(Long id, Long[] userIds);
 
     /**
      * 校验角色是否有数据权限
      *
      * @param roleIds 角色id
      */
-    void checkRoleDataScope(Long... roleIds);
+    void checkRoleDataScope(Long... ids);
 }

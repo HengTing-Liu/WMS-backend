@@ -29,14 +29,14 @@ public class SysRoleBiz {
     @Autowired
     private I18nService i18nService;
 
-    public void checkRoleDataScope(Long... roleIds)
+    public void checkRoleDataScope(Long... ids)
     {
         if (!SysUser.isAdmin(SecurityUtils.getUserId()))
         {
-            for (Long roleId : roleIds)
+            for (Long id : ids)
             {
                 SysRoleRequest request = new SysRoleRequest();
-                request.setRoleId(roleId);
+                request.setId(id);
                 List<SysRoleResponse> roles = sysRoleService.selectRoleList(request);
                 if (roles == null || roles.isEmpty())
                 {

@@ -76,7 +76,7 @@ public class WarehousePermissionFilter implements DataPermissionFilter {
                 if (hasPermission(role, permission)) {
                     // 从角色-仓库关联表获取仓库编码
                     // 这里假设role对象中有warehouseCodes属性或通过其他方式获取
-                    Set<String> codes = getRoleWarehouseCodes(role.getRoleId());
+                    Set<String> codes = getRoleWarehouseCodes(role.getId());
                     if (codes != null) {
                         warehouseCodes.addAll(codes);
                     }

@@ -51,7 +51,7 @@ public class SysUserPermissionServiceImpl implements ISysPermissionService {
         Set<String> menuPerms = new HashSet<String>();
         if (user.getRoles() != null && !user.getRoles().isEmpty()) {
             for (SysRole role : user.getRoles()) {
-                List<String> perms = sysMenuMapper.selectMenuPermsByRoleId(role.getRoleId());
+                List<String> perms = sysMenuMapper.selectMenuPermsByRoleId(role.getId());
                 if (perms != null) {
                     menuPerms.addAll(perms);
                 }

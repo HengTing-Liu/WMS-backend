@@ -179,7 +179,7 @@ public class SysUserBiz extends AbstractBiz {
             checkUserDataScope(userId);
             SysUser sysUser = sysUserService.selectUserById(userId);
             hashMap.put("postIds", postService.selectPostListByUserId(userId));
-            hashMap.put("roleIds", sysUser.getRoles().stream().map(SysRole::getRoleId).collect(Collectors.toList()));
+            hashMap.put("roleIds", sysUser.getRoles().stream().map(SysRole::getId).collect(Collectors.toList()));
         }
         List<SysRoleResponse> roles = roleService.selectRoleList(new SysRoleRequest());
         hashMap.put("roles", SysUser.isAdmin(userId) ? roles : roles.stream().filter(r -> !"admin".equals(r.getRoleKey())).collect(Collectors.toList()));

@@ -97,7 +97,7 @@ public class DataScopeAspect
         user.getRoles().forEach(role -> {
             if (DATA_SCOPE_CUSTOM.equals(role.getDataScope()) && StringUtils.equals(role.getStatus(), UserConstants.ROLE_NORMAL) && StringUtils.containsAny(role.getPermissions(), Convert.toStrArray(permission)))
             {
-                scopeCustomIds.add(Convert.toStr(role.getRoleId()));
+                scopeCustomIds.add(Convert.toStr(role.getId()));
             }
         });
 
@@ -130,7 +130,7 @@ public class DataScopeAspect
                     }
                     else
                     {
-                        sqlString.append(StringUtils.format(" OR {}.dept_id IN ( SELECT dept_id FROM sys_role_dept WHERE role_id = {} ) ", deptAlias, role.getRoleId()));
+                        sqlString.append(StringUtils.format(" OR {}.dept_id IN ( SELECT dept_id FROM sys_role_dept WHERE role_id = {} ) ", deptAlias, role.getId()));
                     }
                 }
             }

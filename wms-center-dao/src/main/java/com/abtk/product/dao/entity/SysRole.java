@@ -21,7 +21,7 @@ public class SysRole extends BaseEntity
 
     /** 角色ID */
     @Excel(name = "角色序号", cellType = Excel.ColumnType.NUMERIC)
-    private Long roleId;
+    private Long id;
 
     /** 角色名称 */
     @Excel(name = "角色名称")
@@ -72,29 +72,29 @@ public class SysRole extends BaseEntity
 
     }
 
-    public SysRole(Long roleId)
+    public SysRole(Long id)
     {
-        this.roleId = roleId;
+        this.id = id;
     }
 
-    public Long getRoleId()
+    public Long getId()
     {
-        return roleId;
+        return id;
     }
 
-    public void setRoleId(Long roleId)
+    public void setId(Long id)
     {
-        this.roleId = roleId;
+        this.id = id;
     }
 
     public boolean isAdmin()
     {
-        return isAdmin(this.roleId);
+        return isAdmin(this.id);
     }
 
-    public static boolean isAdmin(Long roleId)
+    public static boolean isAdmin(Long id)
     {
-        return roleId != null && 1L == roleId;
+        return id != null && 1L == id;
     }
 
     @NotBlank(message = "角色名称不能为空")
@@ -235,7 +235,7 @@ public class SysRole extends BaseEntity
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("roleId", getRoleId())
+            .append("id", getId())
             .append("roleName", getRoleName())
             .append("roleKey", getRoleKey())
             .append("roleSort", getRoleSort())
