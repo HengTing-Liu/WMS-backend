@@ -36,7 +36,7 @@
     <select id="selectMenuList" parameterType="SysMenu" resultMap="SysMenuResult">
 		<include refid="selectMenuVo"/>
 		<where>
-			<if test="menuType != null and menuType != ''">
+			<if test="menuType != null and menuType != '' and menuType != 'ALL'">
 				AND menu_type = #{menuType}
 			</if>
 			<if test="menuType == null or menuType == ''">
@@ -77,7 +77,7 @@
 		left join sys_user_role ur on rm.role_id = ur.role_id
 		left join sys_role ro on ur.role_id = ro.id
 		where ur.user_id = #{params.userId}
-		<if test="menuType != null and menuType != ''">
+		<if test="menuType != null and menuType != '' and menuType != 'ALL'">
 			AND m.menu_type = #{menuType}
 		</if>
 		<if test="menuType == null or menuType == ''">

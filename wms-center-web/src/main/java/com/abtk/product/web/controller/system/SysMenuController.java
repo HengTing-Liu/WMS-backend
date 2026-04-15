@@ -72,7 +72,9 @@ public class SysMenuController extends BaseController
     public R<Map<String, Object>> roleMenuTreeselect(@PathVariable("roleId") Long roleId)
     {
         Long userId = SecurityUtils.getUserId();
-        List<SysMenu> menus = menuService.selectMenuList(userId);
+        SysMenu menu = new SysMenu();
+        menu.setMenuType("ALL"); // 跳过默认的 M/C 过滤，返回包含按钮(F)的完整菜单树
+        List<SysMenu> menus = menuService.selectMenuList(menu, userId);
         Map<String, Object> result = new HashMap<>();
         result.put("checkedKeys", menuService.selectMenuListByRoleId(roleId));
         result.put("menus", menuService.buildMenuTreeSelect(menus));
