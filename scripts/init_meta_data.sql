@@ -249,7 +249,7 @@ VALUES
 -- 备注
 ('sys_user', 'remarks', '备注', 'string', 'textarea', 0, 1, 0, 0, 0, NULL, 16, 1, 'system', NOW(), 'remarks'),
 -- 删除标志（隐藏）
-('sys_user', 'delFlag', '删除标志', 'string', 'input', 0, 0, 0, 0, 0, NULL, 17, 1, 'system', NOW(), 'del_flag')
+('sys_user', 'isDeleted', '删除标志', 'string', 'input', 0, 0, 0, 0, 0, NULL, 17, 1, 'system', NOW(), 'is_deleted')
 ON DUPLICATE KEY UPDATE
     title = VALUES(title),
     data_type = VALUES(data_type),

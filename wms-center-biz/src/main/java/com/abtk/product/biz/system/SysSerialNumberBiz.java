@@ -5,7 +5,6 @@ import com.abtk.product.api.domain.request.sys.SysSerialNumberRequest;
 import com.abtk.product.api.domain.response.sys.SysSerialNumberResponse;
 import com.abtk.product.dao.entity.SysSerialNumber;
 import com.abtk.product.dao.mapper.SysSerialNumberMapper;
-import com.abtk.product.domain.converter.SysSerialNumberConverter;
 import com.abtk.product.service.system.service.ISysSerialNumberService;
 import com.abtk.product.service.system.service.I18nService;
 import lombok.extern.slf4j.Slf4j;
@@ -138,7 +137,7 @@ public class SysSerialNumberBiz {
         }
 
         // Response 转 Entity
-        return SysSerialNumberConverter.INSTANCE.requestToEntity(toRequest(response));
+        return toEntity(response);
     }
 
     /**
@@ -159,6 +158,56 @@ public class SysSerialNumberBiz {
         request.setStatus(response.getStatus());
         request.setDescription(response.getDescription());
         return request;
+    }
+
+    private SysSerialNumber toEntity(SysSerialNumberResponse response) {
+        SysSerialNumber entity = new SysSerialNumber();
+        entity.setId(response.getId());
+        entity.setUsageScope(response.getRuleCode());
+        entity.setName(response.getRuleName());
+        entity.setPrefix(response.getPrefix());
+        entity.setNumberType(dateFormatToNumberType(response.getDateFormat()));
+        entity.setDigitLength(response.getSeqLength());
+        entity.setCurrentValue(response.getCurrentSeq());
+        entity.setStartValue(response.getMaxSeq());
+        entity.setSuffix(response.getSuffix());
+        entity.setResetRule(resetTypeToResetRule(response.getResetType()));
+        entity.setIsEnabled("0".equals(response.getStatus()) ? 1 : 0);
+        return entity;
+    }
+
+    private Integer dateFormatToNumberType(String dateFormat) {
+        if (dateFormat == null || dateFormat.isEmpty()) {
+            return 0;
+        }
+        switch (dateFormat) {
+            case "yyyy":
+                return 1;
+            case "yyyyMM":
+                return 2;
+            case "yyyyMMdd":
+                return 3;
+            default:
+                return 0;
+        }
+    }
+
+    private String resetTypeToResetRule(String resetType) {
+        if (resetType == null) {
+            return "0";
+        }
+        switch (resetType) {
+            case "NEVER":
+                return "0";
+            case "YEAR":
+                return "1";
+            case "MONTH":
+                return "2";
+            case "DAY":
+                return "3";
+            default:
+                return "0";
+        }
     }
 
     /**

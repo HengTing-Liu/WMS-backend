@@ -45,6 +45,9 @@ public class BaseEntity implements Serializable
     @Excel(name = "备注",  type = Excel.Type.EXPORT)
     private String remarks;
 
+    /** 语言类型 */
+    private String languageType;
+
     /** 请求参数 */
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Map<String, Object> params;
@@ -107,6 +110,16 @@ public class BaseEntity implements Serializable
     public void setRemarks(String remarks)
     {
         this.remarks = remarks;
+    }
+
+    public String getLanguageType()
+    {
+        return languageType;
+    }
+
+    public void setLanguageType(String languageType)
+    {
+        this.languageType = languageType;
     }
 
     public Map<String, Object> getParams()

@@ -39,6 +39,7 @@ public class CrudServiceImpl implements CrudService {
 
     /** 婵帗绋掗…鍫ヮ敇婵犳碍鐒婚柡鍕箳鐢棝鏌涢幒鏂库枅婵炲懎閰ｅ畷姘旈埀顒勫箖閺囥垺鏅柛顐ｇ矌閻熸捇鏌涢幒鎾崇闁搞倕閰ｅ浠嬫偂鎼达絿顢呴梺鎸庣☉婵傛梻绮畝鍕瀬闁绘鐗嗙粊锕傚箹鐎涙ɑ灏柛顭戜邯瀹曘儱顓奸崼顐ｇ秷闂佽偐鍘ч崯鈺冪博閹绢喗鍤婇弶鍫濆⒔缁€?*/
     private static final String DEFAULT_DELETE_COLUMN = "is_deleted";
+    private final Map<String, String> pkColumnCache = new java.util.concurrent.ConcurrentHashMap<>();
 
     /** 闂佸憡甯掑Λ婵嬪Υ婢舵劕鐭楅柛灞剧⊕濞堝爼鏌涘顒傗枌缂佽鲸鐟╁Λ渚€鍩€椤掑倹鍟哄ù锝夘棑閻倝鏌＄仦璇插姤妞ゆ洘顨婂鍫曞灳閸欏鍋ㄦ繛鎴炴惄閸樼晫鏁幘缁樷挃闁靛牆绻掔粈?*/
     private static final Set<String> PAGE_PARAMS = new HashSet<>(
@@ -79,9 +80,29 @@ public class CrudServiceImpl implements CrudService {
         if (SYS_USER_TABLE.equals(tableCode)) {
             return SYS_USER_PK;
         }
-        return "id";
+        String cached = pkColumnCache.get(tableCode);
+        if (cached != null) {
+            return cached;
+        }
+        String pk = detectPkColumnFromDb(tableCode);
+        pkColumnCache.put(tableCode, pk);
+        return pk;
     }
 
+    private String detectPkColumnFromDb(String tableCode) {
+        try {
+            List<Map<String, Object>> columns = dynamicMapper.selectTableColumns(tableCode);
+            for (Map<String, Object> col : columns) {
+                Object keyObj = col.get("column_key");
+                if ("PRI".equals(String.valueOf(keyObj))) {
+                    return String.valueOf(col.get("column_name"));
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to detect pk column for table {}: {}", tableCode, e.getMessage());
+        }
+        return "id";
+    }
     @Override
     public TableDataInfo list(String tableCode, Map<String, Object> params, Integer pageNum, Integer pageSize) {
         SqlInjectionValidator.validateTable(tableCode);
@@ -104,7 +125,16 @@ public class CrudServiceImpl implements CrudService {
         List<Map<String, Object>> list = dynamicMapper.selectList(tableCode, filteredParams, deleteColumn, dataScope);
         PageInfo<Map<String, Object>> pageInfo = new PageInfo<>(list);
         TableDataInfo dataTable = new TableDataInfo();
-        dataTable.setRows(list);
+        // 闂佽桨娴峰ú鏍告奖濡?SQL 闂佽桨娴风槐鍟搁柣銏犵?闁稿海娴锋晶妤€鐣垫ā闁告挸绉堕崢宀€澧愭ā闁稿海娴锋ú鏍告奖濡?
+        List<Map<String, Object>> normalizedRows = new ArrayList<>();
+        for (Map<String, Object> row : list) {
+            Map<String, Object> normalized = new LinkedHashMap<>();
+            for (Map.Entry<String, Object> entry : row.entrySet()) {
+                normalized.put(sqlFieldToCamelCase(entry.getKey()), entry.getValue());
+            }
+            normalizedRows.add(normalized);
+        }
+        dataTable.setRows(normalizedRows);
         dataTable.setTotal(pageInfo.getTotal());
         return dataTable;
     }
@@ -126,7 +156,16 @@ public class CrudServiceImpl implements CrudService {
         CrudPermissionUtil.injectDataScope(filteredParams);
         String deleteColumn = getDeleteColumn(tableCode);
         String dataScope = (String) filteredParams.remove("dataScope");
-        return dynamicMapper.selectAll(tableCode, filteredParams, deleteColumn, dataScope);
+        List<Map<String, Object>> rawList = dynamicMapper.selectAll(tableCode, filteredParams, deleteColumn, dataScope);
+        List<Map<String, Object>> normalized = new ArrayList<>();
+        for (Map<String, Object> row : rawList) {
+            Map<String, Object> normRow = new LinkedHashMap<>();
+            for (Map.Entry<String, Object> e : row.entrySet()) {
+                normRow.put(sqlFieldToCamelCase(e.getKey()), e.getValue());
+            }
+            normalized.add(normRow);
+        }
+        return normalized;
     }
 
     @Override
@@ -137,7 +176,11 @@ public class CrudServiceImpl implements CrudService {
         if (result == null) {
             throw new ServiceException(i18nService.getMessage("crud.entity.not.found", tableCode));
         }
-        return result;
+        Map<String, Object> normalized = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> e : result.entrySet()) {
+            normalized.put(sqlFieldToCamelCase(e.getKey()), e.getValue());
+        }
+        return normalized;
     }
 
     @Override
@@ -148,17 +191,6 @@ public class CrudServiceImpl implements CrudService {
         Map<String, Object> normalizedData = normalizeDataKeysForSql(data);
         normalizedData.put("create_time", new Date());
         normalizedData.put("create_by", "system");
-
-        Object isEnabledVal = normalizedData.get("is_enabled");
-        if (isEnabledVal == null) {
-            normalizedData.put("is_enabled", 1);
-        } else {
-            if (Boolean.TRUE.equals(isEnabledVal) || "true".equals(String.valueOf(isEnabledVal)) || "1".equals(String.valueOf(isEnabledVal))) {
-                normalizedData.put("is_enabled", 1);
-            } else {
-                normalizedData.put("is_enabled", 0);
-            }
-        }
 
         if (SYS_USER_TABLE.equals(tableCode) && normalizedData.containsKey("user_id")) {
             normalizedData.put("id", normalizedData.get("user_id"));

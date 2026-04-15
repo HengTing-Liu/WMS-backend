@@ -60,7 +60,7 @@ public class SysDictTypeBiz {
                     successNum++;
                 } else if (updateSupport) {
                     // 更新
-                    dict.setDictId(existingDict.getDictId());
+                    dict.setId(existingDict.getId());
                     dictTypeMapper.updateDictType(dict);
                     successNum++;
                 } else {

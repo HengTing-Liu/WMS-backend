@@ -25,6 +25,7 @@ public class LowcodeTreeServiceImpl implements LowcodeTreeService {
     private static final String DEFAULT_DELETE_COLUMN = "is_deleted";
     private static final String DEFAULT_PK_COLUMN = "id";
     private static final String DEFAULT_STATUS_COLUMN = "is_enabled";
+    private static final String FALLBACK_STATUS_COLUMN = "status";
     private static final String DEFAULT_PARENT_COLUMN = "parent_id";
 
     private static final Set<String> PAGE_PARAMS = new HashSet<>(
@@ -43,6 +44,8 @@ public class LowcodeTreeServiceImpl implements LowcodeTreeService {
     @Autowired
     private I18nService i18nService;
 
+    private final Map<String, String> statusColumnCache = new java.util.concurrent.ConcurrentHashMap<>();
+
     private String getDeleteColumn(String tableCode) {
 
         return DEFAULT_DELETE_COLUMN;
@@ -53,6 +56,33 @@ public class LowcodeTreeServiceImpl implements LowcodeTreeService {
     }
 
     private String getStatusColumn(String tableCode) {
+        String cached = statusColumnCache.get(tableCode);
+        if (cached != null) {
+            return cached;
+        }
+        String statusColumn = detectStatusColumn(tableCode);
+        statusColumnCache.put(tableCode, statusColumn);
+        return statusColumn;
+    }
+
+    private String detectStatusColumn(String tableCode) {
+        try {
+            List<Map<String, Object>> columns = dynamicMapper.selectTableColumns(tableCode);
+            Set<String> names = new HashSet<>();
+            for (Map<String, Object> col : columns) {
+                Object name = col.get("column_name");
+                if (name != null) {
+                    names.add(String.valueOf(name).toLowerCase());
+                }
+            }
+            if (names.contains(DEFAULT_STATUS_COLUMN)) {
+                return DEFAULT_STATUS_COLUMN;
+            }
+            if (names.contains(FALLBACK_STATUS_COLUMN)) {
+                return FALLBACK_STATUS_COLUMN;
+            }
+        } catch (Exception ignored) {
+        }
         return DEFAULT_STATUS_COLUMN;
     }
 
@@ -149,18 +179,14 @@ public class LowcodeTreeServiceImpl implements LowcodeTreeService {
         SqlInjectionValidator.validateTable(tableCode);
         String pkColumn = getPkColumn(tableCode);
         String statusColumn = getStatusColumn(tableCode);
+        Integer targetValue = toStoredStatusValue(statusColumn, enabled);
 
         List<Map<String, Object>> allRecords = lowcodeMapper.selectByIds(tableCode, pkColumn, ids);
         List<String> enabledIds = new ArrayList<>();
         for (Map<String, Object> record : allRecords) {
             Object idVal = record.get(pkColumn);
             Object currentStatus = record.get(statusColumn);
-            boolean shouldToggle = false;
-            if (enabled != null && enabled == 1) {
-                shouldToggle = currentStatus == null || "0".equals(currentStatus.toString()) || "false".equalsIgnoreCase(currentStatus.toString());
-            } else {
-                shouldToggle = currentStatus != null && ("1".equals(currentStatus.toString()) || "true".equalsIgnoreCase(currentStatus.toString()));
-            }
+            boolean shouldToggle = currentStatus == null || !String.valueOf(targetValue).equals(String.valueOf(currentStatus));
             if (shouldToggle && idVal != null) {
                 enabledIds.add(idVal.toString());
             }
@@ -168,7 +194,7 @@ public class LowcodeTreeServiceImpl implements LowcodeTreeService {
         if (enabledIds.isEmpty()) return;
 
         Map<String, Object> updateData = new LinkedHashMap<>();
-        updateData.put(statusColumn, enabled);
+        updateData.put(statusColumn, targetValue);
         updateData.put("update_time", new Date());
         updateData.put("update_by", "system");
         for (String idStr : enabledIds) {
@@ -181,11 +207,24 @@ public class LowcodeTreeServiceImpl implements LowcodeTreeService {
     public void toggleStatus(String tableCode, Long id, Integer enabled) {
         SqlInjectionValidator.validateTable(tableCode);
         String pkColumn = getPkColumn(tableCode);
+        String statusColumn = getStatusColumn(tableCode);
         Map<String, Object> updateData = new LinkedHashMap<>();
-        updateData.put("is_enabled", enabled);
+        updateData.put(statusColumn, toStoredStatusValue(statusColumn, enabled));
         updateData.put("update_time", new Date());
         updateData.put("update_by", "system");
         dynamicMapper.updateParam(tableCode, updateData, pkColumn, id);
+    }
+
+    private Integer toStoredStatusValue(String statusColumn, Integer enabled) {
+        if (enabled == null) {
+            return 0;
+        }
+        // RuoYi 风格 status: 0=启用(正常), 1=停用
+        if (FALLBACK_STATUS_COLUMN.equals(statusColumn)) {
+            return enabled == 1 ? 0 : 1;
+        }
+        // 低代码统一 is_enabled: 1=启用, 0=停用
+        return enabled;
     }
 
     @Override

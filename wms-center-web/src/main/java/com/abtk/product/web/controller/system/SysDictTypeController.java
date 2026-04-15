@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 数据字典信息
- * 
+ *
  * @author ruoyi
  */
 @RestController
@@ -62,10 +62,10 @@ public class SysDictTypeController extends BaseController
      * 查询字典类型详细
      */
     @RequiresPermissions("system:dict:query")
-    @GetMapping(value = "/{dictId}")
-    public R<SysDictType> getInfo(@PathVariable Long dictId)
+    @GetMapping(value = "/{id}")
+    public R<SysDictType> getInfo(@PathVariable Long id)
     {
-        return R.ok(dictTypeService.selectDictTypeById(dictId));
+        return R.ok(dictTypeService.selectDictTypeById(id));
     }
 
     /**
@@ -105,11 +105,11 @@ public class SysDictTypeController extends BaseController
      */
     @RequiresPermissions("system:dict:delete")
     @Log(title = "字典类型", businessType = BusinessType.DELETE)
-    @DeleteMapping("/{dictIds}")
-    public R<String> remove(@PathVariable Long[] dictIds)
+    @DeleteMapping("/{ids}")
+    public R<String> remove(@PathVariable Long[] ids)
     {
         String username = SecurityUtils.getUsername();
-        dictTypeService.deleteDictTypeByIds(dictIds, username);
+        dictTypeService.deleteDictTypeByIds(ids, username);
         return R.ok("删除成功");
     }
 

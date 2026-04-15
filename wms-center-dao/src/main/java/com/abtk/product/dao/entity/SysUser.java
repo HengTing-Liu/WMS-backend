@@ -66,7 +66,7 @@ public class SysUser extends BaseEntity
     private String status;
 
     /** 删除标志（0代表存在 2代表删除） */
-    private String delFlag;
+    private String isDeleted;
 
     /** 最后登录IP */
     @Excel(name = "最后登录IP", type = Type.EXPORT)
@@ -229,14 +229,14 @@ public class SysUser extends BaseEntity
         this.status = status;
     }
 
-    public String getDelFlag()
+    public String getIsDeleted()
     {
-        return delFlag;
+        return isDeleted;
     }
 
-    public void setDelFlag(String delFlag)
+    public void setIsDeleted(String isDeleted)
     {
-        this.delFlag = delFlag;
+        this.isDeleted = isDeleted;
     }
 
     public String getLoginIp()
@@ -342,7 +342,7 @@ public class SysUser extends BaseEntity
             .append("avatar", getAvatar())
             .append("password", getPassword())
             .append("status", getStatus())
-            .append("delFlag", getDelFlag())
+            .append("isDeleted", getIsDeleted())
             .append("loginIp", getLoginIp())
             .append("loginDate", getLoginDate())
             .append("pwdUpdateDate", getPwdUpdateDate())

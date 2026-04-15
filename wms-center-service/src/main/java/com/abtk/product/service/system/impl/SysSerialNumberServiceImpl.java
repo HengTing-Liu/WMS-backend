@@ -6,7 +6,6 @@ import com.abtk.product.api.domain.response.sys.SysSerialNumberResponse;
 import com.abtk.product.common.utils.poi.ExcelUtil;
 import com.abtk.product.dao.entity.SysSerialNumber;
 import com.abtk.product.dao.mapper.SysSerialNumberMapper;
-import com.abtk.product.domain.converter.SysSerialNumberConverter;
 import com.abtk.product.service.system.service.I18nService;
 import com.abtk.product.service.system.service.ISysSerialNumberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +16,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * 流水号规则表(SysSerialNumber)表服务实现类
- *
- * @author lht
- * @since 2026-03-09 15:20:00
- */
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class SysSerialNumberServiceImpl implements ISysSerialNumberService {
@@ -33,30 +26,24 @@ public class SysSerialNumberServiceImpl implements ISysSerialNumberService {
     @Autowired
     private I18nService i18nService;
 
-    // ==================== 查询方法 ====================
-
     @Override
     public SysSerialNumberResponse queryById(Long id) {
         SysSerialNumber entity = sysSerialNumberMapper.queryById(id);
-        return SysSerialNumberConverter.INSTANCE.entityToResponse(entity);
+        return toResponse(entity);
     }
 
     @Override
     public List<SysSerialNumberResponse> queryByCondition(SysSerialNumberRequest request) {
         SysSerialNumber condition = buildCondition(request);
         List<SysSerialNumber> list = sysSerialNumberMapper.queryAll(condition);
-        return list.stream()
-                .map(SysSerialNumberConverter.INSTANCE::entityToResponse)
-                .collect(Collectors.toList());
+        return list.stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     @Override
     public List<SysSerialNumberResponse> queryByCondition(SysSerialNumberQueryRequest queryRequest) {
-        SysSerialNumber condition = SysSerialNumberConverter.INSTANCE.queryRequestToEntity(queryRequest);
+        SysSerialNumber condition = buildQueryCondition(queryRequest);
         List<SysSerialNumber> list = sysSerialNumberMapper.queryAll(condition);
-        return list.stream()
-                .map(SysSerialNumberConverter.INSTANCE::entityToResponse)
-                .collect(Collectors.toList());
+        return list.stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     @Override
@@ -73,6 +60,7 @@ public class SysSerialNumberServiceImpl implements ISysSerialNumberService {
     private SysSerialNumber buildCondition(SysSerialNumberRequest request) {
         SysSerialNumber condition = new SysSerialNumber();
         if (request.getId() != null) condition.setId(request.getId());
+        if (request.getRuleCode() != null) condition.setUsageScope(request.getRuleCode());
         if (request.getRuleName() != null) condition.setName(request.getRuleName());
         if (request.getPrefix() != null) condition.setPrefix(request.getPrefix());
         if (request.getSuffix() != null) condition.setSuffix(request.getSuffix());
@@ -85,33 +73,107 @@ public class SysSerialNumberServiceImpl implements ISysSerialNumberService {
         return condition;
     }
 
+    private SysSerialNumber buildQueryCondition(SysSerialNumberQueryRequest request) {
+        SysSerialNumber condition = new SysSerialNumber();
+        if (request == null) return condition;
+        if (request.getRuleName() != null) condition.setName(request.getRuleName());
+        if (request.getRuleCode() != null) condition.setUsageScope(request.getRuleCode());
+        if (request.getStatus() != null) condition.setIsEnabled("0".equals(request.getStatus()) ? 1 : 0);
+        if (request.getResetType() != null) condition.setResetRule(resetTypeToResetRule(request.getResetType()));
+        return condition;
+    }
+
     private Integer dateFormatToNumberType(String dateFormat) {
         if (dateFormat == null || dateFormat.isEmpty()) return 0;
         switch (dateFormat) {
-            case "yyyy": return 1;
-            case "yyyyMM": return 2;
-            case "yyyyMMdd": return 3;
-            default: return 0;
+            case "yyyy":
+                return 1;
+            case "yyyyMM":
+                return 2;
+            case "yyyyMMdd":
+                return 3;
+            default:
+                return 0;
+        }
+    }
+
+    private String numberTypeToDateFormat(Integer numberType) {
+        if (numberType == null) return "";
+        switch (numberType) {
+            case 1:
+                return "yyyy";
+            case 2:
+                return "yyyyMM";
+            case 3:
+                return "yyyyMMdd";
+            default:
+                return "";
         }
     }
 
     private String resetTypeToResetRule(String resetType) {
         if (resetType == null) return "0";
         switch (resetType) {
-            case "NEVER": return "0";
-            case "YEAR": return "1";
-            case "MONTH": return "2";
-            case "DAY": return "3";
-            default: return "0";
+            case "NEVER":
+                return "0";
+            case "YEAR":
+                return "1";
+            case "MONTH":
+                return "2";
+            case "DAY":
+                return "3";
+            default:
+                return "0";
         }
+    }
+
+    private String resetRuleToResetType(String resetRule) {
+        if (resetRule == null) return "NEVER";
+        switch (resetRule) {
+            case "0":
+                return "NEVER";
+            case "1":
+                return "YEAR";
+            case "2":
+                return "MONTH";
+            case "3":
+                return "DAY";
+            default:
+                return "NEVER";
+        }
+    }
+
+    private String isEnabledToStatus(Integer isEnabled) {
+        if (isEnabled == null) return "1";
+        return isEnabled == 1 ? "0" : "1";
+    }
+
+    private SysSerialNumberResponse toResponse(SysSerialNumber entity) {
+        if (entity == null) return null;
+        SysSerialNumberResponse resp = new SysSerialNumberResponse();
+        resp.setId(entity.getId());
+        resp.setRuleCode(entity.getUsageScope());
+        resp.setRuleName(entity.getName());
+        resp.setPrefix(entity.getPrefix());
+        resp.setDateFormat(numberTypeToDateFormat(entity.getNumberType()));
+        resp.setSeqLength(entity.getDigitLength());
+        resp.setCurrentSeq(entity.getCurrentValue());
+        resp.setMaxSeq(entity.getStartValue());
+        resp.setSuffix(entity.getSuffix());
+        resp.setResetType(resetRuleToResetType(entity.getResetRule()));
+        resp.setStatus(isEnabledToStatus(entity.getIsEnabled()));
+        resp.setStep(1);
+        resp.setCreateBy(entity.getCreateBy());
+        resp.setCreateTime(entity.getCreateTime());
+        resp.setUpdateBy(entity.getUpdateBy());
+        resp.setUpdateTime(entity.getUpdateTime());
+        return resp;
     }
 
     @Override
     public boolean existsById(Long id) {
         return sysSerialNumberMapper.queryById(id) != null;
     }
-
-    // ==================== 新增方法 ====================
 
     @Override
     public SysSerialNumberResponse insert(SysSerialNumberRequest request, String createBy) {
@@ -124,10 +186,8 @@ public class SysSerialNumberServiceImpl implements ISysSerialNumberService {
         entity.setCreateBy(createBy);
         entity.setCreateTime(new java.util.Date());
         sysSerialNumberMapper.insert(entity);
-        return SysSerialNumberConverter.INSTANCE.entityToResponse(entity);
+        return toResponse(entity);
     }
-
-    // ==================== 修改方法 ====================
 
     @Override
     public int update(SysSerialNumberRequest request, String updateBy) {
@@ -147,14 +207,11 @@ public class SysSerialNumberServiceImpl implements ISysSerialNumberService {
         }
         SysSerialNumber entity = new SysSerialNumber();
         entity.setId(id);
-        // status: 0->启用(1), 1->停用(0)
         entity.setIsEnabled("0".equals(status) ? 1 : 0);
         entity.setUpdateBy(updateBy);
         entity.setUpdateTime(new java.util.Date());
         return sysSerialNumberMapper.update(entity);
     }
-
-    // ==================== 删除方法 ====================
 
     @Override
     public boolean logicDeleteById(Long id, String updateBy) {
@@ -169,16 +226,12 @@ public class SysSerialNumberServiceImpl implements ISysSerialNumberService {
         return sysSerialNumberMapper.deleteBatchByIds(ids, updateBy);
     }
 
-    // ==================== 导出方法 ====================
-
     @Override
     public void export(SysSerialNumberQueryRequest queryRequest, HttpServletResponse response) {
-        SysSerialNumber condition = SysSerialNumberConverter.INSTANCE.queryRequestToEntity(queryRequest);
+        SysSerialNumber condition = buildQueryCondition(queryRequest);
         List<SysSerialNumber> list = sysSerialNumberMapper.queryAll(condition);
-        List<SysSerialNumberResponse> responseList = list.stream()
-                .map(SysSerialNumberConverter.INSTANCE::entityToResponse)
-                .collect(Collectors.toList());
+        List<SysSerialNumberResponse> responseList = list.stream().map(this::toResponse).collect(Collectors.toList());
         ExcelUtil<SysSerialNumberResponse> util = new ExcelUtil<>(SysSerialNumberResponse.class);
-        util.exportExcel(response, responseList, "流水号规则数据");
+        util.exportExcel(response, responseList, "Serial Rule Data");
     }
 }

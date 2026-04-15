@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.abtk.product.dao.mapper.user.WmsUserMapper">
 
@@ -13,7 +13,7 @@
         <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
         <result property="password" column="password" jdbcType="VARCHAR"/>
         <result property="status" column="status" jdbcType="VARCHAR"/>
-        <result property="delFlag" column="del_flag" jdbcType="VARCHAR"/>
+        <result property="delFlag" column="is_deleted" jdbcType="VARCHAR"/>
         <result property="loginIp" column="login_ip" jdbcType="VARCHAR"/>
         <result property="loginDate" column="login_date" jdbcType="TIMESTAMP"/>
         <result property="pwdUpdateDate" column="pwd_update_date" jdbcType="TIMESTAMP"/>
@@ -24,28 +24,28 @@
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
-    <!-- 基础列 -->
+    <!-- 鍩虹鍒?-->
     <sql id="Base_Column_List">
         user_id, dept_id, user_name, nick_name, email, phonenumber, sex, avatar,
-        status, del_flag, login_ip, login_date, pwd_update_date,
+        status, is_deleted, login_ip, login_date, pwd_update_date,
         remarks, create_by, create_time, update_by, update_time
     </sql>
 
-    <!-- 查询单个 -->
+    <!-- 鏌ヨ鍗曚釜 -->
     <select id="queryById" resultMap="WmsUserMap">
         select
         <include refid="Base_Column_List"/>
         from sys_user
-        where user_id = #{userId} and del_flag = '0'
+        where user_id = #{userId} and is_deleted = '0'
     </select>
 
-    <!-- 查询指定行数据 -->
+    <!-- 鏌ヨ鎸囧畾琛屾暟鎹?-->
     <select id="queryAll" resultMap="WmsUserMap">
         select
         <include refid="Base_Column_List"/>
         from sys_user
         <where>
-            del_flag = '0'
+            is_deleted = '0'
             <if test="userId != null">
                 and user_id = #{userId}
             </if>
@@ -68,11 +68,11 @@
         order by user_id asc
     </select>
 
-    <!-- 统计总行数 -->
+    <!-- 缁熻鎬昏鏁?-->
     <select id="count" resultType="java.lang.Long">
         select count(1) from sys_user
         <where>
-            del_flag = '0'
+            is_deleted = '0'
             <if test="userId != null">
                 and user_id = #{userId}
             </if>
@@ -94,11 +94,11 @@
         </where>
     </select>
 
-    <!-- 新增 -->
+    <!-- 鏂板 -->
     <insert id="insert" keyProperty="userId" useGeneratedKeys="true">
         insert into sys_user(
             dept_id, user_name, nick_name, email, phonenumber, sex, avatar,
-            password, status, del_flag, remarks,
+            password, status, is_deleted, remarks,
             create_by, create_time, update_by, update_time
         ) values (
             <choose>
@@ -139,7 +139,7 @@
         )
     </insert>
 
-    <!-- 修改 -->
+    <!-- 淇敼 -->
     <update id="update">
         update sys_user
         <set>
@@ -178,39 +178,40 @@
         where user_id = #{userId}
     </update>
 
-    <!-- 逻辑删除 -->
+    <!-- 閫昏緫鍒犻櫎 -->
     <update id="deleteById">
         update sys_user
-        set del_flag = '2',
+        set is_deleted = '2',
             update_by = #{username},
             update_time = now()
         where user_id = #{userId}
     </update>
 
-    <!-- 切换状态 -->
+    <!-- 鍒囨崲鐘舵€?-->
     <update id="toggleStatus">
         update sys_user
         set status = #{status},
             update_time = now()
-        where user_id = #{userId} and del_flag = '0'
+        where user_id = #{userId} and is_deleted = '0'
     </update>
 
-    <!-- 查询所有（不分页） -->
+    <!-- 鏌ヨ鎵€鏈夛紙涓嶅垎椤碉級 -->
     <select id="listAll" resultMap="WmsUserMap">
         select
         <include refid="Base_Column_List"/>
         from sys_user
-        where del_flag = '0'
+        where is_deleted = '0'
         order by user_id asc
     </select>
 
-    <!-- 校验用户名唯一性 -->
+    <!-- 鏍￠獙鐢ㄦ埛鍚嶅敮涓€鎬?-->
     <select id="checkUserNameUnique" resultMap="WmsUserMap">
         select
         <include refid="Base_Column_List"/>
         from sys_user
-        where user_name = #{userName} and del_flag = '0'
+        where user_name = #{userName} and is_deleted = '0'
         limit 1
     </select>
 
 </mapper>
+

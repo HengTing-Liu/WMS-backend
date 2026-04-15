@@ -40,10 +40,10 @@ public interface ISysDictTypeService
     /**
      * 根据字典类型ID查询信息
      *
-     * @param dictId 字典类型ID
+     * @param id 字典类型ID
      * @return 字典类型
      */
-    public SysDictType selectDictTypeById(Long dictId);
+    public SysDictType selectDictTypeById(Long id);
 
     /**
      * 根据字典类型查询信息
@@ -56,10 +56,10 @@ public interface ISysDictTypeService
     /**
      * 批量删除字典信息
      *
-     * @param dictIds 需要删除的字典ID
+     * @param ids 需要删除的字典ID
      * @param updateBy 更新人
      */
-    public void deleteDictTypeByIds(Long[] dictIds, String updateBy);
+    public void deleteDictTypeByIds(Long[] ids, String updateBy);
 
     /**
      * 加载字典缓存数据

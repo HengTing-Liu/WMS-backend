@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 /**
  * 字典 业务层处理
- * 
+ *
  * @author ruoyi
  */
 @Service
@@ -45,7 +45,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
 
     /**
      * 根据条件分页查询字典类型
-     * 
+     *
      * @param dictType 字典类型信息
      * @return 字典类型集合信息
      */
@@ -57,7 +57,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
 
     /**
      * 根据所有字典类型
-     * 
+     *
      * @return 字典类型集合信息
      */
     @Override
@@ -68,7 +68,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
 
     /**
      * 根据字典类型查询字典数据
-     * 
+     *
      * @param dictType 字典类型
      * @return 字典数据集合信息
      */
@@ -91,19 +91,19 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
 
     /**
      * 根据字典类型ID查询信息
-     * 
-     * @param dictId 字典类型ID
+     *
+     * @param id 字典类型ID
      * @return 字典类型
      */
     @Override
-    public SysDictType selectDictTypeById(Long dictId)
+    public SysDictType selectDictTypeById(Long id)
     {
-        return dictTypeMapper.selectDictTypeById(dictId);
+        return dictTypeMapper.selectDictTypeById(id);
     }
 
     /**
      * 根据字典类型查询信息
-     * 
+     *
      * @param dictType 字典类型
      * @return 字典类型
      */
@@ -115,21 +115,21 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
 
     /**
      * 批量删除字典类型信息
-     * 
-     * @param dictIds 需要删除的字典ID
+     *
+     * @param ids 需要删除的字典ID
      * @param updateBy 更新人
      */
     @Override
-    public void deleteDictTypeByIds(Long[] dictIds, String updateBy)
+    public void deleteDictTypeByIds(Long[] ids, String updateBy)
     {
-        for (Long dictId : dictIds)
+        for (Long id : ids)
         {
-            SysDictType dictType = selectDictTypeById(dictId);
+            SysDictType dictType = selectDictTypeById(id);
             if (dictDataMapper.countDictDataByType(dictType.getDictType()) > 0)
             {
                 throw new ServiceException(String.format("%1$s已分配,不能删除", dictType.getDictName()));
             }
-            dictTypeMapper.deleteDictTypeById(dictId, updateBy);
+            dictTypeMapper.deleteDictTypeById(id, updateBy);
             DictUtils.removeDictCache(dictType.getDictType());
         }
     }
@@ -170,7 +170,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
 
     /**
      * 新增保存字典类型信息
-     * 
+     *
      * @param dict 字典类型信息
      * @return 结果
      */
@@ -187,7 +187,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
 
     /**
      * 修改保存字典类型信息
-     * 
+     *
      * @param dict 字典类型信息
      * @return 结果
      */
@@ -195,11 +195,10 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
     @Transactional(rollbackFor = Exception.class)
     public int updateDictType(SysDictType dict)
     {
-        // 设置更新时间（如果未设置）
         if (dict.getUpdateTime() == null) {
             dict.setUpdateTime(new java.util.Date());
         }
-        SysDictType oldDict = dictTypeMapper.selectDictTypeById(dict.getDictId());
+        SysDictType oldDict = dictTypeMapper.selectDictTypeById(dict.getId());
         dictDataMapper.updateDictDataType(oldDict.getDictType(), dict.getDictType());
         int row = dictTypeMapper.updateDictType(dict);
         if (row > 0)
@@ -223,7 +222,7 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
         int row = dictTypeMapper.updateDictTypeStatus(dict);
         if (row > 0)
         {
-            SysDictType dictType = dictTypeMapper.selectDictTypeById(dict.getDictId());
+            SysDictType dictType = dictTypeMapper.selectDictTypeById(dict.getId());
             List<SysDictData> dictDatas = dictDataMapper.selectDictDataByType(dictType.getDictType());
             DictUtils.setDictCache(dictType.getDictType(), dictDatas);
         }
@@ -239,9 +238,9 @@ public class SysDictTypeServiceImpl implements ISysDictTypeService
     @Override
     public boolean checkDictTypeUnique(SysDictType dict)
     {
-        Long dictId = StringUtils.isNull(dict.getDictId()) ? -1L : dict.getDictId();
+        Long id = StringUtils.isNull(dict.getId()) ? -1L : dict.getId();
         SysDictType dictType = dictTypeMapper.checkDictTypeUnique(dict.getDictType());
-        if (StringUtils.isNotNull(dictType) && dictType.getDictId().longValue() != dictId.longValue())
+        if (StringUtils.isNotNull(dictType) && dictType.getId().longValue() != id.longValue())
         {
             return UserConstants.NOT_UNIQUE;
         }

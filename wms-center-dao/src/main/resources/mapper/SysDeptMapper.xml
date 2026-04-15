@@ -14,7 +14,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<result property="phone"      column="phone"       />
 		<result property="email"      column="email"       />
 		<result property="status"     column="status"      />
-		<result property="delFlag"    column="del_flag"    />
+		<result property="delFlag"    column="is_deleted"    />
 		<result property="parentName" column="parent_name" />
 		<result property="createBy"   column="create_by"   />
 		<result property="createTime" column="create_time" />
@@ -23,13 +23,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</resultMap>
 	
 	<sql id="selectDeptVo">
-        select d.dept_id, d.parent_id, d.ancestors, d.dept_name, d.order_num, d.leader, d.phone, d.email, d.status, d.del_flag, d.create_by, d.create_time 
+        select d.dept_id, d.parent_id, d.ancestors, d.dept_name, d.order_num, d.leader, d.phone, d.email, d.status, d.is_deleted, d.create_by, d.create_time 
         from sys_dept d
     </sql>
     
 	<select id="selectDeptList" parameterType="SysDept" resultMap="SysDeptResult">
         <include refid="selectDeptVo"/>
-        where d.del_flag = '0'
+        where d.is_deleted = '0'
 		<if test="deptId != null and deptId != 0">
 			AND dept_id = #{deptId}
 		</if>
@@ -42,7 +42,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="status != null and status != ''">
 			AND status = #{status}
 		</if>
-		<!-- 数据范围过滤 -->
+		<!-- 鏁版嵁鑼冨洿杩囨护 -->
 		${params.dataScope}
 		order by d.parent_id, d.order_num
     </select>
@@ -64,12 +64,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
     
     <select id="checkDeptExistUser" parameterType="Long" resultType="int">
-		select count(1) from sys_user where dept_id = #{deptId} and del_flag = '0'
+		select count(1) from sys_user where dept_id = #{deptId} and is_deleted = '0'
 	</select>
 	
 	<select id="hasChildByDeptId" parameterType="Long" resultType="int">
 		select count(1) from sys_dept
-		where del_flag = '0' and parent_id = #{deptId} limit 1
+		where is_deleted = '0' and parent_id = #{deptId} limit 1
 	</select>
 	
 	<select id="selectChildrenDeptById" parameterType="Long" resultMap="SysDeptResult">
@@ -77,12 +77,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 	
 	<select id="selectNormalChildrenDeptById" parameterType="Long" resultType="int">
-		select count(*) from sys_dept where status = 0 and del_flag = '0' and find_in_set(#{deptId}, ancestors)
+		select count(*) from sys_dept where status = 0 and is_deleted = '0' and find_in_set(#{deptId}, ancestors)
 	</select>
 	
 	<select id="checkDeptNameUnique" resultMap="SysDeptResult">
 	    <include refid="selectDeptVo"/>
-		where dept_name=#{deptName} and parent_id = #{parentId} and del_flag = '0' limit 1
+		where dept_name=#{deptName} and parent_id = #{parentId} and is_deleted = '0' limit 1
 	</select>
     
     <insert id="insertDept" parameterType="SysDept">
@@ -159,7 +159,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</update>
 	 
 	<delete id="deleteDeptById" parameterType="Long">
-		update sys_dept set del_flag = '2' where dept_id = #{deptId}
+		update sys_dept set is_deleted = '2' where dept_id = #{deptId}
 	</delete>
 
 </mapper> 

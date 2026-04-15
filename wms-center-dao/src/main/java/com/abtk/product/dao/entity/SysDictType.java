@@ -11,7 +11,7 @@ import javax.validation.constraints.Size;
 
 /**
  * 字典类型表 sys_dict_type
- * 
+ *
  * @author ruoyi
  */
 public class SysDictType extends BaseEntity
@@ -20,7 +20,7 @@ public class SysDictType extends BaseEntity
 
     /** 字典主键 */
     @Excel(name = "字典主键", cellType = Excel.ColumnType.NUMERIC)
-    private Long dictId;
+    private Long id;
 
     /** 字典名称 */
     @Excel(name = "字典名称")
@@ -37,14 +37,14 @@ public class SysDictType extends BaseEntity
     /** 删除标志（0代表存在 1代表删除） */
     private String isDeleted;
 
-    public Long getDictId()
+    public Long getId()
     {
-        return dictId;
+        return id;
     }
 
-    public void setDictId(Long dictId)
+    public void setId(Long id)
     {
-        this.dictId = dictId;
+        this.id = id;
     }
 
     @NotBlank(message = "字典名称不能为空")
@@ -91,11 +91,11 @@ public class SysDictType extends BaseEntity
     {
         this.isDeleted = isDeleted;
     }
-    
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("dictId", getDictId())
+            .append("id", getId())
             .append("dictName", getDictName())
             .append("dictType", getDictType())
             .append("status", getStatus())

@@ -10,8 +10,8 @@ import com.abtk.product.dao.entity.SysDictData;
 import com.abtk.product.service.annotation.Log;
 import com.abtk.product.service.security.utils.SecurityUtils;
 import com.abtk.product.service.system.ISysDictDataService;
-import com.abtk.product.service.system.service.I18nService;
 import com.abtk.product.service.system.ISysDictTypeService;
+import com.abtk.product.service.system.service.I18nService;
 import com.abtk.product.web.security.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -23,7 +23,7 @@ import java.util.List;
 
 /**
  * 数据字典信息
- * 
+ *
  * @author ruoyi
  */
 @RestController
@@ -35,18 +35,14 @@ public class SysDictDataController extends BaseController
 
     @Autowired
     private I18nService i18nService;
-    
+
     @Autowired
     private ISysDictTypeService dictTypeService;
 
 
     /**
      * 查询字典数据列表
-     *
-     * @param dictData 字典数据查询条件
-     * @return 字典数据分页结果
      */
-    //@RequiresPermissions("system:dict:list")
     @GetMapping("/list")
     public R<TableDataInfo> list(SysDictData dictData)
     {
@@ -56,7 +52,6 @@ public class SysDictDataController extends BaseController
     }
 
     @Log(title = "字典数据", businessType = BusinessType.EXPORT)
-    // @RequiresPermissions("system:dict:export")
     @PostMapping("/export")
     public void export(HttpServletResponse response, SysDictData dictData)
     {
@@ -68,11 +63,10 @@ public class SysDictDataController extends BaseController
     /**
      * 查询字典数据详细
      */
-    // @RequiresPermissions("system:dict:query")
-    @GetMapping(value = "/{dictCode}")
-    public R<SysDictData> getInfo(@PathVariable Long dictCode)
+    @GetMapping(value = "/{id}")
+    public R<SysDictData> getInfo(@PathVariable Long id)
     {
-        return R.ok(dictDataService.selectDictDataById(dictCode));
+        return R.ok(dictDataService.selectDictDataById(id));
     }
 
     /**
@@ -90,9 +84,8 @@ public class SysDictDataController extends BaseController
     }
 
     /**
-     * 新增字典类型
+     * 新增字典数据
      */
-    // @RequiresPermissions("system:dict:add")
     @Log(title = "字典数据", businessType = BusinessType.INSERT)
     @PostMapping
     public R<String> add(@Validated @RequestBody SysDictData dict)
@@ -102,10 +95,9 @@ public class SysDictDataController extends BaseController
     }
 
     /**
-     * 修改保存字典类型
+     * 修改保存字典数据
      */
-    // @RequiresPermissions("system:dict:edit")
-    @Log(title = "字典类型", businessType = BusinessType.UPDATE)
+    @Log(title = "字典数据", businessType = BusinessType.UPDATE)
     @PutMapping
     public R<String> edit(@Validated @RequestBody SysDictData dict)
     {
@@ -114,14 +106,13 @@ public class SysDictDataController extends BaseController
     }
 
     /**
-     * 删除字典类型
+     * 删除字典数据
      */
-    // @RequiresPermissions("system:dict:remove")
-    @Log(title = "字典类型", businessType = BusinessType.DELETE)
-    @DeleteMapping("/{dictCodes}")
-    public R<String> remove(@PathVariable Long[] dictCodes)
+    @Log(title = "字典数据", businessType = BusinessType.DELETE)
+    @DeleteMapping("/{ids}")
+    public R<String> remove(@PathVariable Long[] ids)
     {
-        dictDataService.deleteDictDataByIds(dictCodes);
+        dictDataService.deleteDictDataByIds(ids);
         return R.ok("删除成功");
     }
 }

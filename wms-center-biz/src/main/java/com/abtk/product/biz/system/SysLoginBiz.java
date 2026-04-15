@@ -86,7 +86,7 @@ public class SysLoginBiz
 
         LoginUser userInfo = userResult.getData();
         SysUser user = userResult.getData().getSysUser();
-        if (UserStatus.DELETED.getCode().equals(user.getDelFlag()))
+        if (UserStatus.DELETED.getCode().equals(user.getIsDeleted()))
         {
             recordLogService.recordLogininfor(username, Constants.LOGIN_FAIL, i18nService.getMessage("user.deleted"));
             throw new ServiceException(i18nService.getMessage("user.deleted", username));

@@ -11,16 +11,16 @@ import javax.validation.constraints.Size;
 
 /**
  * 字典数据表 sys_dict_data
- * 
+ *
  * @author ruoyi
  */
 public class SysDictData extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
-    /** 字典编码 */
-    @Excel(name = "字典编码", cellType = Excel.ColumnType.NUMERIC)
-    private Long dictCode;
+    /** 字典主键 */
+    @Excel(name = "字典主键", cellType = Excel.ColumnType.NUMERIC)
+    private Long id;
 
     /** 字典排序 */
     @Excel(name = "字典排序", cellType = Excel.ColumnType.NUMERIC)
@@ -52,14 +52,20 @@ public class SysDictData extends BaseEntity
     @Excel(name = "状态", readConverterExp = "0=正常,1=停用")
     private String status;
 
-    public Long getDictCode()
+    /** 语言类型 */
+    private String languageType;
+
+    /** 删除标志（0存在 1删除） */
+    private String isDeleted;
+
+    public Long getId()
     {
-        return dictCode;
+        return id;
     }
 
-    public void setDictCode(Long dictCode)
+    public void setId(Long id)
     {
-        this.dictCode = dictCode;
+        this.id = id;
     }
 
     public Long getDictSort()
@@ -153,11 +159,31 @@ public class SysDictData extends BaseEntity
     {
         this.status = status;
     }
-    
+
+    public String getLanguageType()
+    {
+        return languageType;
+    }
+
+    public void setLanguageType(String languageType)
+    {
+        this.languageType = languageType;
+    }
+
+    public String getIsDeleted()
+    {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(String isDeleted)
+    {
+        this.isDeleted = isDeleted;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("dictCode", getDictCode())
+            .append("id", getId())
             .append("dictSort", getDictSort())
             .append("dictLabel", getDictLabel())
             .append("dictValue", getDictValue())
@@ -166,6 +192,7 @@ public class SysDictData extends BaseEntity
             .append("listClass", getListClass())
             .append("isDefault", getIsDefault())
             .append("status", getStatus())
+            .append("languageType", getLanguageType())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())

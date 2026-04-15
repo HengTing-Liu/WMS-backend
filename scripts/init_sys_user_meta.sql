@@ -47,7 +47,7 @@ INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, dic
 -- 账号状态
 ('sys_user', 'status', '状态', 'string', 'select', 'sys_normal_disable', 1, 1, 1, 0, 1, 80, 11, 1, 'system', NOW()),
 -- 删除标志（不在列表/表单显示）
-('sys_user', 'delFlag', '删除标志', 'string', 'number', '', 0, 0, 0, 0, 0, NULL, 12, 0, 'system', NOW()),
+('sys_user', 'isDeleted', '删除标志', 'string', 'number', '', 0, 0, 0, 0, 0, NULL, 12, 0, 'system', NOW()),
 -- 最后登录IP
 ('sys_user', 'loginIp', '最后登录IP', 'string', 'input', '', 0, 0, 0, 0, 0, 150, 13, 1, 'system', NOW()),
 -- 最后登录时间
