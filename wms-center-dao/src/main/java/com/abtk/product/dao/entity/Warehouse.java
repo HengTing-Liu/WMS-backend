@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * 仓库实体类
- * 表名: sys_warehouse
+ * 表名: inv_warehouse
  */
 public class Warehouse extends BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;

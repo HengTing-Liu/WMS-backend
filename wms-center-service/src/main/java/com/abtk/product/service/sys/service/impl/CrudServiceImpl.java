@@ -67,7 +67,7 @@ public class CrudServiceImpl implements CrudService {
      * @return 闂佸憡甯炴繛鈧繛鍛叄瀹曟艾螖閳ь剟骞?
      */
     private String getDeleteColumn(String tableCode) {
-        // sys_material/sys_warehouse/sys_warehouse_receiver 缂備焦绋戦ˇ顔剧礊閸℃顩烽柨婵嗘川閸ㄦ娊鎮跺☉鏍у婵炵厧瀛╅幏鍛崉閵婏附娈?is_deleted 闂佸憡甯楅〃鎰濠靛鐒婚柡鍕箳鐢棝鏌涢幒鏂库枅婵炲懎閰ｅ畷?= 0
+        // inv_material/inv_warehouse/inv_warehouse_receiver 缂備焦绋戦ˇ顔剧礊閸℃顩烽柨婵嗘川閸ㄦ娊鎮跺☉鏍у婵炵厧瀛╅幏鍛崉閵婏附娈?is_deleted 闂佸憡甯楅〃鎰濠靛鐒婚柡鍕箳鐢棝鏌涢幒鏂库枅婵炲懎閰ｅ畷?= 0
         return DEFAULT_DELETE_COLUMN;
     }
 

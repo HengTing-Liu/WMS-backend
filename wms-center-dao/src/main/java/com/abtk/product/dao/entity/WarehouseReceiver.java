@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * 仓库收货信息实体类
- * 表名: sys_warehouse_receiver
+ * 表名: inv_warehouse_receiver
  */
 public class WarehouseReceiver extends BaseEntity implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -12,7 +12,7 @@ public class WarehouseReceiver extends BaseEntity implements Serializable {
     /** 主键ID */
     private Long id;
 
-    /** 仓库编码（关联sys_warehouse） */
+    /** 仓库编码（关联inv_warehouse） */
     private String warehouseCode;
 
     /** 收货人姓名 */

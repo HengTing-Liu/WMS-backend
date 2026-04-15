@@ -22,7 +22,7 @@ import java.util.*;
 import com.github.pagehelper.PageInfo;
 
 /**
- * 低代码运行时 CRUD。不按表名配置细粒度权限（如 sys_warehouse:list），否则每表需在权限表同步一条；
+ * 低代码运行时 CRUD。不按表名配置细粒度权限（如 inv_warehouse:list），否则每表需在权限表同步一条；
  * 访问控制：需携带有效 Token（见 AuthInterceptor），业务可见性由菜单与路由控制。
  */
 @Slf4j

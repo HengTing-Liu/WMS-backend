@@ -35,7 +35,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                dept_code, dept_name_full_path,
                erp_company_code, erp_company_name, erp_warehouse_code, erp_location_code,
                is_enabled, remarks, create_by, create_time, update_by, update_time
-		FROM sys_warehouse
+		FROM inv_warehouse
 		WHERE is_deleted = 0
     </sql>
 
@@ -65,7 +65,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
 
 	<insert id="insert" parameterType="com.abtk.product.dao.entity.Warehouse" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO sys_warehouse(
+		INSERT INTO inv_warehouse(
 			warehouse_type,
 			warehouse_code,
 			warehouse_location,
@@ -107,7 +107,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</insert>
 
 	<update id="update" parameterType="com.abtk.product.dao.entity.Warehouse">
-		UPDATE sys_warehouse
+		UPDATE inv_warehouse
 		<set>
 			<if test="warehouseType != null">warehouse_type = #{warehouseType},</if>
 			<if test="warehouseCode != null and warehouseCode != ''">warehouse_code = #{warehouseCode},</if>
@@ -133,7 +133,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</update>
 
 	<update id="deleteById" parameterType="Long">
-		UPDATE sys_warehouse
+		UPDATE inv_warehouse
 		SET is_deleted = 1,
 		    update_time = NOW()
 		WHERE id = #{id}
@@ -141,7 +141,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</update>
 
 	<update id="updateStatus">
-		UPDATE sys_warehouse
+		UPDATE inv_warehouse
 		SET is_enabled = #{isEnabled},
 		    update_time = NOW()
 		WHERE id = #{id}
@@ -150,7 +150,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 	<select id="checkWarehouseCodeExists" resultType="int">
 		SELECT COUNT(1)
-		FROM sys_warehouse
+		FROM inv_warehouse
 		WHERE warehouse_code = #{warehouseCode}
 		AND is_deleted = 0
 		<if test="excludeId != null">
@@ -160,7 +160,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 	<select id="selectDistinctCompany" resultType="String">
 		SELECT DISTINCT erp_company_name
-		FROM sys_warehouse
+		FROM inv_warehouse
 		WHERE is_deleted = 0
 		AND erp_company_name IS NOT NULL
 		AND erp_company_name != ''

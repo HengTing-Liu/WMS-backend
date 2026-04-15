@@ -21,7 +21,7 @@ public class WarehouseReceiverRequest extends BaseRequest {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 仓库编码（关联sys_warehouse）
+     * 仓库编码（关联inv_warehouse）
      */
     @NotBlank(message = "仓库编码不能为空")
     @Size(max = 50, message = "仓库编码长度不能超过50")

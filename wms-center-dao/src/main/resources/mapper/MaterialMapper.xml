@@ -43,7 +43,7 @@
 		       storage_condition, transport_condition, length, width, height,
 		       logistics_package, box_model, outer_package, require_qc,
 		       supplier_brand, supplier_item_no, supplier_spec, erp_sync_remark, remarks
-		FROM sys_material WHERE is_deleted = 0
+		FROM inv_material WHERE is_deleted = 0
 	</sql>
 
 	<select id="selectById" parameterType="Long" resultMap="MaterialResult">
@@ -86,7 +86,7 @@
 	</select>
 
 	<insert id="insert" parameterType="com.abtk.product.dao.entity.Material" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO sys_material (
+		INSERT INTO inv_material (
 			material_code, material_name, spec, unit, category, status,
 			create_by, material_en_name, export_name, brand, item_no,
 			package_spec, storage_condition, transport_condition,
@@ -104,7 +104,7 @@
 	</insert>
 
 	<update id="update" parameterType="com.abtk.product.dao.entity.Material">
-		UPDATE sys_material
+		UPDATE inv_material
 		<set>
 			<if test="materialCode != null and materialCode != ''">material_code = #{materialCode},</if>
 			<if test="materialName != null and materialName != ''">material_name = #{materialName},</if>
@@ -138,16 +138,16 @@
 	</update>
 
 	<update id="deleteById" parameterType="Long">
-		UPDATE sys_material SET is_deleted = 1, update_time = NOW() WHERE id = #{id} AND is_deleted = 0
+		UPDATE inv_material SET is_deleted = 1, update_time = NOW() WHERE id = #{id} AND is_deleted = 0
 	</update>
 
 	<select id="checkMaterialCodeExists" resultType="int">
-		SELECT COUNT(1) FROM sys_material WHERE material_code = #{materialCode} AND is_deleted = 0
+		SELECT COUNT(1) FROM inv_material WHERE material_code = #{materialCode} AND is_deleted = 0
 		<if test="excludeId != null">AND id != #{excludeId}</if>
 	</select>
 
 	<update id="updateStatus" parameterType="Long">
-		UPDATE sys_material SET status = #{status}, update_time = NOW() WHERE id = #{id} AND is_deleted = 0
+		UPDATE inv_material SET status = #{status}, update_time = NOW() WHERE id = #{id} AND is_deleted = 0
 	</update>
 
 </mapper>
