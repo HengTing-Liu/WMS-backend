@@ -1,50 +1,71 @@
 package com.abtk.product.service.sys.service.impl;
 
+import com.abtk.product.dao.entity.SysDictData;
 import com.abtk.product.service.sys.service.DictService;
+import com.abtk.product.service.system.ISysDictTypeService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 字典数据服务实现
- * TODO: 待后续集成sys_dict表后完善
+ * 对接 sys_dict_data 表，优先使用缓存
  */
 @Slf4j
 @Service
 public class DictServiceImpl implements DictService {
 
+    @Autowired
+    private ISysDictTypeService dictTypeService;
+
     @Override
     public List<Map<String, Object>> getDictData(String dictType) {
-        log.info("查询字典数据, dictType={}", dictType);
-        // TODO: 待集成sys_dict表后，从数据库查询
-        // 当前返回占位数据
-        List<Map<String, Object>> result = new ArrayList<>();
-        Map<String, Object> item = new HashMap<>();
-        item.put("label", "示例选项");
-        item.put("value", "1");
-        result.add(item);
-        return result;
+        List<SysDictData> dictDatas = dictTypeService.selectDictDataByType(dictType);
+        if (dictDatas == null) {
+            return new ArrayList<>();
+        }
+        return dictDatas.stream().map(this::convertToMap).collect(Collectors.toList());
     }
 
     @Override
     public String getDictLabel(String dictType, String dictValue) {
-        log.info("查询字典标签, dictType={}, dictValue={}", dictType, dictValue);
-        // TODO: 待集成sys_dict表后，从数据库查询
-        return "示例标签";
+        List<SysDictData> dictDatas = dictTypeService.selectDictDataByType(dictType);
+        if (dictDatas == null) {
+            return null;
+        }
+        for (SysDictData data : dictDatas) {
+            if (dictValue != null && dictValue.equals(data.getDictValue())) {
+                return data.getDictLabel();
+            }
+        }
+        return null;
     }
 
     @Override
     public Map<String, List<Map<String, Object>>> getDictDataBatch(List<String> dictTypes) {
-        log.info("批量查询字典数据, dictTypes={}", dictTypes);
-        // TODO: 待集成sys_dict表后，从数据库查询
         Map<String, List<Map<String, Object>>> result = new HashMap<>();
         for (String dictType : dictTypes) {
             result.put(dictType, getDictData(dictType));
         }
         return result;
+    }
+
+    private Map<String, Object> convertToMap(SysDictData data) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("label", data.getDictLabel());
+        map.put("value", data.getDictValue());
+        map.put("id", data.getId());
+        map.put("dictSort", data.getDictSort());
+        map.put("isDefault", data.getIsDefault());
+        map.put("status", data.getStatus());
+        map.put("cssClass", data.getCssClass());
+        map.put("listClass", data.getListClass());
+        return map;
     }
 }

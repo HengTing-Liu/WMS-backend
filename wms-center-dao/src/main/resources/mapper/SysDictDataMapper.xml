@@ -96,6 +96,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<update id="updateDictDataType" parameterType="String">
  		update sys_dict_data set dict_type = #{newDictType} where dict_type = #{oldDictType}
 	</update>
+
+	<select id="selectDictDataByTypeAndValue" resultMap="SysDictDataResult">
+		<include refid="selectDictDataVo"/>
+		where dict_type = #{dictType} and dict_value = #{dictValue} and is_deleted = '0'
+	</select>
  	
  	<insert id="insertDictData" parameterType="SysDictData">
  		insert into sys_dict_data(

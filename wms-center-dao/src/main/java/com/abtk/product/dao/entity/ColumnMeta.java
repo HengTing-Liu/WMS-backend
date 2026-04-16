@@ -107,6 +107,12 @@ public class ColumnMeta extends BaseEntity {
     /** 表单栅格列宽（1-24），默认6 */
     private Integer colSpan;
 
+    /** 是否只读: 0-否 1-是 */
+    private Integer readonly;
+
+    /** 编辑时是否只读: 0-否 1-是 */
+    private Integer editReadonly;
+
     /** 字段分组标识 */
     private String sectionKey;
 
@@ -130,6 +136,9 @@ public class ColumnMeta extends BaseEntity {
 
     /** 导出显示: 0-否 1-是 */
     private Integer showInExport;
+
+    /** 导入显示: 0-否 1-是 */
+    private Integer showInImport;
 
     // 代码生成器适配方法（兼容 common.generator.ColumnMeta）
     public String getJavaType() {

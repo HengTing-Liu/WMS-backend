@@ -316,15 +316,49 @@ public class MetaServiceImpl implements MetaService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public void batchUpdateColumnColSpan(List<Long> ids, Integer colSpan) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+        columnMetaMapper.batchUpdateColSpanByIds(ids, colSpan);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void batchUpdateColumnSection(List<Long> ids, String sectionKey, String sectionTitle,
+                                         Integer sectionOrder, String sectionType, Integer sectionOpen) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+        columnMetaMapper.batchUpdateSectionByIds(ids, sectionKey, sectionTitle, sectionOrder, sectionType, sectionOpen);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateColumnSectionByGroupCode(String tableCode, String oldGroupCode, String newGroupCode) {
+        if (tableCode == null || oldGroupCode == null || newGroupCode == null || oldGroupCode.equals(newGroupCode)) {
+            return;
+        }
+        columnMetaMapper.updateSectionKeyByGroupCode(tableCode, oldGroupCode, newGroupCode);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public FormGroupMeta saveFormGroupMeta(FormGroupMeta formGroupMeta) {
         if (formGroupMeta.getId() == null) {
             formGroupMeta.setCreateBy("system");
             formGroupMeta.setCreateTime(new Date());
             formGroupMetaMapper.insert(formGroupMeta);
         } else {
+            // 检查 groupCode 是否变更，若变更则级联更新字段的 section_key
+            FormGroupMeta existing = formGroupMetaMapper.selectById(formGroupMeta.getId());
+            String oldGroupCode = existing != null ? existing.getGroupCode() : null;
             formGroupMeta.setUpdateBy("system");
             formGroupMeta.setUpdateTime(new Date());
             formGroupMetaMapper.update(formGroupMeta);
+            if (oldGroupCode != null && !oldGroupCode.equals(formGroupMeta.getGroupCode())) {
+                updateColumnSectionByGroupCode(formGroupMeta.getTableCode(), oldGroupCode, formGroupMeta.getGroupCode());
+            }
         }
         return formGroupMeta;
     }
@@ -404,6 +438,8 @@ public class MetaServiceImpl implements MetaService {
                 .componentProps(col.getComponentProps())
                 .options(options)
                 .colSpan(col.getColSpan())
+                .isReadonly(col.getReadonly() != null && col.getReadonly() == 1)
+                .isEditReadonly(col.getEditReadonly() != null && col.getEditReadonly() == 1)
                 .sectionKey(col.getSectionKey())
                 .sectionTitle(col.getSectionTitle())
                 .sectionOrder(col.getSectionOrder())

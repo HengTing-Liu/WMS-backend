@@ -15,6 +15,7 @@
         <result property="showInList" column="show_in_list"/>
         <result property="showInForm" column="show_in_form"/>
         <result property="showInExport" column="show_in_export"/>
+        <result property="showInImport" column="show_in_import"/>
         <result property="searchable" column="searchable"/>
         <result property="sortable" column="is_sortable"/>
         <result property="required" column="required"/>
@@ -29,6 +30,9 @@
         <result property="apiUrl" column="api_url"/>
         <result property="labelField" column="label_field"/>
         <result property="valueField" column="value_field"/>
+        <result property="colSpan" column="col_span"/>
+        <result property="readonly" column="is_readonly"/>
+        <result property="editReadonly" column="edit_readonly"/>
         <result property="sectionKey" column="section_key"/>
         <result property="sectionTitle" column="section_title"/>
         <result property="sectionOrder" column="section_order"/>
@@ -44,9 +48,9 @@
 
     <select id="selectByTableCode" resultMap="ColumnMetaResult">
         SELECT id, table_code, field, title, data_type, form_type, dict_type,
-               show_in_list, show_in_form, show_in_export, searchable, is_sortable,
+               show_in_list, show_in_form, show_in_export, show_in_import, searchable, is_sortable,
                required, width, sort_order, remarks, status, rules_json, placeholder,
-               component_props, data_source, api_url, label_field, value_field,
+               component_props, data_source, api_url, label_field, value_field, col_span, is_readonly, edit_readonly,
                section_key, section_title, section_order, section_type, section_open,
                column_name, default_value,
                create_by, create_time, update_by, update_time
@@ -57,7 +61,7 @@
 
     <select id="selectById" resultMap="ColumnMetaResult">
         SELECT id, table_code, field, title, data_type, form_type, dict_type,
-               show_in_list, show_in_form, show_in_export, searchable, is_sortable,
+               show_in_list, show_in_form, show_in_export, show_in_import, searchable, is_sortable,
                required, width, sort_order, remarks, status, rules_json, placeholder,
                component_props, data_source, api_url, label_field, value_field,
                section_key, section_title, section_order, section_type, section_open,
@@ -70,17 +74,17 @@
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sys_column_meta (
             table_code, field, title, data_type, form_type, dict_type,
-            show_in_list, show_in_form, show_in_export, searchable, is_sortable,
+            show_in_list, show_in_form, show_in_export, show_in_import, searchable, is_sortable,
             required, width, sort_order, remarks, status, rules_json, placeholder,
-            component_props, data_source, api_url, label_field, value_field,
+            component_props, data_source, api_url, label_field, value_field, col_span, is_readonly, edit_readonly,
             section_key, section_title, section_order, section_type, section_open,
             column_name, default_value,
             create_by, create_time, update_by, update_time
         ) VALUES (
             #{tableCode}, #{field}, #{title}, #{dataType}, #{formType}, #{dictType},
-            #{showInList}, #{showInForm}, #{showInExport}, #{searchable}, #{sortable},
+            #{showInList}, #{showInForm}, #{showInExport}, #{showInImport}, #{searchable}, #{sortable},
             #{required}, #{width}, #{sortOrder}, #{remarks}, #{status}, #{rulesJson}, #{placeholder},
-            #{componentProps}, #{dataSource}, #{apiUrl}, #{labelField}, #{valueField},
+            #{componentProps}, #{dataSource}, #{apiUrl}, #{labelField}, #{valueField}, #{colSpan}, #{readonly}, #{editReadonly},
             #{sectionKey}, #{sectionTitle}, #{sectionOrder}, #{sectionType}, #{sectionOpen},
             #{columnName}, #{defaultValue},
             #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
@@ -98,6 +102,7 @@
             show_in_list = #{showInList},
             show_in_form = #{showInForm},
             show_in_export = #{showInExport},
+            show_in_import = #{showInImport},
             searchable = #{searchable},
             is_sortable = #{sortable},
             required = #{required},
@@ -112,6 +117,9 @@
             api_url = #{apiUrl},
             label_field = #{labelField},
             value_field = #{valueField},
+            col_span = #{colSpan},
+            is_readonly = #{readonly},
+            edit_readonly = #{editReadonly},
             section_key = #{sectionKey},
             section_title = #{sectionTitle},
             section_order = #{sectionOrder},
@@ -128,6 +136,40 @@
         UPDATE sys_column_meta
         SET sort_order = #{sortOrder}
         WHERE id = #{id}
+    </update>
+
+    <update id="batchUpdateSectionByIds">
+        UPDATE sys_column_meta
+        SET
+            section_key = #{sectionKey},
+            section_title = #{sectionTitle},
+            section_order = #{sectionOrder},
+            section_type = #{sectionType},
+            section_open = #{sectionOpen},
+            update_time = NOW()
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="batchUpdateColSpanByIds">
+        UPDATE sys_column_meta
+        SET col_span = #{colSpan},
+            update_time = NOW()
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="updateSectionKeyByGroupCode">
+        UPDATE sys_column_meta
+        SET
+            section_key = #{newGroupCode},
+            update_time = NOW()
+        WHERE table_code = #{tableCode}
+          AND section_key = #{oldGroupCode}
     </update>
 
     <delete id="deleteById">

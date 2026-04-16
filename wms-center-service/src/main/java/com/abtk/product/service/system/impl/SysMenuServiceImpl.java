@@ -267,20 +267,25 @@ public class SysMenuServiceImpl implements ISysMenuService
     public List<SysMenu> buildMenuTree(List<SysMenu> menus)
     {
         List<SysMenu> returnList = new ArrayList<SysMenu>();
-        List<Long> tempList = menus.stream().map(SysMenu::getMenuId).collect(Collectors.toList());
-        for (Iterator<SysMenu> iterator = menus.iterator(); iterator.hasNext();)
+        List<SysMenu> safeMenus = menus == null ? new ArrayList<SysMenu>() : menus.stream()
+                .filter(Objects::nonNull)
+                .filter(m -> m.getMenuId() != null)
+                .collect(Collectors.toList());
+        List<Long> tempList = safeMenus.stream().map(SysMenu::getMenuId).collect(Collectors.toList());
+        for (Iterator<SysMenu> iterator = safeMenus.iterator(); iterator.hasNext();)
         {
             SysMenu menu = (SysMenu) iterator.next();
+            Long parentId = menu.getParentId();
             // 如果是顶级节点, 遍历该父节点的所有子节点
-            if (!tempList.contains(menu.getParentId()))
+            if (parentId == null || !tempList.contains(parentId))
             {
-                recursionFn(menus, menu);
+                recursionFn(safeMenus, menu, new HashSet<Long>());
                 returnList.add(menu);
             }
         }
         if (returnList.isEmpty())
         {
-            returnList = menus;
+            returnList = safeMenus;
         }
         return returnList;
     }
@@ -560,6 +565,22 @@ public class SysMenuServiceImpl implements ISysMenuService
      */
     private void recursionFn(List<SysMenu> list, SysMenu t)
     {
+        recursionFn(list, t, new HashSet<Long>());
+    }
+
+    private void recursionFn(List<SysMenu> list, SysMenu t, Set<Long> pathVisited)
+    {
+        if (t == null || t.getMenuId() == null)
+        {
+            return;
+        }
+        if (pathVisited.contains(t.getMenuId()))
+        {
+            // 环形父子关系保护，避免无限递归导致接口500
+            t.setChildren(new ArrayList<SysMenu>());
+            return;
+        }
+        pathVisited.add(t.getMenuId());
         // 得到子节点列表
         List<SysMenu> childList = getChildList(list, t);
         t.setChildren(childList);
@@ -567,7 +588,7 @@ public class SysMenuServiceImpl implements ISysMenuService
         {
             if (hasChild(list, tChild))
             {
-                recursionFn(list, tChild);
+                recursionFn(list, tChild, new HashSet<Long>(pathVisited));
             }
         }
     }
@@ -578,11 +599,15 @@ public class SysMenuServiceImpl implements ISysMenuService
     private List<SysMenu> getChildList(List<SysMenu> list, SysMenu t)
     {
         List<SysMenu> tlist = new ArrayList<SysMenu>();
+        if (list == null || t == null || t.getMenuId() == null)
+        {
+            return tlist;
+        }
         Iterator<SysMenu> it = list.iterator();
         while (it.hasNext())
         {
             SysMenu n = (SysMenu) it.next();
-            if (n.getParentId().longValue() == t.getMenuId().longValue())
+            if (n != null && n.getParentId() != null && Objects.equals(n.getParentId(), t.getMenuId()))
             {
                 tlist.add(n);
             }

@@ -43,7 +43,7 @@ public class GenericDataServiceImpl implements GenericDataService {
         params.put("del_flag", "0");
         
         // 已实现查询逻辑
-        List<Map<String, Object>> dataList = dynamicMapper.selectList(table, params, "del_flag", null);
+        List<Map<String, Object>> dataList = dynamicMapper.selectList(table, params, new HashMap<String, String>(), "del_flag", null);
         
         Map<String, Object> result = new HashMap<>();
         result.put("code", "200");

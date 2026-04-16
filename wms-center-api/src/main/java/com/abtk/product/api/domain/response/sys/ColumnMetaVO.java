@@ -69,6 +69,12 @@ public class ColumnMetaVO {
     @Schema(description = "表单栅格列宽（1-24），默认6")
     private Integer colSpan;
 
+    @Schema(description = "是否只读")
+    private Boolean isReadonly;
+
+    @Schema(description = "编辑时是否只读")
+    private Boolean isEditReadonly;
+
     @Schema(description = "字段分组标识（如 basic/basicInfo/extra）")
     private String sectionKey;
 

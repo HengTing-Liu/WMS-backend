@@ -32,6 +32,26 @@ public interface ColumnMetaMapper {
     int updateSortOrder(Long id, Integer sortOrder);
 
     /**
+     * 批量更新字段的分组信息
+     */
+    int batchUpdateSectionByIds(@org.apache.ibatis.annotations.Param("ids") List<Long> ids,
+                                @org.apache.ibatis.annotations.Param("sectionKey") String sectionKey,
+                                @org.apache.ibatis.annotations.Param("sectionTitle") String sectionTitle,
+                                @org.apache.ibatis.annotations.Param("sectionOrder") Integer sectionOrder,
+                                @org.apache.ibatis.annotations.Param("sectionType") String sectionType,
+                                @org.apache.ibatis.annotations.Param("sectionOpen") Integer sectionOpen);
+
+    int batchUpdateColSpanByIds(@org.apache.ibatis.annotations.Param("ids") List<Long> ids,
+                                @org.apache.ibatis.annotations.Param("colSpan") Integer colSpan);
+
+    /**
+     * 根据分组编码和表编码更新字段的分组 key
+     */
+    int updateSectionKeyByGroupCode(@org.apache.ibatis.annotations.Param("tableCode") String tableCode,
+                                    @org.apache.ibatis.annotations.Param("oldGroupCode") String oldGroupCode,
+                                    @org.apache.ibatis.annotations.Param("newGroupCode") String newGroupCode);
+
+    /**
      * 根据ID删除
      */
     int deleteById(Long id);

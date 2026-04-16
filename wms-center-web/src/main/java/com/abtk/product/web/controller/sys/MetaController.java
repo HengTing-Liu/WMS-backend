@@ -376,6 +376,35 @@ public class MetaController extends BaseController {
         return R.ok(metaService.saveFormGroupMeta(formGroupMeta));
     }
 
+    @Operation(summary = "批量更新字段栅格列宽")
+    @RequiresPermissions("system:meta:table:manage")
+    @PutMapping("/column/colspan")
+    public R<Void> batchUpdateColumnColSpan(@RequestBody ColumnMetaRequest request) {
+        if (request.getIds() == null || request.getIds().isEmpty()) {
+            return R.ok();
+        }
+        metaService.batchUpdateColumnColSpan(request.getIds(), request.getColSpan());
+        return R.ok();
+    }
+
+    @Operation(summary = "批量更新字段分组信息")
+    @RequiresPermissions("system:meta:table:manage")
+    @PutMapping("/column/batch-group")
+    public R<Void> batchUpdateColumnGroup(@RequestBody ColumnMetaRequest request) {
+        if (request.getIds() == null || request.getIds().isEmpty()) {
+            return R.ok();
+        }
+        metaService.batchUpdateColumnSection(
+                request.getIds(),
+                request.getSectionKey(),
+                request.getSectionTitle(),
+                request.getSectionOrder(),
+                request.getSectionType(),
+                request.getSectionOpen()
+        );
+        return R.ok();
+    }
+
     @Operation(summary = "更新表单分组元数据")
     @RequiresPermissions("system:meta:table:manage")
     @PutMapping("/group/{id}")

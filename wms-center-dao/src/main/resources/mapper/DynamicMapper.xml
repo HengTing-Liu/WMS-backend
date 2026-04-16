@@ -39,7 +39,14 @@
         <if test="params != null and params.size > 0">
             <foreach collection="params" item="value" index="key" open="AND " separator=" AND " close="">
                 <if test="value != null and value != ''">
-                    ${key} = #{value}
+                    <choose>
+                        <when test="queryModes != null and queryModes[key] != null and queryModes[key] == 'like'">
+                            ${key} LIKE CONCAT('%', #{value}, '%')
+                        </when>
+                        <otherwise>
+                            ${key} = #{value}
+                        </otherwise>
+                    </choose>
                 </if>
             </foreach>
         </if>
@@ -55,7 +62,14 @@
         <if test="params != null and params.size > 0">
             <foreach collection="params" item="value" index="key" open="AND " separator=" AND " close="">
                 <if test="value != null and value != ''">
-                    ${key} = #{value}
+                    <choose>
+                        <when test="queryModes != null and queryModes[key] != null and queryModes[key] == 'like'">
+                            ${key} LIKE CONCAT('%', #{value}, '%')
+                        </when>
+                        <otherwise>
+                            ${key} = #{value}
+                        </otherwise>
+                    </choose>
                 </if>
             </foreach>
         </if>

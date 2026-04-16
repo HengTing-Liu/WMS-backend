@@ -9,6 +9,7 @@ import com.abtk.product.common.log.enums.BusinessType;
 import com.abtk.product.dao.entity.SysDictData;
 import com.abtk.product.service.annotation.Log;
 import com.abtk.product.service.security.utils.SecurityUtils;
+import com.abtk.product.biz.system.SysDictDataBiz;
 import com.abtk.product.service.system.ISysDictDataService;
 import com.abtk.product.service.system.ISysDictTypeService;
 import com.abtk.product.service.system.service.I18nService;
@@ -16,8 +17,10 @@ import com.abtk.product.web.security.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +42,9 @@ public class SysDictDataController extends BaseController
     @Autowired
     private ISysDictTypeService dictTypeService;
 
+    @Autowired
+    private SysDictDataBiz dictDataBiz;
+
 
     /**
      * 查询字典数据列表
@@ -52,12 +58,37 @@ public class SysDictDataController extends BaseController
     }
 
     @Log(title = "字典数据", businessType = BusinessType.EXPORT)
+    @RequiresPermissions("wms:base:dict:export")
     @PostMapping("/export")
-    public void export(HttpServletResponse response, SysDictData dictData)
+    public void export(HttpServletResponse response, @RequestBody SysDictData dictData)
     {
         List<SysDictData> list = dictDataService.selectDictDataList(dictData);
         ExcelUtil<SysDictData> util = new ExcelUtil<SysDictData>(SysDictData.class);
         util.exportExcel(response, list, "字典数据");
+    }
+
+    /**
+     * 导入字典数据
+     */
+    @RequiresPermissions("wms:base:dict:import")
+    @Log(title = "字典数据", businessType = BusinessType.IMPORT)
+    @PostMapping("/importData")
+    public R<String> importData(MultipartFile file, boolean updateSupport) throws Exception {
+        ExcelUtil<SysDictData> util = new ExcelUtil<SysDictData>(SysDictData.class);
+        List<SysDictData> dictList = util.importExcel(file.getInputStream());
+        String operName = SecurityUtils.getUsername();
+        String message = dictDataBiz.importDictData(dictList, updateSupport, operName);
+        return R.ok(message);
+    }
+
+    /**
+     * 下载导入模板
+     */
+    @RequiresPermissions("wms:base:dict:import")
+    @PostMapping("/downLoadTemplate")
+    public void downloadTemplate(HttpServletResponse response) throws IOException {
+        ExcelUtil<SysDictData> util = new ExcelUtil<SysDictData>(SysDictData.class);
+        util.importTemplateExcel(response, "字典数据");
     }
 
     /**

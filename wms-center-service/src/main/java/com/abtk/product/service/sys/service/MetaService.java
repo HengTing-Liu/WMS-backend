@@ -120,6 +120,22 @@ public interface MetaService {
     void batchUpdateColumnSort(List<ColumnMeta> columns);
 
     /**
+     * 批量更新字段的栅格列宽
+     */
+    void batchUpdateColumnColSpan(List<Long> ids, Integer colSpan);
+
+    /**
+     * 批量更新字段的分组信息
+     */
+    void batchUpdateColumnSection(List<Long> ids, String sectionKey, String sectionTitle,
+                                  Integer sectionOrder, String sectionType, Integer sectionOpen);
+
+    /**
+     * 根据分组编码变更级联更新字段 section_key
+     */
+    void updateColumnSectionByGroupCode(String tableCode, String oldGroupCode, String newGroupCode);
+
+    /**
      * 保存表单分组元数据
      */
     FormGroupMeta saveFormGroupMeta(FormGroupMeta formGroupMeta);

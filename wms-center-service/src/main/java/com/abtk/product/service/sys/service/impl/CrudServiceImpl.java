@@ -1,5 +1,7 @@
 package com.abtk.product.service.sys.service.impl;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.abtk.product.common.exception.ServiceException;
 import com.abtk.product.common.utils.StringUtils;
 import com.abtk.product.common.web.page.TableDataInfo;
@@ -10,6 +12,7 @@ import com.abtk.product.dao.util.SqlInjectionValidator;
 import com.abtk.product.dao.entity.ColumnMeta;
 import com.abtk.product.dao.entity.TableMeta;
 import com.abtk.product.service.permission.util.CrudPermissionUtil;
+import com.abtk.product.service.security.utils.SecurityUtils;
 import com.abtk.product.service.sys.service.CrudService;
 import com.abtk.product.service.system.service.I18nService;
 import com.github.pagehelper.PageHelper;
@@ -48,6 +51,8 @@ public class CrudServiceImpl implements CrudService {
     /** 闁诲孩绋掗〃鍡涱敊瀹€鍕Е鐎广儱娲﹂銈夋煕濮橆剛孝鐎规洜鍠庨～銏ゆ晲閸涱厾浠ч梺鎸庣⊕閻喚鍒掓惔銊ョ濞达絿鐡旈崯鍛存倵濞戞瑯娈曢柣锔界箞婵″瓨鎷呯憴鍕啀闁诲孩绋掗妵婊堝焵椤戞寧顦风紒妤€鎳樺畷姘跺箳閺傛寧鐤?*/
     private static final java.util.regex.Pattern SAFE_FIELD_PATTERN =
             java.util.regex.Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
+    private static final String QUERY_MODE_EQ = "eq";
+    private static final String QUERY_MODE_LIKE = "like";
 
     @Autowired
     private DynamicMapper dynamicMapper;
@@ -108,21 +113,28 @@ public class CrudServiceImpl implements CrudService {
         SqlInjectionValidator.validateTable(tableCode);
         // 闁哄鏅涘ú锕傚箮閵堝绀嗛柛鈩冪◤閳ь剙顦靛畷锝夊磼濞戞瑦顔嶉梺鍛婄矊閼活垶宕欓敓鐘插珘濠㈣泛鏈悾?dataScope key闂佹寧绋戝鎭唗aScope 闂?injectDataScope 濠电偛顦崝宀勫矗閸℃稑鍌ㄩ柣鏂款殠濞?SQL闂佹寧绋戦惌鍌炲焵椤掍椒浜㈢紒璇插暣瀹曪繝寮撮悩宸痪闂佸憡鐟ラ崐褰掑汲閻旂顕遍柣妯兼暩閼?mapper闂?
         Map<String, Object> filteredParams = new HashMap<>();
+        Map<String, String> rawQueryModes = new HashMap<>();
         if (params != null) {
             params.forEach((key, value) -> {
+                if ("queryModes".equals(key)) {
+                    rawQueryModes.putAll(parseQueryModes(value));
+                    return;
+                }
                 if (!PAGE_PARAMS.contains(key)
                         && !"dataScope".equals(key)
                         && value != null && !"".equals(value)) {
-                    filteredParams.put(toSqlFieldName(key), value);
+                    String sqlKey = toSqlFieldName(key);
+                    filteredParams.put(sqlKey, value);
                 }
             });
         }
+        Map<String, String> queryModes = buildSafeQueryModes(rawQueryModes, filteredParams.keySet());
         // 闂佽桨鑳舵晶妤€鐣垫笟鈧鍫曞礃椤旂瓔鈧瑦绻涙径鍫濆闁告瑥妫濋弫宥夊醇閵忥紕鍑介梺瑙勪航閸庝即骞堥妸鈺佺哗?filteredParams闂佹寧绋戦張顒勫极閻愬搫绀?dataScope raw SQL 闂佺粯顨呭ú锕傤敊瀹€鍕櫖?
         CrudPermissionUtil.injectDataScope(filteredParams);
         PageHelper.startPage(pageNum, pageSize);
         String deleteColumn = getDeleteColumn(tableCode);
         String dataScope = (String) filteredParams.remove("dataScope");
-        List<Map<String, Object>> list = dynamicMapper.selectList(tableCode, filteredParams, deleteColumn, dataScope);
+        List<Map<String, Object>> list = dynamicMapper.selectList(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
         PageInfo<Map<String, Object>> pageInfo = new PageInfo<>(list);
         TableDataInfo dataTable = new TableDataInfo();
         // 闂佽桨娴峰ú鏍告奖濡?SQL 闂佽桨娴风槐鍟搁柣銏犵?闁稿海娴锋晶妤€鐣垫ā闁告挸绉堕崢宀€澧愭ā闁稿海娴锋ú鏍告奖濡?
@@ -144,19 +156,26 @@ public class CrudServiceImpl implements CrudService {
         SqlInjectionValidator.validateTable(tableCode);
         // 闁哄鏅涘ú锕傚箮閵堝绀嗛柛鈩冪◤閳ь剙顦靛畷锝夊磼濞戞瑦顔?
         Map<String, Object> filteredParams = new HashMap<>();
+        Map<String, String> rawQueryModes = new HashMap<>();
         if (params != null) {
             params.forEach((key, value) -> {
+                if ("queryModes".equals(key)) {
+                    rawQueryModes.putAll(parseQueryModes(value));
+                    return;
+                }
                 if (!PAGE_PARAMS.contains(key)
                         && !"dataScope".equals(key)
                         && value != null && !"".equals(value)) {
-                    filteredParams.put(toSqlFieldName(key), value);
+                    String sqlKey = toSqlFieldName(key);
+                    filteredParams.put(sqlKey, value);
                 }
             });
         }
+        Map<String, String> queryModes = buildSafeQueryModes(rawQueryModes, filteredParams.keySet());
         CrudPermissionUtil.injectDataScope(filteredParams);
         String deleteColumn = getDeleteColumn(tableCode);
         String dataScope = (String) filteredParams.remove("dataScope");
-        List<Map<String, Object>> rawList = dynamicMapper.selectAll(tableCode, filteredParams, deleteColumn, dataScope);
+        List<Map<String, Object>> rawList = dynamicMapper.selectAll(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
         List<Map<String, Object>> normalized = new ArrayList<>();
         for (Map<String, Object> row : rawList) {
             Map<String, Object> normRow = new LinkedHashMap<>();
@@ -189,8 +208,11 @@ public class CrudServiceImpl implements CrudService {
         SqlInjectionValidator.validateTable(tableCode);
 
         Map<String, Object> normalizedData = normalizeDataKeysForSql(data);
+        normalizedData.remove("id");
+        normalizedData.remove("create_time");
+        normalizedData.remove("create_by");
         normalizedData.put("create_time", new Date());
-        normalizedData.put("create_by", "system");
+        normalizedData.put("create_by", SecurityUtils.getUsername());
 
         if (SYS_USER_TABLE.equals(tableCode) && normalizedData.containsKey("user_id")) {
             normalizedData.put("id", normalizedData.get("user_id"));
@@ -224,7 +246,7 @@ public class CrudServiceImpl implements CrudService {
         String pkColumn = getPkColumn(tableCode);
         Map<String, Object> normalizedData = normalizeDataKeysForSql(data);
         normalizedData.put("update_time", new Date());
-        normalizedData.put("update_by", "system");
+        normalizedData.put("update_by", SecurityUtils.getUsername());
 
         normalizedData.remove(pkColumn);
         normalizedData.remove("id");
@@ -280,15 +302,22 @@ public class CrudServiceImpl implements CrudService {
 
         // 闁哄鏅涘ú锕傚箮閵堝绠冲璺猴工閻庤顪冮妶澶嬫锭鐎殿噮鍓熷?
         Map<String, Object> filteredParams = new HashMap<>();
+        Map<String, String> queryModes = new HashMap<>();
         if (params != null) {
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
+                if ("queryModes".equals(key)) {
+                    queryModes.putAll(parseQueryModes(value));
+                    continue;
+                }
                 if (!PAGE_PARAMS.contains(key) && value != null && !"".equals(value)) {
-                    filteredParams.put(toSqlFieldName(key), value);
+                    String sqlKey = toSqlFieldName(key);
+                    filteredParams.put(sqlKey, value);
                 }
             }
         }
+        queryModes = buildSafeQueryModes(queryModes, filteredParams.keySet());
         // 濠电偛顦崝宀勫矗閸℃稑鏋侀柣妤€鐗嗙粊锕傛煛婢跺﹤鏆ｆ俊?
         CrudPermissionUtil.injectDataScope(filteredParams);
 
@@ -297,7 +326,7 @@ public class CrudServiceImpl implements CrudService {
         String dataScope = (String) filteredParams.remove("dataScope");
 
         // 闂佸搫琚崕鎾敋濡ゅ懎绀傞柕濞炬櫅閸斻儵鏌℃担鍝勵暭鐎规挷绶氶弫宥夊醇濠婂懐鎲归梺鍛婂笒濡繈濡存径鎰櫖?
-        List<Map<String, Object>> dataList = dynamicMapper.selectAll(tableCode, filteredParams, deleteColumn, dataScope);
+        List<Map<String, Object>> dataList = dynamicMapper.selectAll(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
 
         // 闁诲繐绻愬Λ娆撳汲閻旂厧绠?Map 闂?key 婵炲濮寸花鑲╃箔閸涙潙绀嗛柟鐑樻煥濞堢娀寮堕悜鍡楀幐閻犳劗鍠愰妵娆撴偂鎼粹剝些闂佹寧绋戦悧鍛箔?ColumnMeta.field 闂佸搫绉堕崢褏妲愰埄鍐攳婵犻潧娲ら惁顔尖槈閹绢垰浜鹃梺鑲╂焿閹活亞妲?
         List<Map<String, Object>> normalizedDataList = new ArrayList<>();
@@ -390,5 +419,62 @@ public class CrudServiceImpl implements CrudService {
             normalized.put(sqlKey, value);
         });
         return normalized;
+    }
+
+    private Map<String, String> parseQueryModes(Object rawQueryModes) {
+        Map<String, String> result = new HashMap<>();
+        if (rawQueryModes == null) {
+            return result;
+        }
+        try {
+            String jsonText = String.valueOf(rawQueryModes);
+            if (StringUtils.isEmpty(jsonText)) {
+                return result;
+            }
+            JSONObject jsonObject = JSON.parseObject(jsonText);
+            if (jsonObject == null) {
+                return result;
+            }
+            for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
+                String field = toSqlFieldName(entry.getKey());
+                String mode = normalizeQueryMode(entry.getValue());
+                if (!StringUtils.isEmpty(field) && !StringUtils.isEmpty(mode)) {
+                    result.put(field, mode);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to parse queryModes: {}", rawQueryModes);
+        }
+        return result;
+    }
+
+    private String normalizeQueryMode(Object rawMode) {
+        if (rawMode == null) {
+            return null;
+        }
+        String mode = String.valueOf(rawMode).toLowerCase(Locale.ROOT);
+        if (QUERY_MODE_LIKE.equals(mode)) {
+            return QUERY_MODE_LIKE;
+        }
+        if (QUERY_MODE_EQ.equals(mode)) {
+            return QUERY_MODE_EQ;
+        }
+        return null;
+    }
+
+    private Map<String, String> buildSafeQueryModes(Map<String, String> requestedModes, Set<String> queryKeys) {
+        Map<String, String> safeModes = new HashMap<>();
+        if (requestedModes == null || requestedModes.isEmpty() || queryKeys == null || queryKeys.isEmpty()) {
+            return safeModes;
+        }
+        for (String key : queryKeys) {
+            String mode = requestedModes.get(key);
+            if (QUERY_MODE_LIKE.equals(mode)) {
+                safeModes.put(key, QUERY_MODE_LIKE);
+            } else {
+                safeModes.put(key, QUERY_MODE_EQ);
+            }
+        }
+        return safeModes;
     }
 }

@@ -4,6 +4,7 @@ import com.abtk.product.api.domain.request.BaseRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @Schema(description = "字段元数据请求对象")
@@ -11,6 +12,7 @@ public class ColumnMetaRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long id;
+    private List<Long> ids;
     private String tableCode;
     private String field;
     private String title;
@@ -34,6 +36,8 @@ public class ColumnMetaRequest implements Serializable {
     private String labelField;
     private String valueField;
     private Integer colSpan;
+    private Integer readonly;
+    private Integer editReadonly;
     private String sectionKey;
     private String sectionTitle;
     private Integer sectionOrder;

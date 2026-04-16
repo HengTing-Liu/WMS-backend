@@ -23,7 +23,11 @@ public interface DynamicMapper {
      * @param deleteColumn 删除标志列名（必须通过 SqlInjectionValidator.validateFieldFormat 校验）
      * @param dataScope 数据权限 raw SQL 片段（由 CrudPermissionUtil 注入，直接拼入 WHERE，非查询参数）
      */
-    List<Map<String, Object>> selectList(@Param("tableCode") String tableCode, @Param("params") Map<String, Object> params, @Param("deleteColumn") String deleteColumn, @Param("dataScope") String dataScope);
+    List<Map<String, Object>> selectList(@Param("tableCode") String tableCode,
+                                         @Param("params") Map<String, Object> params,
+                                         @Param("queryModes") Map<String, String> queryModes,
+                                         @Param("deleteColumn") String deleteColumn,
+                                         @Param("dataScope") String dataScope);
 
     /**
      * 查询所有（支持自定义删除列名）
@@ -32,7 +36,11 @@ public interface DynamicMapper {
      * @param deleteColumn 删除标志列名（必须通过 SqlInjectionValidator.validateFieldFormat 校验）
      * @param dataScope 数据权限 raw SQL 片段（由 CrudPermissionUtil 注入）
      */
-    List<Map<String, Object>> selectAll(@Param("tableCode") String tableCode, @Param("params") Map<String, Object> params, @Param("deleteColumn") String deleteColumn, @Param("dataScope") String dataScope);
+    List<Map<String, Object>> selectAll(@Param("tableCode") String tableCode,
+                                        @Param("params") Map<String, Object> params,
+                                        @Param("queryModes") Map<String, String> queryModes,
+                                        @Param("deleteColumn") String deleteColumn,
+                                        @Param("dataScope") String dataScope);
 
     /**
      * 根据ID查询

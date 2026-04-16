@@ -49,7 +49,7 @@ public class SysDictTypeController extends BaseController
     }
 
     @Log(title = "字典类型", businessType = BusinessType.EXPORT)
-    @RequiresPermissions("system:dict:export")
+    @RequiresPermissions("wms:base:dict:export")
     @PostMapping("/export")
     public void export(HttpServletResponse response, @RequestBody SysDictType dictType)
     {
@@ -116,7 +116,7 @@ public class SysDictTypeController extends BaseController
     /**
      * 刷新字典缓存
      */
-    @RequiresPermissions("system:dict:refresh")
+    @RequiresPermissions("wms:base:dict:refresh")
     @Log(title = "字典类型", businessType = BusinessType.CLEAN)
     @DeleteMapping("/refreshCache")
     public R<String> refreshCache()
@@ -147,7 +147,7 @@ public class SysDictTypeController extends BaseController
     /**
      * 导入字典类型数据
      */
-    @RequiresPermissions("system:dict:import")
+    @RequiresPermissions("wms:base:dict:import")
     @Log(title = "字典类型", businessType = BusinessType.IMPORT)
     @PostMapping("/importData")
     public R<String> importData(MultipartFile file, boolean updateSupport) throws Exception {
@@ -161,7 +161,7 @@ public class SysDictTypeController extends BaseController
     /**
      * 下载导入模板
      */
-    @RequiresPermissions("system:dict:import")
+    @RequiresPermissions("wms:base:dict:import")
     @PostMapping("/downLoadTemplate")
     public void downloadTemplate(HttpServletResponse response) throws IOException {
         ExcelUtil<SysDictType> util = new ExcelUtil<SysDictType>(SysDictType.class);
