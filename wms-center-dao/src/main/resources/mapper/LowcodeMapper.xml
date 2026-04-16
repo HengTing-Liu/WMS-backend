@@ -2,7 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.abclonal.product.dao.mapper.LowcodeMapper">
+<mapper namespace="com.abtk.product.dao.mapper.LowcodeMapper">
 
     <!-- 树形查询：查询指定父节点的所有子节点 -->
     <select id="selectByParent" resultType="java.util.Map">

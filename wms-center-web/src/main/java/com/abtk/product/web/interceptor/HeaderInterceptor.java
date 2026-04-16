@@ -42,6 +42,7 @@ public class HeaderInterceptor implements AsyncHandlerInterceptor
                 AuthUtil.verifyLoginUserExpire(loginUser);
                 SecurityContextHolder.set(SecurityConstants.LOGIN_USER, loginUser);
                 SecurityContextHolder.setUserId(String.valueOf(loginUser.getUserid()));
+                SecurityContextHolder.setUserName(loginUser.getUsername());
             }
         }
         return true;

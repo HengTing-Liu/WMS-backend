@@ -30,6 +30,9 @@ public class TableMeta extends BaseEntity {
     /** Service类路径 */
     private String serviceClass;
 
+    /** CRUD接口前缀 */
+    private String apiPrefix;
+
     /** 权限码前缀 */
     private String permissionCode;
 
