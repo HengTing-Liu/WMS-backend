@@ -27,7 +27,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/base/warehouse")
+@RequestMapping("/api/wms/warehouse")
 public class WarehouseController extends BaseController {
 
     @Autowired
@@ -56,6 +56,14 @@ public class WarehouseController extends BaseController {
     @GetMapping("/listAll")
     public R listAll() {
         return warehouseBiz.listAll();
+    }
+
+    /**
+     * 查询仓库简单列表（用于下拉选择，返回 label/value 格式）
+     */
+    @GetMapping("/simple")
+    public R<List<?>> listSimple() {
+        return warehouseBiz.listSimple();
     }
 
     /**

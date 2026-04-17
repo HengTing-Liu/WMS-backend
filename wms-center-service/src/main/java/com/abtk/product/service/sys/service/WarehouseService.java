@@ -70,4 +70,20 @@ public interface WarehouseService {
      * @return 公司列表
      */
     List<String> listDistinctCompany();
+
+    /**
+     * 根据仓库编码查询仓库信息
+     *
+     * @param warehouseCode 仓库编码
+     * @return 仓库信息
+     */
+    Warehouse getByWarehouseCode(String warehouseCode);
+
+    /**
+     * 查询指定温区的隔离仓/留样仓列表
+     *
+     * @param temperatureZone 温区
+     * @return 仓库列表
+     */
+    List<Warehouse> listByTemperatureZoneAndTypes(String temperatureZone);
 }

@@ -68,7 +68,7 @@ public class WmsLocationResponse extends BaseResponse {
     private Integer internalQuantity;
 
     /**
-     * 库位编号
+     * 库位编号（业务编码）
      */
     @Schema(description = "库位编号（业务编码）")
     private String locationNo;
@@ -156,22 +156,4 @@ public class WmsLocationResponse extends BaseResponse {
      */
     @Schema(description = "是否有子节点")
     private Boolean hasChildren;
-
-    /**
-     * 网格配置（仅容器类型有值）
-     */
-    @Schema(description = "网格配置JSON（仅容器类型有值）")
-    private String gridConfig;
-
-    /**
-     * 网格行数
-     */
-    @Schema(description = "网格行数")
-    private Integer gridRows;
-
-    /**
-     * 网格列数
-     */
-    @Schema(description = "网格列数")
-    private Integer gridCols;
 }

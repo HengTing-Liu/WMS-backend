@@ -74,4 +74,20 @@ public interface WarehouseMapper {
      * @return 公司列表
      */
     List<String> selectDistinctCompany();
+
+    /**
+     * 根据仓库编码查询仓库
+     *
+     * @param warehouseCode 仓库编码
+     * @return 仓库信息
+     */
+    Warehouse selectByWarehouseCode(@Param("warehouseCode") String warehouseCode);
+
+    /**
+     * 查询指定温区的隔离仓/留样仓列表
+     *
+     * @param temperatureZone 温区
+     * @return 仓库列表
+     */
+    List<Warehouse> selectByTemperatureZoneAndTypes(@Param("temperatureZone") String temperatureZone);
 }

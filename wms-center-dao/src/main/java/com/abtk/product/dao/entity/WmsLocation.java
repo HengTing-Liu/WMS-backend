@@ -120,13 +120,6 @@ public class WmsLocation extends BaseEntity {
     private String specification;
 
     /**
-     * 网格配置，如 "4x4", "8x12"
-     */
-    @Excel(name = "网格配置", type = Type.ALL)
-    @Schema(description = "网格配置，如 \"4x4\", \"8x12\"")
-    private String gridConfig;
-
-    /**
      * 是否使用：0=空闲，1=占用
      */
     @Excel(name = "是否使用", type = Type.ALL, cellType = ColumnType.NUMERIC)

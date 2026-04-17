@@ -24,8 +24,8 @@ public class SqlInjectionValidator {
             "wms_product", "wms_supplier", "wms_customer",
             "wms_stock_in", "wms_stock_out", "wms_transfer",
             "wms_stock_take", "wms_check",
-            // 仓库相关表
-            "inv_warehouse", "inv_warehouse_receiver",
+            // 仓库相关表（inv_ 前缀）
+            "inv_warehouse", "inv_warehouse_receiver", "inv_location", "inv_location_type_config",
             // 低代码动态业务表
             "inv_material", "inv_batch", "sys_basic_data", "sys_material_category"
     ));
@@ -41,7 +41,12 @@ public class SqlInjectionValidator {
             "warehouse_id", "warehouse_code", "warehouse_name",
             "area_id", "area_code", "area_name",
             "product_id", "product_code", "product_name",
-            "supplier_id", "supplier_name", "customer_id", "customer_name"
+            "supplier_id", "supplier_name", "customer_id", "customer_name",
+            // 库位档案字段
+            "location_grade", "location_type", "location_level", "location_level_count",
+            "internal_serial_no", "internal_quantity", "location_no", "location_name",
+            "parent_name", "storage_mode", "specification", "is_use",
+            "location_sort_no", "location_fullpath_name", "capacity_total", "capacity_used"
     ));
 
     /** 表名正则：仅允许 字母、数字、下划线 */

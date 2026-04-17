@@ -22,12 +22,6 @@ public class WmsLocationOccupancyResponse {
     private Long locationId;
 
     /**
-     * 库位编号
-     */
-    @Schema(description = "库位编号")
-    private String locationNo;
-
-    /**
      * 库位名称
      */
     @Schema(description = "库位名称")

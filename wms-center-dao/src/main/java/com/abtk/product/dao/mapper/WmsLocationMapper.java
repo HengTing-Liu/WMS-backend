@@ -118,15 +118,6 @@ public interface WmsLocationMapper {
     int updateBatch(@Param("list") List<WmsLocation> list);
 
     /**
-     * 更新已用容量
-     *
-     * @param id 主键
-     * @param capacityUsed 已用容量
-     * @return 影响行数
-     */
-    int updateCapacityUsed(@Param("id") Long id, @Param("capacityUsed") Integer capacityUsed);
-
-    /**
      * 通过主键逻辑删除数据
      *
      * @param id 主键
@@ -154,30 +145,6 @@ public interface WmsLocationMapper {
     int deleteRecursive(@Param("id") Long id, @Param("username") String username);
 
     /**
-     * 查询已占用的子节点数量
-     *
-     * @param parentId 父ID
-     * @return 已占用数量
-     */
-    int countUsedChildren(@Param("parentId") Long parentId);
-
-    /**
-     * 查询子节点总容量
-     *
-     * @param parentId 父ID
-     * @return 总容量
-     */
-    int sumChildrenCapacity(@Param("parentId") Long parentId);
-
-    /**
-     * 查询子节点已用容量总和
-     *
-     * @param parentId 父ID
-     * @return 已用容量
-     */
-    int sumChildrenUsedCapacity(@Param("parentId") Long parentId);
-
-    /**
      * 查询所有库位（不分页）
      *
      * @return 库位列表
@@ -192,4 +159,75 @@ public interface WmsLocationMapper {
      * @return 影响行数
      */
     int toggleStatus(@Param("id") Long id, @Param("isUse") Integer isUse);
+
+    /**
+     * 根据ID列表批量查询
+     *
+     * @param ids ID列表
+     * @return 库位列表
+     */
+    List<WmsLocation> queryByIds(@Param("ids") List<Long> ids);
+
+    /**
+     * 批量更新仓库编码
+     *
+     * @param ids 库位ID列表
+     * @param warehouseCode 目标仓库编码
+     * @param updateBy 更新人
+     * @return 影响行数
+     */
+    int batchUpdateWarehouseCode(@Param("ids") List<Long> ids, @Param("warehouseCode") String warehouseCode, @Param("updateBy") String updateBy);
+
+    /**
+     * 更新父节点的 internal_quantity（累加）
+     *
+     * @param parentId 父节点ID
+     * @param delta 增量
+     * @return 影响行数
+     */
+    int updateInternalQuantity(@Param("parentId") Long parentId, @Param("delta") Integer delta);
+
+    /**
+     * 根据全路径名称查询库位
+     *
+     * @param warehouseCode 仓库编码
+     * @param locationFullpathName 全路径名称
+     * @return 库位列表
+     */
+    List<WmsLocation> queryByFullpathName(@Param("warehouseCode") String warehouseCode, @Param("locationFullpathName") String locationFullpathName);
+
+    /**
+     * 查询仓库下同名库位数量（用于校验重复）
+     *
+     * @param warehouseCode 仓库编码
+     * @param locationName 库位名称
+     * @param parentId 父节点ID（可选，用于同一父节点下校验）
+     * @param excludeId 排除的ID（可选，用于更新时校验）
+     * @return 数量
+     */
+    int countByNameAndWarehouse(@Param("warehouseCode") String warehouseCode, @Param("locationName") String locationName, @Param("parentId") Long parentId, @Param("excludeId") Long excludeId);
+
+    /**
+     * 🔴 新增：通过排序号前缀查询占用数量（优化删除校验性能）
+     *
+     * @param locationSortNoPrefix 排序号前缀（如 L0001%）
+     * @return 占用的库位数量
+     */
+    int countUsedBySortNoPrefix(@Param("locationSortNoPrefix") String locationSortNoPrefix);
+
+    /**
+     * 统计子节点数量
+     *
+     * @param parentId 父节点ID
+     * @return 子节点数量
+     */
+    int countChildren(@Param("parentId") Long parentId);
+
+    /**
+     * 统计已占用的子节点数量
+     *
+     * @param parentId 父节点ID
+     * @return 已占用子节点数量
+     */
+    int countUsedChildren(@Param("parentId") Long parentId);
 }

@@ -167,4 +167,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		ORDER BY erp_company_name
 	</select>
 
+	<select id="selectByWarehouseCode" parameterType="String" resultMap="WarehouseResult">
+		<include refid="selectWarehouseVo"/>
+		AND warehouse_code = #{warehouseCode}
+	</select>
+
+	<select id="selectByTemperatureZoneAndTypes" parameterType="String" resultMap="WarehouseResult">
+		<include refid="selectWarehouseVo"/>
+		AND temperature_zone = #{temperatureZone}
+		AND warehouse_type IN ('QUARANTINE', 'SAMPLE')
+		AND is_enabled = 1
+		ORDER BY warehouse_code
+	</select>
+
 </mapper>

@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 库位档案表(WmsLocation)表服务实现类
@@ -163,11 +165,6 @@ public class WmsLocationServiceImpl implements WmsLocationService {
         return wmsLocationMapper.updateBatch(list);
     }
 
-    @Override
-    public int updateCapacityUsed(Long id, Integer capacityUsed) {
-        return wmsLocationMapper.updateCapacityUsed(id, capacityUsed);
-    }
-
     // ==================== 删除方法 ====================
 
     @Override
@@ -191,21 +188,6 @@ public class WmsLocationServiceImpl implements WmsLocationService {
     // ==================== 容量统计方法 ====================
 
     @Override
-    public int countUsedChildren(Long parentId) {
-        return wmsLocationMapper.countUsedChildren(parentId);
-    }
-
-    @Override
-    public int sumChildrenCapacity(Long parentId) {
-        return wmsLocationMapper.sumChildrenCapacity(parentId);
-    }
-
-    @Override
-    public int sumChildrenUsedCapacity(Long parentId) {
-        return wmsLocationMapper.sumChildrenUsedCapacity(parentId);
-    }
-
-    @Override
     public List<WmsLocation> listAll() {
         return wmsLocationMapper.listAll();
     }
@@ -213,5 +195,76 @@ public class WmsLocationServiceImpl implements WmsLocationService {
     @Override
     public void toggleStatus(Long id, Integer enabled) {
         wmsLocationMapper.toggleStatus(id, enabled);
+    }
+
+    @Override
+    public List<WmsLocation> queryByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return wmsLocationMapper.queryByIds(ids);
+    }
+
+    @Override
+    public int batchUpdateWarehouseCode(List<Long> ids, String warehouseCode, String updateBy) {
+        if (ids == null || ids.isEmpty()) {
+            return 0;
+        }
+        return wmsLocationMapper.batchUpdateWarehouseCode(ids, warehouseCode, updateBy);
+    }
+
+    @Override
+    public List<WmsLocation> queryByFullpathName(String warehouseCode, String locationFullpathName) {
+        return wmsLocationMapper.queryByFullpathName(warehouseCode, locationFullpathName);
+    }
+
+    @Override
+    public int countByNameAndWarehouse(String warehouseCode, String locationName, Long parentId, Long excludeId) {
+        return wmsLocationMapper.countByNameAndWarehouse(warehouseCode, locationName, parentId, excludeId);
+    }
+
+    /**
+     * 更新父节点的 internal_quantity（累加）
+     */
+    @Override
+    public int updateInternalQuantity(Long parentId, Integer delta) {
+        if (parentId == null || delta == null || delta == 0) {
+            return 0;
+        }
+        return wmsLocationMapper.updateInternalQuantity(parentId, delta);
+    }
+
+    /**
+     * 检查库位是否可以删除
+     * 注意：此方法的业务逻辑已在 WmsLocationBiz 中实现，此处为兼容接口的空实现
+     */
+    @Override
+    public Map<String, Object> checkDelete(Long id) {
+        // 业务逻辑在 WmsLocationBiz.checkDelete() 中实现
+        return new java.util.HashMap<>();
+    }
+
+    /**
+     * 🔴 新增：通过排序号前缀查询占用数量
+     */
+    @Override
+    public int countUsedBySortNoPrefix(String locationSortNoPrefix) {
+        return wmsLocationMapper.countUsedBySortNoPrefix(locationSortNoPrefix);
+    }
+
+    /**
+     * 统计子节点数量
+     */
+    @Override
+    public int countChildren(Long parentId) {
+        return wmsLocationMapper.countChildren(parentId);
+    }
+
+    /**
+     * 统计已占用的子节点数量
+     */
+    @Override
+    public int countUsedChildren(Long parentId) {
+        return wmsLocationMapper.countUsedChildren(parentId);
     }
 }

@@ -57,12 +57,6 @@ public class WmsLocationBatchCreateRequest {
     private Integer quantity;
 
     /**
-     * 库位编号前缀
-     */
-    @Schema(description = "库位编号前缀，如 BOX")
-    private String locationNoPrefix;
-
-    /**
      * 库位名称前缀
      */
     @Schema(description = "库位名称前缀")

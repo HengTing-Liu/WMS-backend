@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.abtk.product.dao.mapper.WmsLocationMapper">
 
@@ -17,7 +17,6 @@
         <result property="parentName" column="parent_name" jdbcType="VARCHAR"/>
         <result property="storageMode" column="storage_mode" jdbcType="VARCHAR"/>
         <result property="specification" column="specification" jdbcType="VARCHAR"/>
-        <result property="gridConfig" column="grid_config" jdbcType="VARCHAR"/>
         <result property="isUse" column="is_use" jdbcType="TINYINT"/>
         <result property="locationSortNo" column="location_sort_no" jdbcType="VARCHAR"/>
         <result property="locationFullpathName" column="location_fullpath_name" jdbcType="VARCHAR"/>
@@ -31,11 +30,10 @@
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
-    <!-- 基础列 -->
     <sql id="Base_Column_List">
         id, parent_id, location_grade, location_type, location_level, location_level_count,
         internal_serial_no, internal_quantity, location_no, location_name, warehouse_code,
-        parent_name, storage_mode, specification, grid_config, is_use, location_sort_no, location_fullpath_name,
+        parent_name, storage_mode, specification, is_use, location_sort_no, location_fullpath_name,
         capacity_total, capacity_used, is_deleted, remarks, create_by, create_time, update_by, update_time
     </sql>
 
@@ -60,9 +58,6 @@
             <if test="parentId != null">
                 and parent_id = #{parentId}
             </if>
-            <if test="parentId == null">
-                and parent_id is null
-            </if>
             <if test="locationGrade != null and locationGrade != ''">
                 and location_grade = #{locationGrade}
             </if>
@@ -73,7 +68,7 @@
                 and location_level = #{locationLevel}
             </if>
             <if test="locationNo != null and locationNo != ''">
-                and location_no = #{locationNo}
+                and location_no like concat('%', #{locationNo}, '%')
             </if>
             <if test="locationName != null and locationName != ''">
                 and location_name like concat('%', #{locationName}, '%')
@@ -202,25 +197,18 @@
         insert into inv_location(
             parent_id, location_grade, location_type, location_level, location_level_count,
             internal_serial_no, internal_quantity, location_no, location_name, warehouse_code,
-            parent_name, storage_mode, specification, grid_config, is_use, location_sort_no, location_fullpath_name,
+            parent_name, storage_mode, specification, is_use, location_sort_no, location_fullpath_name,
             capacity_total, capacity_used, is_deleted, remarks, create_by, create_time, update_by, update_time
         ) values (
             #{parentId}, #{locationGrade}, #{locationType}, #{locationLevel}, #{locationLevelCount},
             #{internalSerialNo}, #{internalQuantity}, #{locationNo}, #{locationName}, #{warehouseCode},
-            #{parentName}, #{storageMode}, #{specification}, #{gridConfig},
+            #{parentName}, #{storageMode}, #{specification},
             <choose>
                 <when test="isUse != null">#{isUse}</when>
                 <otherwise>0</otherwise>
             </choose>,
             #{locationSortNo}, #{locationFullpathName},
-            <choose>
-                <when test="capacityTotal != null">#{capacityTotal}</when>
-                <otherwise>0</otherwise>
-            </choose>,
-            <choose>
-                <when test="capacityUsed != null">#{capacityUsed}</when>
-                <otherwise>0</otherwise>
-            </choose>,
+            #{capacityTotal}, #{capacityUsed},
             0, #{remarks}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
         )
     </insert>
@@ -230,27 +218,20 @@
         insert into inv_location(
             parent_id, location_grade, location_type, location_level, location_level_count,
             internal_serial_no, internal_quantity, location_no, location_name, warehouse_code,
-            parent_name, storage_mode, specification, grid_config, is_use, location_sort_no, location_fullpath_name,
+            parent_name, storage_mode, specification, is_use, location_sort_no, location_fullpath_name,
             capacity_total, capacity_used, is_deleted, remarks, create_by, create_time, update_by, update_time
         ) values
         <foreach collection="entities" item="entity" separator=",">
             (
                 #{entity.parentId}, #{entity.locationGrade}, #{entity.locationType}, #{entity.locationLevel}, #{entity.locationLevelCount},
                 #{entity.internalSerialNo}, #{entity.internalQuantity}, #{entity.locationNo}, #{entity.locationName}, #{entity.warehouseCode},
-                #{entity.parentName}, #{entity.storageMode}, #{entity.specification}, #{entity.gridConfig},
+                #{entity.parentName}, #{entity.storageMode}, #{entity.specification},
                 <choose>
                     <when test="entity.isUse != null">#{entity.isUse}</when>
                     <otherwise>0</otherwise>
                 </choose>,
                 #{entity.locationSortNo}, #{entity.locationFullpathName},
-                <choose>
-                    <when test="entity.capacityTotal != null">#{entity.capacityTotal}</when>
-                    <otherwise>0</otherwise>
-                </choose>,
-                <choose>
-                    <when test="entity.capacityUsed != null">#{entity.capacityUsed}</when>
-                    <otherwise>0</otherwise>
-                </choose>,
+                #{entity.capacityTotal}, #{entity.capacityUsed},
                 0, #{entity.remarks}, #{entity.createBy}, #{entity.createTime}, #{entity.updateBy}, #{entity.updateTime}
             )
         </foreach>
@@ -261,27 +242,20 @@
         insert into inv_location(
             id, parent_id, location_grade, location_type, location_level, location_level_count,
             internal_serial_no, internal_quantity, location_no, location_name, warehouse_code,
-            parent_name, storage_mode, specification, grid_config, is_use, location_sort_no, location_fullpath_name,
+            parent_name, storage_mode, specification, is_use, location_sort_no, location_fullpath_name,
             capacity_total, capacity_used, is_deleted, remarks, create_by, create_time, update_by, update_time
         ) values
         <foreach collection="entities" item="entity" separator=",">
             (
                 #{entity.id}, #{entity.parentId}, #{entity.locationGrade}, #{entity.locationType}, #{entity.locationLevel}, #{entity.locationLevelCount},
                 #{entity.internalSerialNo}, #{entity.internalQuantity}, #{entity.locationNo}, #{entity.locationName}, #{entity.warehouseCode},
-                #{entity.parentName}, #{entity.storageMode}, #{entity.specification}, #{entity.gridConfig},
+                #{entity.parentName}, #{entity.storageMode}, #{entity.specification},
                 <choose>
                     <when test="entity.isUse != null">#{entity.isUse}</when>
                     <otherwise>0</otherwise>
                 </choose>,
                 #{entity.locationSortNo}, #{entity.locationFullpathName},
-                <choose>
-                    <when test="entity.capacityTotal != null">#{entity.capacityTotal}</when>
-                    <otherwise>0</otherwise>
-                </choose>,
-                <choose>
-                    <when test="entity.capacityUsed != null">#{entity.capacityUsed}</when>
-                    <otherwise>0</otherwise>
-                </choose>,
+                #{entity.capacityTotal}, #{entity.capacityUsed},
                 0, #{entity.remarks}, #{entity.createBy}, #{entity.createTime}, #{entity.updateBy}, #{entity.updateTime}
             )
         </foreach>
@@ -299,7 +273,6 @@
             parent_name = values(parent_name),
             storage_mode = values(storage_mode),
             specification = values(specification),
-            grid_config = values(grid_config),
             is_use = values(is_use),
             location_sort_no = values(location_sort_no),
             location_fullpath_name = values(location_fullpath_name),
@@ -351,9 +324,6 @@
             </if>
             <if test="specification != null">
                 specification = #{specification},
-            </if>
-            <if test="gridConfig != null">
-                grid_config = #{gridConfig},
             </if>
             <if test="isUse != null">
                 is_use = #{isUse},
@@ -409,17 +379,17 @@
                 </foreach>
                 else location_level
             end,
-            location_no = case id
-                <foreach collection="list" item="item">
-                    when #{item.id} then #{item.locationNo}
-                </foreach>
-                else location_no
-            end,
             location_name = case id
                 <foreach collection="list" item="item">
                     when #{item.id} then #{item.locationName}
                 </foreach>
                 else location_name
+            end,
+            location_no = case id
+                <foreach collection="list" item="item">
+                    when #{item.id} then #{item.locationNo}
+                </foreach>
+                else location_no
             end,
             warehouse_code = case id
                 <foreach collection="list" item="item">
@@ -444,12 +414,6 @@
                     when #{item.id} then #{item.specification}
                 </foreach>
                 else specification
-            end,
-            grid_config = case id
-                <foreach collection="list" item="item">
-                    when #{item.id} then #{item.gridConfig}
-                </foreach>
-                else grid_config
             end,
             is_use = case id
                 <foreach collection="list" item="item">
@@ -501,14 +465,6 @@
         </foreach>
     </update>
 
-    <!-- 更新已用容量 -->
-    <update id="updateCapacityUsed">
-        update inv_location
-        set capacity_used = #{capacityUsed},
-            update_time = now()
-        where id = #{id}
-    </update>
-
     <!-- 逻辑删除 -->
     <update id="deleteById">
         update inv_location
@@ -549,24 +505,6 @@
         WHERE id IN (SELECT id FROM location_tree)
     </update>
 
-    <!-- 统计已占用的子节点数量 -->
-    <select id="countUsedChildren" resultType="java.lang.Integer">
-        select count(*) from inv_location
-        where parent_id = #{parentId} and is_use = 1 and is_deleted = 0
-    </select>
-
-    <!-- 查询子节点总容量 -->
-    <select id="sumChildrenCapacity" resultType="java.lang.Integer">
-        select ifnull(sum(capacity_total), 0) from inv_location
-        where parent_id = #{parentId} and is_deleted = 0
-    </select>
-
-    <!-- 查询子节点已用容量总和 -->
-    <select id="sumChildrenUsedCapacity" resultType="java.lang.Integer">
-        select ifnull(sum(capacity_used), 0) from inv_location
-        where parent_id = #{parentId} and is_deleted = 0
-    </select>
-
     <!-- 查询所有库位（不分页） -->
     <select id="listAll" resultMap="WmsLocationMap">
         select
@@ -583,5 +521,88 @@
             update_time = now()
         where id = #{id} and is_deleted = 0
     </update>
+
+    <!-- 根据ID列表批量查询 -->
+    <select id="queryByIds" resultMap="WmsLocationMap">
+        select
+        <include refid="Base_Column_List"/>
+        from inv_location
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and is_deleted = 0
+        order by location_sort_no asc
+    </select>
+
+    <!-- 批量更新仓库编码 -->
+    <update id="batchUpdateWarehouseCode">
+        update inv_location
+        set warehouse_code = #{warehouseCode},
+            update_by = #{updateBy},
+            update_time = now()
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and is_deleted = 0
+    </update>
+
+    <!-- 🔴 新增：更新父节点的 internal_quantity（累加） -->
+    <update id="updateInternalQuantity">
+        UPDATE inv_location
+        SET internal_quantity = internal_quantity + #{delta},
+            update_time = now()
+        WHERE id = #{parentId}
+          AND is_deleted = 0
+    </update>
+
+    <!-- 根据全路径名称查询库位 -->
+    <select id="queryByFullpathName" resultMap="WmsLocationMap">
+        select
+        <include refid="Base_Column_List"/>
+        from inv_location
+        where warehouse_code = #{warehouseCode}
+          and location_fullpath_name = #{locationFullpathName}
+          and is_deleted = 0
+        limit 1
+    </select>
+
+    <!-- 查询仓库下同名库位数量 -->
+    <select id="countByNameAndWarehouse" resultType="java.lang.Integer">
+        select count(*) from inv_location
+        where warehouse_code = #{warehouseCode}
+          and location_name = #{locationName}
+          and is_deleted = 0
+          <if test="parentId != null">
+              and parent_id = #{parentId}
+          </if>
+          <if test="parentId == null">
+              and parent_id is null
+          </if>
+          <if test="excludeId != null">
+              and id != #{excludeId}
+          </if>
+    </select>
+
+    <!-- 🔴 新增：通过排序号前缀查询占用数量（优化删除校验） -->
+    <select id="countUsedBySortNoPrefix" resultType="java.lang.Integer">
+        select count(*) from inv_location
+        where location_sort_no like concat(#{locationSortNoPrefix}, '%')
+          and is_use = 1
+          and is_deleted = 0
+    </select>
+
+    <!-- 统计子节点数量 -->
+    <select id="countChildren" resultType="java.lang.Integer">
+        select count(*) from inv_location
+        where parent_id = #{parentId} and is_deleted = 0
+    </select>
+
+    <!-- 统计已占用的子节点数量 -->
+    <select id="countUsedChildren" resultType="java.lang.Integer">
+        select count(*) from inv_location
+        where parent_id = #{parentId} and is_use = 1 and is_deleted = 0
+    </select>
 
 </mapper>

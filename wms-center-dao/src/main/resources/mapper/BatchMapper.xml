@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.abtk.product.dao.mapper.BatchMapper">
+	<!-- 批次档案结果映射 -->
+	<resultMap type="com.abtk.product.dao.entity.Batch" id="BatchResult">
+		<id property="id" column="id"/>
+		<result property="materialId" column="material_id"/>
+		<result property="materialCode" column="material_code"/>
+		<result property="batchNo" column="batch_no"/>
+		<result property="supplierBatchNo" column="supplier_batch_no"/>
+		<result property="supplierBrand" column="supplier_brand"/>
+		<result property="supplierItemNo" column="supplier_item_no"/>
+		<result property="purifyNo" column="purify_no"/>
+		<result property="cloneNo" column="clone_no"/>
+		<result property="concentration" column="concentration"/>
+		<result property="concentrationUpdateTime" column="concentration_update_time"/>
+		<result property="expireDate" column="expire_date"/>
+		<result property="qcData" column="qc_data"/>
+		<result property="coaLink" column="coa_link"/>
+		<result property="inboundDate" column="inbound_date"/>
+		<result property="productionDate" column="production_date"/>
+		<result property="projectNo" column="project_no"/>
+		<result property="nakedFinishCode" column="naked_finish_code"/>
+		<result property="nakedFinishBatch" column="naked_finish_batch"/>
+		<result property="bufferSolution" column="buffer_solution"/>
+		<result property="erpSyncRemark" column="erp_sync_remark"/>
+		<result property="status" column="status"/>
+		<result property="isDeleted" column="is_deleted"/>
+		<result property="createBy" column="create_by"/>
+		<result property="createTime" column="create_time"/>
+		<result property="updateBy" column="update_by"/>
+		<result property="updateTime" column="update_time"/>
+		<result property="remark" column="remark"/>
+	</resultMap>
+
+	<!-- 基础查询SQL -->
+	<sql id="selectBatchVo">
+		SELECT id, material_id, material_code, batch_no, supplier_batch_no,
+		       supplier_brand, supplier_item_no, purify_no, clone_no,
+		       concentration, concentration_update_time, expire_date, qc_data,
+		       coa_link, inbound_date, production_date, project_no,
+		       naked_finish_code, naked_finish_batch, buffer_solution,
+		       erp_sync_remark, status, is_deleted, create_by, create_time,
+		       update_by, update_time, remark
+		FROM batch WHERE is_deleted = 0
+	</sql>
+
+	<!-- 根据ID查询 -->
+	<select id="selectById" parameterType="Long" resultMap="BatchResult">
+		<include refid="selectBatchVo"/> AND id = #{id}
+	</select>
+
+	<!-- 条件查询批次列表 -->
+	<select id="selectList" parameterType="com.abtk.product.dao.entity.Batch" resultMap="BatchResult">
+		<include refid="selectBatchVo"/>
+		<if test="materialId != null">AND material_id = #{materialId}</if>
+		<if test="materialCode != null and materialCode != ''">AND material_code = #{materialCode}</if>
+		<if test="batchNo != null and batchNo != ''">AND batch_no LIKE CONCAT('%', #{batchNo}, '%')</if>
+		<if test="supplierBatchNo != null and supplierBatchNo != ''">AND supplier_batch_no LIKE CONCAT('%', #{supplierBatchNo}, '%')</if>
+		<if test="purifyNo != null and purifyNo != ''">AND purify_no LIKE CONCAT('%', #{purifyNo}, '%')</if>
+		<if test="projectNo != null and projectNo != ''">AND project_no = #{projectNo}</if>
+		<if test="status != null">AND status = #{status}</if>
+		ORDER BY create_time DESC
+	</select>
+
+	<!-- 查询所有批次列表 -->
+	<select id="selectAll" resultMap="BatchResult">
+		<include refid="selectBatchVo"/> ORDER BY create_time DESC
+	</select>
+
+	<!-- 根据物料ID查询批次 -->
+	<select id="selectByMaterialId" parameterType="Long" resultMap="BatchResult">
+		<include refid="selectBatchVo"/> AND material_id = #{materialId} ORDER BY create_time DESC
+	</select>
+
+	<!-- 根据物料编码查询批次 -->
+	<select id="selectByMaterialCode" parameterType="String" resultMap="BatchResult">
+		<include refid="selectBatchVo"/> AND material_code = #{materialCode} ORDER BY create_time DESC
+	</select>
+
+	<!-- 根据批次号查询批次 -->
+	<select id="selectByBatchNo" parameterType="String" resultMap="BatchResult">
+		<include refid="selectBatchVo"/> AND batch_no = #{batchNo}
+	</select>
+
+	<!-- 新增批次 -->
+	<insert id="insert" parameterType="com.abtk.product.dao.entity.Batch" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO batch (
+			material_id, material_code, batch_no, supplier_batch_no,
+			supplier_brand, supplier_item_no, purify_no, clone_no,
+			concentration, concentration_update_time, expire_date, qc_data,
+			coa_link, inbound_date, production_date, project_no,
+			naked_finish_code, naked_finish_batch, buffer_solution,
+			erp_sync_remark, status, create_by, create_time
+		) VALUES (
+			#{materialId}, #{materialCode}, #{batchNo}, #{supplierBatchNo},
+			#{supplierBrand}, #{supplierItemNo}, #{purifyNo}, #{cloneNo},
+			#{concentration}, #{concentrationUpdateTime}, #{expireDate}, #{qcData},
+			#{coaLink}, #{inboundDate}, #{productionDate}, #{projectNo},
+			#{nakedFinishCode}, #{nakedFinishBatch}, #{bufferSolution},
+			#{erpSyncRemark}, #{status}, #{createBy}, NOW()
+		)
+	</insert>
+
+	<!-- 更新批次 -->
+	<update id="update" parameterType="com.abtk.product.dao.entity.Batch">
+		UPDATE batch
+		<set>
+			<if test="materialId != null">material_id = #{materialId},</if>
+			<if test="materialCode != null">material_code = #{materialCode},</if>
+			<if test="batchNo != null">batch_no = #{batchNo},</if>
+			<if test="supplierBatchNo != null">supplier_batch_no = #{supplierBatchNo},</if>
+			<if test="supplierBrand != null">supplier_brand = #{supplierBrand},</if>
+			<if test="supplierItemNo != null">supplier_item_no = #{supplierItemNo},</if>
+			<if test="purifyNo != null">purify_no = #{purifyNo},</if>
+			<if test="cloneNo != null">clone_no = #{cloneNo},</if>
+			<if test="concentration != null">concentration = #{concentration},</if>
+			<if test="concentrationUpdateTime != null">concentration_update_time = #{concentrationUpdateTime},</if>
+			<if test="expireDate != null">expire_date = #{expireDate},</if>
+			<if test="qcData != null">qc_data = #{qcData},</if>
+			<if test="coaLink != null">coa_link = #{coaLink},</if>
+			<if test="inboundDate != null">inbound_date = #{inboundDate},</if>
+			<if test="productionDate != null">production_date = #{productionDate},</if>
+			<if test="projectNo != null">project_no = #{projectNo},</if>
+			<if test="nakedFinishCode != null">naked_finish_code = #{nakedFinishCode},</if>
+			<if test="nakedFinishBatch != null">naked_finish_batch = #{nakedFinishBatch},</if>
+			<if test="bufferSolution != null">buffer_solution = #{bufferSolution},</if>
+			<if test="erpSyncRemark != null">erp_sync_remark = #{erpSyncRemark},</if>
+			<if test="status != null">status = #{status},</if>
+			<if test="remark != null">remark = #{remark},</if>
+			<if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+			update_time = NOW()
+		</set>
+		WHERE id = #{id} AND is_deleted = 0
+	</update>
+
+	<!-- 删除批次（逻辑删除） -->
+	<update id="deleteById" parameterType="Long">
+		UPDATE batch SET is_deleted = 1, update_time = NOW() WHERE id = #{id} AND is_deleted = 0
+	</update>
+
+	<!-- 检查批次号是否存在 -->
+	<select id="checkBatchNoExists" resultType="int">
+		SELECT COUNT(1) FROM batch WHERE batch_no = #{batchNo} AND is_deleted = 0
+		<if test="excludeId != null">AND id != #{excludeId}</if>
+	</select>
+
+	<!-- 联合查询物料和批次信息（用于物料批次查询页面） -->
+	<select id="selectMaterialBatchList" resultMap="BatchResult">
+		SELECT b.id, b.material_id, b.material_code, b.batch_no, b.supplier_batch_no,
+		       b.supplier_brand, b.supplier_item_no, b.purify_no, b.clone_no,
+		       b.concentration, b.concentration_update_time, b.expire_date, b.qc_data,
+		       b.coa_link, b.inbound_date, b.production_date, b.project_no,
+		       b.naked_finish_code, b.naked_finish_batch, b.buffer_solution,
+		       b.erp_sync_remark, b.status, b.is_deleted, b.create_by, b.create_time,
+		       b.update_by, b.update_time, b.remark
+		FROM batch b
+		WHERE b.is_deleted = 0
+		<if test="materialCode != null and materialCode != ''">
+			AND b.material_code LIKE CONCAT('%', #{materialCode}, '%')
+		</if>
+		<if test="materialName != null and materialName != ''">
+			AND EXISTS (
+				SELECT 1 FROM sys_material m
+				WHERE m.material_code = b.material_code
+				AND m.material_name LIKE CONCAT('%', #{materialName}, '%')
+				AND m.del_flag = 0
+			)
+		</if>
+		<if test="batchNo != null and batchNo != ''">
+			AND b.batch_no LIKE CONCAT('%', #{batchNo}, '%')
+		</if>
+		<if test="warehouseCode != null and warehouseCode != ''">
+			AND EXISTS (
+				SELECT 1 FROM inv_inventory i
+				WHERE i.batch_id = b.id
+				AND i.warehouse_code = #{warehouseCode}
+				AND i.is_deleted = 0
+			)
+		</if>
+		<if test="qcStatus != null and qcStatus != ''">
+			AND b.status = #{qcStatus}
+		</if>
+		ORDER BY b.create_time DESC
+	</select>
+</mapper>

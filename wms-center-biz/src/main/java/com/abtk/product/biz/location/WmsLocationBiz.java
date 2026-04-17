@@ -1,24 +1,30 @@
 package com.abtk.product.biz.location;
 
-import com.abtk.product.api.domain.request.location.GridPositionRequest;
+import com.abtk.product.api.domain.request.location.AssignWarehouseRequest;
+import com.abtk.product.api.domain.request.location.LocationImportRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationBatchCreateRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationBatchRequest;
-import com.abtk.product.api.domain.request.location.WmsLocationGridUpdateRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationTreeRequest;
+import com.abtk.product.api.domain.response.location.AssignWarehouseInitResponse;
+import com.abtk.product.api.domain.response.location.AvailableWarehouseResponse;
+import com.abtk.product.api.domain.response.location.ContainerWarehouseResponse;
+import com.abtk.product.api.domain.response.location.LocationBindStatusResponse;
 import com.abtk.product.api.domain.response.location.LocationCodeSuggestion;
+import com.abtk.product.api.domain.response.location.LocationImportResponse;
 import com.abtk.product.api.domain.response.location.WmsLocationOccupancyResponse;
 import com.abtk.product.api.domain.response.location.WmsLocationResponse;
 import com.abtk.product.common.domain.R;
+import com.abtk.product.common.exception.ServiceException;
 import com.abtk.product.common.utils.PageUtil;
 import com.abtk.product.common.web.page.TableDataInfo;
+import com.abtk.product.dao.entity.Warehouse;
 import com.abtk.product.dao.entity.WmsLocation;
-import com.abtk.product.dao.entity.WmsLocationGridConfig;
 import com.abtk.product.domain.converter.WmsLocationConverter;
-import com.abtk.product.service.location.service.WmsLocationGridConfigService;
 import com.abtk.product.service.location.service.WmsLocationService;
 import com.abtk.product.service.redis.service.RedisService;
 import com.abtk.product.service.security.utils.SecurityUtils;
+import com.abtk.product.service.sys.service.WarehouseService;
 import com.abtk.product.service.system.service.I18nService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,8 +33,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import static com.abtk.product.common.utils.PageUtils.startPage;
@@ -48,7 +59,7 @@ public class WmsLocationBiz {
     private WmsLocationService wmsLocationService;
 
     @Autowired
-    private WmsLocationGridConfigService gridConfigService;
+    private WarehouseService warehouseService;
 
     @Autowired
     private I18nService i18nService;
@@ -136,6 +147,7 @@ public class WmsLocationBiz {
 
     /**
      * 编辑数据
+     * 🔴 修复：增加字段权限校验 + 存储模式变更处理
      */
     @Transactional(rollbackFor = Exception.class)
     public R<Integer> update(WmsLocationRequest request) {
@@ -146,6 +158,61 @@ public class WmsLocationBiz {
         WmsLocation existing = wmsLocationService.queryById(request.getId());
         if (existing == null) {
             return R.fail(i18nService.getMessage("wms.location.not.found"));
+        }
+
+        // 🔴 新增1：严格字段权限校验（基于Story 15-05）
+
+        // 孔位（ContainerPosition）不可修改任何字段
+        if ("ContainerPosition".equals(existing.getLocationGrade())) {
+            return R.fail("存储孔位由系统自动生成，不可手动编辑");
+        }
+
+        // 存储类型和存储分区：仅允许修改名称和备注
+        if ("StorageType".equals(existing.getLocationGrade()) || "StorageSection".equals(existing.getLocationGrade())) {
+            // 允许修改的字段：locationName, remarks
+            if (request.getLocationType() != null ||
+                request.getStorageMode() != null || request.getSpecification() != null) {
+                return R.fail("该类型库位仅允许修改名称和备注");
+            }
+        }
+
+        // 存储容器（Container）：区分绑定状态
+        if ("Container".equals(existing.getLocationGrade())) {
+            boolean isBound = existing.getIsUse() != null && existing.getIsUse() == 1;
+            if (isBound) {
+                // 已绑定：仅允许修改名称和备注
+                if (request.getLocationType() != null ||
+                    request.getStorageMode() != null || request.getSpecification() != null) {
+                    return R.fail("该库位已绑定物料，仅可修改名称");
+                }
+            } else {
+                // 未绑定：可修改名称、存储模式、规格，但不允许修改类型
+                if (request.getLocationType() != null) {
+                    return R.fail("存储容器的类型不可修改");
+                }
+            }
+        }
+
+        // 🔴 新增2：存储模式变更处理
+        String newStorageMode = request.getStorageMode();
+        String oldStorageMode = existing.getStorageMode();
+        boolean storageModeChanged = newStorageMode != null && !newStorageMode.equals(oldStorageMode);
+
+        if (storageModeChanged && "Container".equals(existing.getLocationGrade())) {
+            if ("Shared".equals(newStorageMode)) {
+                // 🔴 独占 → 共享：删除所有孔位
+                List<WmsLocation> children = wmsLocationService.queryByParentId(existing.getId());
+                if (!children.isEmpty()) {
+                    List<Long> childIds = children.stream()
+                            .map(WmsLocation::getId)
+                            .collect(Collectors.toList());
+                    wmsLocationService.logicDeleteBatchByIds(childIds, SecurityUtils.getUsername());
+                    log.info("[存储模式变��] 容器 {} 从独占改为共享，删除了 {} 个孔位",
+                            existing.getId(), childIds.size());
+                }
+            }
+            // 注意：共享 → 独占时，孔位由前端通过 batchCreate 创��，此处不自动创建
+            // 因为需要用户指定规格，且可能同时创建多个容器
         }
 
         // 如果修改了名称，需要更新全路径名称
@@ -161,6 +228,13 @@ public class WmsLocationBiz {
         clearLocationCache();
 
         return R.ok(result);
+    }
+
+    /**
+     * 判断是否为容器类型
+     */
+    private boolean isContainerType(String locationType) {
+        return Arrays.asList("盒", "箱", "笼", "抽屉").contains(locationType);
     }
 
     /**
@@ -187,6 +261,7 @@ public class WmsLocationBiz {
 
     /**
      * 递归删除（删除节点及其所有子节点）
+     * 🔴 修复：增加占用状态校验
      */
     @Transactional(rollbackFor = Exception.class)
     public R<Boolean> deleteRecursive(Long id) {
@@ -195,10 +270,103 @@ public class WmsLocationBiz {
             return R.fail(i18nService.getMessage("wms.location.not.found"));
         }
 
+        // 查询所有子节点（包括自身）
+        List<WmsLocation> allChildren = wmsLocationService.queryAllChildren(id);
+        List<WmsLocation> checkList = new ArrayList<>();
+        checkList.add(existing);
+        checkList.addAll(allChildren);
+
+        // 检查是否有占用的库位
+        List<WmsLocation> usedLocations = checkList.stream()
+                .filter(loc -> loc.getIsUse() != null && loc.getIsUse() == 1)
+                .collect(Collectors.toList());
+
+        if (!usedLocations.isEmpty()) {
+            String usedNames = usedLocations.stream()
+                    .limit(3)  // 最多显示3个
+                    .map(WmsLocation::getLocationName)
+                    .collect(Collectors.joining(", "));
+            String msg = "以下库位已被占用，无法删除：" + usedNames;
+            if (usedLocations.size() > 3) {
+                msg += " 等" + usedLocations.size() + "个库位";
+            }
+            return R.fail(msg);
+        }
+
         wmsLocationService.logicDeleteRecursive(id, SecurityUtils.getUsername());
         clearLocationCache();
 
         return R.ok(true);
+    }
+
+    /**
+     * 检查库位是否可以删除（前端删除确认用）
+     * 对应接口：GET /wms/location/check-delete/{id}
+     */
+    public R<Map<String, Object>> checkDelete(Long id) {
+        WmsLocation existing = wmsLocationService.queryById(id);
+        if (existing == null) {
+            return R.fail(i18nService.getMessage("wms.location.not.found"));
+        }
+
+        List<WmsLocation> allChildren = wmsLocationService.queryAllChildren(id);
+        // 总子节点数（不含自身）
+        int childCount = allChildren.size();
+
+        // 检查占用情况
+        List<WmsLocation> allToCheck = new ArrayList<>();
+        allToCheck.add(existing);
+        allToCheck.addAll(allChildren);
+
+        List<WmsLocation> usedLocations = allToCheck.stream()
+                .filter(loc -> loc.getIsUse() != null && loc.getIsUse() == 1)
+                .collect(Collectors.toList());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("canDelete", usedLocations.isEmpty());
+        result.put("childCount", childCount);
+        result.put("totalCount", allToCheck.size());
+        result.put("usedCount", usedLocations.size());
+
+        if (!usedLocations.isEmpty()) {
+            List<String> usedNames = usedLocations.stream()
+                    .limit(3)
+                    .map(WmsLocation::getLocationName)
+                    .collect(Collectors.toList());
+            result.put("usedNames", usedNames);
+            if (usedLocations.size() > 3) {
+                result.put("message", "下级库位 " + usedNames.get(0) + " ���" + usedLocations.size() + "个已被占用");
+            } else {
+                result.put("message", "下级库位 " + String.join(", ", usedNames) + " 已被占用");
+            }
+        }
+
+        return R.ok(result);
+    }
+
+    /**
+     * 🔴 新增：检查库位绑定状态（Story 15-05）
+     * 对应接口：GET /wms/location/check-bind/{id}
+     * 前端调用：checkLocationBind
+     */
+    public R<LocationBindStatusResponse> checkBind(Long id) {
+        WmsLocation location = wmsLocationService.queryById(id);
+        if (location == null) {
+            return R.fail(i18nService.getMessage("wms.location.not.found"));
+        }
+
+        LocationBindStatusResponse response = new LocationBindStatusResponse();
+        // 判断是否占用：仅孔位或独占模式容器且isUse=1视为绑定
+        boolean isBound = location.getIsUse() != null && location.getIsUse() == 1;
+        response.setIsBound(isBound);
+
+        if (isBound) {
+            // 尝试推断物料类型（可根据业务扩展）
+            response.setBoundType("MATERIAL"); // 默认物料类型
+            response.setBoundMaterialName("已绑定物料"); // 可后续查询具体物料名称
+        }
+
+        return R.ok(response);
     }
 
     /**
@@ -252,7 +420,7 @@ public class WmsLocationBiz {
             if (parent == null) {
                 return R.fail(i18nService.getMessage("wms.location.parent.not.found"));
             }
-            parentCode = parent.getLocationNo() != null ? parent.getLocationNo() : "";
+            parentCode = parent.getLocationSortNo() != null ? parent.getLocationSortNo() : "";
             fullPath = parent.getLocationFullpathName() != null ? parent.getLocationFullpathName() : "";
             parentSortNo = parent.getLocationSortNo() != null ? parent.getLocationSortNo() : "";
             currentLevel = parent.getLocationLevel() + 1;
@@ -276,13 +444,12 @@ public class WmsLocationBiz {
         }
 
         if (siblings != null && !siblings.isEmpty()) {
-            // 计算当前同级的最大序号
-            // 提取 locationNo 中的数字部分进行比较
+            // 计算当前同级的最大序号 - 使用 locationSortNo
             for (WmsLocation sibling : siblings) {
-                String no = sibling.getLocationNo();
-                if (no != null && !no.isEmpty()) {
+                String sortNo = sibling.getLocationSortNo();
+                if (sortNo != null && !sortNo.isEmpty()) {
                     // 提取编码末尾的数字部分
-                    int serial = extractLastSerial(no);
+                    int serial = extractLastSerial(sortNo);
                     if (serial > currentMaxSerial) {
                         currentMaxSerial = serial;
                     }
@@ -445,12 +612,10 @@ public class WmsLocationBiz {
             entity.setWarehouseCode(warehouseCode);
             entity.setParentName(parentName);
 
-            // 生成编号和名称
-            String noPrefix = request.getLocationNoPrefix() != null ? request.getLocationNoPrefix() : "";
+            // 生成名称和排序号
             String namePrefix = request.getLocationNamePrefix() != null ? request.getLocationNamePrefix() : "";
             String serialStr = String.format("%03d", serialNo);
 
-            entity.setLocationNo(noPrefix + serialStr);
             entity.setLocationName(namePrefix + serialNo);
             entity.setLocationSortNo(parentSortNo + String.format("%04d", serialNo));
             entity.setLocationFullpathName(buildFullpathName(namePrefix + serialNo, parentName));
@@ -465,6 +630,11 @@ public class WmsLocationBiz {
         }
 
         wmsLocationService.insertBatchAtomic(entityList);
+
+        // 🔴 新增：更新父节点的 internal_quantity
+        if (parent != null) {
+            wmsLocationService.updateInternalQuantity(parent.getId(), request.getQuantity());
+        }
 
         // 如果需要同时创建子节点
         if (Boolean.TRUE.equals(request.getCreateChildren()) 
@@ -486,12 +656,18 @@ public class WmsLocationBiz {
 
     /**
      * 创建子节点（使用Converter）
+     * 🔴 修复：孔位编号算法 - 根据规格动态计算行列
      */
-    private void createChildrenByConverter(WmsLocation parent, WmsLocationBatchCreateRequest request, 
+    private void createChildrenByConverter(WmsLocation parent, WmsLocationBatchCreateRequest request,
                                            String currentUser, Date now) {
         List<WmsLocation> childrenList = new ArrayList<>();
 
-        for (int i = 1; i <= request.getChildrenQuantity(); i++) {
+        // 解析规格获取行列数
+        String specification = request.getSpecification();
+        int cols = parseSpecCols(specification);  // 列数
+        int total = request.getChildrenQuantity();  // 总孔位数
+
+        for (int i = 1; i <= total; i++) {
             WmsLocation child = new WmsLocation();
             child.setParentId(parent.getId());
             child.setLocationGrade("ContainerPosition");
@@ -499,33 +675,94 @@ public class WmsLocationBiz {
             child.setLocationLevel(parent.getLocationLevel() + 1);
             child.setLocationLevelCount(parent.getLocationLevelCount());
             child.setInternalSerialNo(i);
-            child.setInternalQuantity(request.getChildrenQuantity());
+            child.setInternalQuantity(total);
             child.setWarehouseCode(parent.getWarehouseCode());
             child.setParentName(parent.getLocationName());
             child.setStorageMode("Exclusive");
             child.setSpecification("1x1");
             child.setIsUse(0);
-            child.setCapacityTotal(1);
-            child.setCapacityUsed(0);
             child.setIsDeleted(0);
             child.setCreateBy(currentUser);
             child.setUpdateBy(currentUser);
             child.setCreateTime(now);
             child.setUpdateTime(now);
 
-            // 孔位编号（如 A01, A02...）
-            char row = (char) ('A' + (i - 1) / 12);
-            int col = ((i - 1) % 12) + 1;
-            child.setLocationNo("" + row + String.format("%02d", col));
-            child.setLocationName(child.getLocationNo());
+            // 🔴 修正：根据规格的行数列数计算孔位编号
+            // 例如：4x4 → 4行4列；8x12 → 8行12列
+            int rowIdx = (i - 1) / cols;  // 0-based 行索引
+            int colIdx = (i - 1) % cols;  // 0-based 列索引
+            char rowChar = (char) ('A' + rowIdx);  // A, B, C...
+            String colStr = String.format("%02d", colIdx + 1);  // 01, 02...
+            String positionNo = rowChar + colStr;
+
+            child.setLocationName(positionNo);
 
             child.setLocationSortNo(parent.getLocationSortNo() + String.format("%04d", i));
-            child.setLocationFullpathName(parent.getLocationFullpathName() + "_" + child.getLocationName());
+            child.setLocationFullpathName(parent.getLocationFullpathName() + "_" + positionNo);
 
             childrenList.add(child);
         }
 
         wmsLocationService.insertBatchAtomic(childrenList);
+    }
+
+    /**
+     * 🔴 新增：解析规格获取行数和列数
+     */
+    private int[] parseSpecRowsAndCols(String specification) {
+        if (specification == null || specification.isEmpty()) {
+            return new int[]{1, 1};  // 默认1x1
+        }
+        // 尝试解析 "4x4" 格式
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("(\\d+)\\s*x\\s*(\\d+)", java.util.regex.Pattern.CASE_INSENSITIVE);
+        java.util.regex.Matcher matcher = pattern.matcher(specification);
+        if (matcher.find()) {
+            int rows = Integer.parseInt(matcher.group(1));
+            int cols = Integer.parseInt(matcher.group(2));
+            return new int[]{rows, cols};
+        }
+        // 尝试解析 "96孔" 格式
+        java.util.regex.Pattern numPattern = java.util.regex.Pattern.compile("(\\d+)\\s*孔");
+        java.util.regex.Matcher numMatcher = numPattern.matcher(specification);
+        if (numMatcher.find()) {
+            int total = Integer.parseInt(numMatcher.group(1));
+            int cols = findBestCols(total);
+            int rows = total / cols;
+            if (rows * cols != total) {
+                rows = total;  // 无法整除时，默认rows=total
+            }
+            return new int[]{rows, cols};
+        }
+        return new int[]{1, 1};  // 默认1x1
+    }
+
+    /**
+     * 从规格字符串解析列数
+     * 支持格式：4x4, 8x12, 9x9, 96孔等
+     */
+    private int parseSpecCols(String specification) {
+        return parseSpecRowsAndCols(specification)[1];
+    }
+
+    /**
+     * 根据总孔位数推断最佳列数
+     */
+    private int findBestCols(int total) {
+        // 常见规格：4x4=16, 6x6=36, 8x12=96, 9x9=81
+        // 优先选择列数较多的排列（更符合实际布局）
+        if (total == 4) return 2;   // 2x2
+        if (total == 16) return 4;  // 4x4
+        if (total == 36) return 6;  // 6x6
+        if (total == 81) return 9;  // 9x9
+        if (total == 96) return 12; // 8x12
+
+        // 通用：寻找最接近的因数
+        for (int cols = 12; cols >= 2; cols--) {
+            if (total % cols == 0) {
+                return cols;
+            }
+        }
+        return 1;  // 默认1列
     }
 
     /**
@@ -616,40 +853,6 @@ public class WmsLocationBiz {
         return R.ok(response);
     }
 
-    // ==================== 网格配置方法 ====================
-
-    /**
-     * 查询库位网格配置
-     */
-    public R<WmsLocationGridConfig> queryGridConfig(Long locationId) {
-        WmsLocationGridConfig config = gridConfigService.queryByLocationId(locationId);
-        return R.ok(config);
-    }
-
-    /**
-     * 更新库位网格配置
-     */
-    @Transactional(rollbackFor = Exception.class)
-    public R<Boolean> updateGridConfig(Long locationId, WmsLocationGridUpdateRequest request) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String gridConfigJson = objectMapper.writeValueAsString(request.getGridConfig());
-
-            WmsLocationGridConfig config = new WmsLocationGridConfig();
-            config.setLocationId(locationId);
-            config.setGridRows(request.getGridRows());
-            config.setGridCols(request.getGridCols());
-            config.setGridConfigJson(gridConfigJson);
-            config.setUpdateBy(SecurityUtils.getUsername());
-
-            gridConfigService.saveOrUpdate(config);
-            return R.ok(true);
-        } catch (JsonProcessingException e) {
-            log.error("网格配置JSON序列化失败", e);
-            return R.fail("网格配置保存失败：" + e.getMessage());
-        }
-    }
-
     // ==================== 私有辅助方法 ====================
 
     /**
@@ -666,14 +869,38 @@ public class WmsLocationBiz {
             request.setParentName(parent.getLocationName());
             request.setLocationLevel(parent.getLocationLevel() + 1);
             request.setLocationLevelCount(parent.getLocationLevelCount());
+            // 🔴 新增：根据父节点等级和当前层级推断 locationGrade
+            request.setLocationGrade(inferLocationGradeFromParent(request.getLocationType(), parent.getLocationGrade(), request.getLocationLevel()));
         } else {
-            // 根节点
+            // 根节点 - 默认为 StorageType（存储类型）
             request.setLocationLevel(1);
+            request.setLocationGrade("StorageType");
             if (request.getLocationLevelCount() == null) {
                 request.setLocationLevelCount(5);
             }
         }
         return null;
+    }
+    
+    /**
+     * 🔴 新增：根据父节点等级和当前层级推断 locationGrade
+     */
+    private String inferLocationGradeFromParent(String locationType, String parentGrade, int currentLevel) {
+        // 如果指定了 locationType，使用 determineLocationGrade
+        if (locationType != null && !locationType.isEmpty()) {
+            return determineLocationGrade(locationType);
+        }
+        // 否则根据父节点等级推断子节点等级
+        if ("StorageType".equals(parentGrade)) {
+            return "StorageSection"; // 存储类型下的子节点 -> 存储分区
+        }
+        if ("StorageSection".equals(parentGrade)) {
+            return "Container"; // 存储分区下的子节点 -> 存储容器
+        }
+        if ("Container".equals(parentGrade)) {
+            return "ContainerPosition"; // 存储容器下的子节点 -> 孔位
+        }
+        return "StorageSection"; // 默认存储分区
     }
 
     /**
@@ -909,21 +1136,24 @@ public class WmsLocationBiz {
     }
 
     /**
-     * 根据存储模式计算占用率
+     * 根据存储模式计算占用率（已改为基于子节点数量统计）
      */
     private void calculateOccupancyByStorageMode(WmsLocation location, WmsLocationOccupancyResponse response) {
-        int total = location.getCapacityTotal() != null ? location.getCapacityTotal() : 0;
-        int used = location.getCapacityUsed() != null ? location.getCapacityUsed() : 0;
+        int total = 0;
+        int used = 0;
 
         if (!"Exclusive".equals(location.getStorageMode())) {
-            // 共享模式或普通节点：统计子节点
-            int childrenTotal = wmsLocationService.sumChildrenCapacity(location.getId());
-            int childrenUsed = wmsLocationService.sumChildrenUsedCapacity(location.getId());
-
-            if (childrenTotal > 0) {
-                total = childrenTotal;
-                used = childrenUsed;
+            // 共享模式或普通节点：统计子节点数量
+            List<WmsLocation> children = wmsLocationService.queryByParentId(location.getId());
+            total = children.size() + 1;
+            used = (int) children.stream().filter(c -> c.getIsUse() != null && c.getIsUse() == 1).count();
+            if (location.getIsUse() != null && location.getIsUse() == 1) {
+                used++;
             }
+        } else {
+            // Exclusive 模式：只统计自身
+            total = 1;
+            used = (location.getIsUse() != null && location.getIsUse() == 1) ? 1 : 0;
         }
 
         response.setCapacityTotal(total);
@@ -938,10 +1168,14 @@ public class WmsLocationBiz {
     }
 
     /**
-     * 构建树形缓存Key
+     * 构建树形缓存Key（修复：加入用户标识防止多租户数据泄漏）
      */
     private String buildTreeCacheKey(WmsLocationTreeRequest request) {
         StringBuilder sb = new StringBuilder();
+        // 🔴 新增：加入用户标识，确保不同用户缓存隔离
+        String username = SecurityUtils.getUsername();
+        sb.append(username != null ? username : "anonymous");
+        sb.append(":");
         sb.append(request.getRootId() != null ? request.getRootId() : "all");
         if (request.getWarehouseCode() != null) sb.append(":").append(request.getWarehouseCode());
         if (request.getLocationGrade() != null) sb.append(":").append(request.getLocationGrade());
@@ -954,13 +1188,473 @@ public class WmsLocationBiz {
     }
 
     /**
-     * 清除库位相关缓存（使用 scan 命令，生产环境安全）
+     * 清除库位相关缓存（优化：仅清理必要的键，避免全表扫描）
+     * 🔴 优化点：分开清理不同类型的缓存，减少Redis扫描范围
      */
     private void clearLocationCache() {
         try {
-            redisService.scanAndDelete(CACHE_KEY_PREFIX + "*");
+            // 仅清理树形缓存和占用率缓存，避免扫描过多无关键
+            redisService.scanAndDelete(CACHE_KEY_TREE + "*");
+            redisService.scanAndDelete(CACHE_KEY_OCCUPANCY + "*");
+            log.debug("[缓存清理] 已清理 wms:location:tree 和 wms:location:occupancy 相关缓存");
         } catch (Exception e) {
             log.warn("清除缓存失败: {}", e.getMessage());
         }
+    }
+
+    // ==================== 分配仓库方法 ====================
+
+    /**
+     * 初始化分配仓库弹窗数据
+     *
+     * @param locationId 存储类型/存储分区ID
+     * @param containerIds 已选中的存储容器ID列表
+     * @return 初始化数据
+     */
+    public R<AssignWarehouseInitResponse> initAssignWarehouse(Long locationId, List<Long> containerIds) {
+        // 1. 查询存储类型/存储分区信息
+        WmsLocation location = wmsLocationService.queryById(locationId);
+        if (location == null) {
+            return R.fail(i18nService.getMessage("wms.location.not.found"));
+        }
+
+        // 获取原仓库编码
+        String originalWarehouseCode = location.getWarehouseCode();
+        if (originalWarehouseCode == null || originalWarehouseCode.isEmpty()) {
+            return R.fail("该库位未绑定仓库，无法分配");
+        }
+
+        // 2. 查询原仓库信息
+        Warehouse originalWarehouse = warehouseService.getByWarehouseCode(originalWarehouseCode);
+        if (originalWarehouse == null) {
+            return R.fail("原仓库不存在");
+        }
+
+        String originalTemperatureZone = originalWarehouse.getTemperatureZone();
+
+        // 3. 查询存储容器列表
+        List<WmsLocation> containers;
+        if (containerIds != null && !containerIds.isEmpty()) {
+            containers = wmsLocationService.queryByIds(containerIds);
+        } else {
+            // 查询该分区下的所有存储容器
+            containers = wmsLocationService.queryByParentId(locationId);
+        }
+
+        // 转换为响应DTO
+        List<ContainerWarehouseResponse> containerResponses = containers.stream()
+                .map(c -> {
+                    ContainerWarehouseResponse resp = new ContainerWarehouseResponse();
+                    resp.setContainerId(c.getId());
+                    resp.setContainerName(c.getLocationName());
+                    resp.setWarehouseCode(c.getWarehouseCode());
+                    resp.setSelected(containerIds != null && containerIds.contains(c.getId()));
+
+                    // 查询仓库名称
+                    if (c.getWarehouseCode() != null) {
+                        Warehouse wh = warehouseService.getByWarehouseCode(c.getWarehouseCode());
+                        if (wh != null) {
+                            resp.setWarehouseName(wh.getWarehouseName());
+                            resp.setTemperatureZone(wh.getTemperatureZone());
+                        }
+                    }
+                    return resp;
+                })
+                .collect(Collectors.toList());
+
+        // 4. 查询可选仓库（温区一致的隔离仓/留样仓）
+        List<Warehouse> availableWhList = warehouseService.listByTemperatureZoneAndTypes(originalTemperatureZone);
+        List<AvailableWarehouseResponse> availableWarehouses = availableWhList.stream()
+                .map(wh -> {
+                    AvailableWarehouseResponse resp = new AvailableWarehouseResponse();
+                    resp.setWarehouseCode(wh.getWarehouseCode());
+                    resp.setWarehouseName(wh.getWarehouseName());
+                    resp.setWarehouseType(wh.getWarehouseType());
+                    resp.setTemperatureZone(wh.getTemperatureZone());
+                    resp.setDisplayName(buildWarehouseDisplayName(wh));
+                    return resp;
+                })
+                .collect(Collectors.toList());
+
+        // 5. 构建响应
+        AssignWarehouseInitResponse response = new AssignWarehouseInitResponse();
+        response.setOriginalWarehouseCode(originalWarehouseCode);
+        response.setOriginalWarehouseName(originalWarehouse.getWarehouseName());
+        response.setOriginalTemperatureZone(originalTemperatureZone);
+        response.setContainers(containerResponses);
+        response.setAvailableWarehouses(availableWarehouses);
+
+        return R.ok(response);
+    }
+
+    /**
+     * 执行分配仓库操作
+     *
+     * @param request 分配请求
+     * @return 操作结果
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public R<Boolean> assignWarehouse(AssignWarehouseRequest request) {
+        // 1. 参数校验
+        if (request.getContainerIds() == null || request.getContainerIds().isEmpty()) {
+            return R.fail("请选择要分配的存储容器");
+        }
+        if (request.getTargetWarehouseCode() == null || request.getTargetWarehouseCode().isEmpty()) {
+            return R.fail("请选择目标仓库");
+        }
+
+        // 2. 查询存储容器信息
+        List<WmsLocation> containers = wmsLocationService.queryByIds(request.getContainerIds());
+        if (containers.isEmpty()) {
+            return R.fail("未找到指定的存储容器");
+        }
+
+        // 3. 获取其中一个容器的仓库编码，用于校验温区
+        String originalWarehouseCode = containers.get(0).getWarehouseCode();
+
+        // 4. 温区校验
+        Warehouse originalWarehouse = warehouseService.getByWarehouseCode(originalWarehouseCode);
+        if (originalWarehouse == null) {
+            return R.fail("原仓库不存在");
+        }
+
+        Warehouse targetWarehouse = warehouseService.getByWarehouseCode(request.getTargetWarehouseCode());
+        if (targetWarehouse == null) {
+            return R.fail("目标仓库不存在");
+        }
+
+        // 校验温区一致性
+        String originalTempZone = originalWarehouse.getTemperatureZone();
+        String targetTempZone = targetWarehouse.getTemperatureZone();
+        if (originalTempZone == null || !originalTempZone.equals(targetTempZone)) {
+            return R.fail(-1, "新仓库温区与原仓库不一致，无法分配");
+        }
+
+        // 5. 仓库类型校验（必须是隔离仓或留样仓）
+        String targetType = targetWarehouse.getWarehouseType();
+        if (!"QUARANTINE".equals(targetType) && !"SAMPLE".equals(targetType)) {
+            return R.fail("仅支持分配到隔离仓或留样仓");
+        }
+
+        // 6. 执行批量更新
+        String currentUser = SecurityUtils.getUsername();
+        int updatedCount = wmsLocationService.batchUpdateWarehouseCode(
+                request.getContainerIds(),
+                request.getTargetWarehouseCode(),
+                currentUser
+        );
+
+        // 7. 清除缓存
+        clearLocationCache();
+
+        log.info("[分配仓库] 成功分配 {} 个存储容器到仓库 {}", updatedCount, request.getTargetWarehouseCode());
+
+        return R.ok(true, "分配成功，已更新 " + updatedCount + " 个存储容器");
+    }
+
+    // ==================== 导入导出方法 ====================
+
+    /**
+     * 导入库位数据
+     *
+     * @param importList 导入数据列表
+     * @return 导入结果
+     */
+    public R<LocationImportResponse> importLocations(List<LocationImportRequest> importList) {
+        if (importList == null || importList.isEmpty()) {
+            return R.fail(i18nService.getMessage("import.list.empty"));
+        }
+
+        if (importList.size() > 1000) {
+            return R.fail(i18nService.getMessage("import.limit.exceed"));
+        }
+
+        List<LocationImportResponse.ImportError> errors = new ArrayList<>();
+        List<WmsLocation> successEntities = new ArrayList<>();
+
+        // 库位类型白名单（支持中英文）
+        Set<String> validLocationTypes = new HashSet<>();
+        // 中文
+        validLocationTypes.add("冰箱");
+        validLocationTypes.add("货架");
+        validLocationTypes.add("地堆");
+        validLocationTypes.add("托盘");
+        validLocationTypes.add("层");
+        validLocationTypes.add("架");
+        validLocationTypes.add("行");
+        validLocationTypes.add("列");
+        validLocationTypes.add("格");
+        validLocationTypes.add("盒");
+        validLocationTypes.add("箱");
+        validLocationTypes.add("笼");
+        validLocationTypes.add("抽屉");
+        validLocationTypes.add("孔");
+        // 英文别名（兼容）
+        validLocationTypes.add("Freezer");
+        validLocationTypes.add("Shelf");
+        validLocationTypes.add("Ground");
+        validLocationTypes.add("Pallet");
+        validLocationTypes.add("Layer");
+        validLocationTypes.add("Rack");
+        validLocationTypes.add("Row");
+        validLocationTypes.add("Column");
+        validLocationTypes.add("Cell");
+        validLocationTypes.add("Box");
+        validLocationTypes.add("Case");
+        validLocationTypes.add("Cage");
+        validLocationTypes.add("Drawer");
+        validLocationTypes.add("Position");
+
+        // 按行处理数据
+        for (int i = 0; i < importList.size(); i++) {
+            int rowNum = i + 2; // Excel行号从2开始（1是表头）
+            LocationImportRequest record = importList.get(i);
+
+            // 1. 必填校验：仓库编码
+            if (record.getWarehouseCode() == null || record.getWarehouseCode().trim().isEmpty()) {
+                errors.add(new LocationImportResponse.ImportError(rowNum, "仓库编码不能为空"));
+                continue;
+            }
+
+            // 2. 必填校验：库位类型
+            if (record.getLocationType() == null || record.getLocationType().trim().isEmpty()) {
+                errors.add(new LocationImportResponse.ImportError(rowNum, "库位类型不能为空"));
+                continue;
+            }
+
+            // 3. 库位类型校验
+            if (!validLocationTypes.contains(record.getLocationType().trim())) {
+                errors.add(new LocationImportResponse.ImportError(rowNum, "库位类型不存在"));
+                continue;
+            }
+
+            // 4. 必填校验：库位名称
+            if (record.getLocationName() == null || record.getLocationName().trim().isEmpty()) {
+                errors.add(new LocationImportResponse.ImportError(rowNum, "库位名称不能为空"));
+                continue;
+            }
+
+            // 5. 库位名称长度校验
+            if (record.getLocationName().trim().length() > 50) {
+                errors.add(new LocationImportResponse.ImportError(rowNum, "库位名称最多50字符"));
+                continue;
+            }
+
+            // 6. 仓库是否存在校验
+            Warehouse warehouse = warehouseService.getByWarehouseCode(record.getWarehouseCode().trim());
+            if (warehouse == null) {
+                errors.add(new LocationImportResponse.ImportError(rowNum, "仓库不存在"));
+                continue;
+            }
+
+            // 7. 处理父节点
+            Long parentId = null;
+            String parentName = null;
+            int locationLevel = 1;
+            int locationLevelCount = 5; // 默认5层
+
+            if (record.getParentLocationFullpathName() != null && !record.getParentLocationFullpathName().trim().isEmpty()) {
+                // 查询父节点
+                List<WmsLocation> parentList = wmsLocationService.queryByFullpathName(
+                        record.getWarehouseCode().trim(),
+                        record.getParentLocationFullpathName().trim()
+                );
+                if (parentList == null || parentList.isEmpty()) {
+                    errors.add(new LocationImportResponse.ImportError(rowNum, "上级库位不存在"));
+                    continue;
+                }
+                WmsLocation parent = parentList.get(0);
+                parentId = parent.getId();
+                parentName = parent.getLocationName();
+                locationLevel = parent.getLocationLevel() + 1;
+                locationLevelCount = parent.getLocationLevelCount();
+            }
+
+            // 8. 存储模式校验（默认 Shared）
+            String storageMode = "Shared";
+            if (record.getStorageMode() != null && !record.getStorageMode().trim().isEmpty()) {
+                String sm = record.getStorageMode().trim();
+                if ("Exclusive".equals(sm) || "独占".equals(sm)) {
+                    storageMode = "Exclusive";
+                } else if ("Shared".equals(sm) || "共享".equals(sm)) {
+                    storageMode = "Shared";
+                } else {
+                    errors.add(new LocationImportResponse.ImportError(rowNum, "存储模式仅支持 Exclusive/Shared"));
+                    continue;
+                }
+            }
+
+            // 9. 规格校验（独占模式必填）
+            String specification = record.getSpecification();
+            if ("Exclusive".equals(storageMode)) {
+                if (specification == null || specification.trim().isEmpty()) {
+                    errors.add(new LocationImportResponse.ImportError(rowNum, "独占模式必须填写规格"));
+                    continue;
+                }
+                // 校验规格格式
+                if (!isValidSpecification(specification.trim())) {
+                    errors.add(new LocationImportResponse.ImportError(rowNum, "规格格式错误，支持格式如：4x4、8x12、9x9"));
+                    continue;
+                }
+            }
+
+            // 10. 重复校验：同一仓库内同名校验
+            int count = wmsLocationService.countByNameAndWarehouse(
+                    record.getWarehouseCode().trim(),
+                    record.getLocationName().trim(),
+                    parentId,
+                    null
+            );
+            if (count > 0) {
+                String parentHint = parentName != null ? "（上级：" + parentName + "）" : "（根节点）";
+                errors.add(new LocationImportResponse.ImportError(rowNum, "该仓库下已存在同名库位" + parentHint));
+                continue;
+            }
+
+            // 11. 生成全路径名称
+            String locationFullpathName = buildFullpathName(record.getLocationName().trim(), parentName);
+            String locationSortNo = generateSortNo(parentId, locationLevel);
+
+            // 构建实体
+            WmsLocation entity = new WmsLocation();
+            entity.setParentId(parentId);
+            entity.setLocationGrade(determineLocationGrade(record.getLocationType().trim()));
+            entity.setLocationType(record.getLocationType().trim());
+            entity.setLocationLevel(locationLevel);
+            entity.setLocationLevelCount(locationLevelCount);
+            entity.setLocationName(record.getLocationName().trim());
+            entity.setWarehouseCode(record.getWarehouseCode().trim());
+            entity.setParentName(parentName);
+            entity.setStorageMode(storageMode);
+            entity.setSpecification("Exclusive".equals(storageMode) ? specification.trim() : null);
+            entity.setIsUse(0);
+            entity.setLocationSortNo(locationSortNo);
+            entity.setLocationFullpathName(locationFullpathName);
+            entity.setIsDeleted(0);
+            fillSystemFields(entity);
+
+            successEntities.add(entity);
+        }
+
+        // 批量插入成功的数据
+        if (!successEntities.isEmpty()) {
+            try {
+                wmsLocationService.insertBatchAtomic(successEntities);
+                clearLocationCache();
+            } catch (Exception e) {
+                log.error("批量导入库位失败", e);
+                errors.add(new LocationImportResponse.ImportError(-1, "批量保存失败：" + e.getMessage()));
+                successEntities.clear();
+            }
+        }
+
+        // 构建响应
+        LocationImportResponse response = new LocationImportResponse();
+        response.setSuccessCount(successEntities.size());
+        response.setFailCount(errors.size());
+        response.setErrors(errors);
+
+        if (errors.isEmpty()) {
+            return R.ok(response, i18nService.getMessage("import.success", successEntities.size()));
+        } else if (successEntities.isEmpty()) {
+            return R.fail(response, i18nService.getMessage("import.all.fail"));
+        } else {
+            return R.ok(response, i18nService.getMessage("import.partial.success", successEntities.size(), errors.size()));
+        }
+    }
+
+    /**
+     * 校验规格格式
+     */
+    private boolean isValidSpecification(String spec) {
+        if (spec == null || spec.isEmpty()) {
+            return false;
+        }
+        // 支持格式：4x4, 8x12, 9x9, 96孔, 48孔
+        return spec.matches("^\\d+\\s*[xX]\\s*\\d+$") || spec.matches("^\\d+\\s*孔$");
+    }
+
+    /**
+     * 解析规格获取容量
+     */
+    private int parseSpecCapacity(String specification) {
+        if (specification == null || specification.isEmpty()) {
+            return 0;
+        }
+        // 解析 4x4, 8x12, 9x9
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("(\\d+)\\s*x\\s*(\\d+)", java.util.regex.Pattern.CASE_INSENSITIVE);
+        java.util.regex.Matcher matcher = pattern.matcher(specification);
+        if (matcher.find()) {
+            int rows = Integer.parseInt(matcher.group(1));
+            int cols = Integer.parseInt(matcher.group(2));
+            return rows * cols;
+        }
+        // 解析 96孔, 48孔
+        java.util.regex.Pattern numPattern = java.util.regex.Pattern.compile("(\\d+)\\s*孔");
+        java.util.regex.Matcher numMatcher = numPattern.matcher(specification);
+        if (numMatcher.find()) {
+            return Integer.parseInt(numMatcher.group(1));
+        }
+        return 0;
+    }
+
+    /**
+     * 确定库位等级
+     */
+    private String determineLocationGrade(String locationType) {
+        // 存储类型
+        if (Arrays.asList("冰箱", "货架", "地堆", "托盘").contains(locationType)) {
+            return "StorageType";
+        }
+        // 存储分区
+        if (Arrays.asList("层", "架", "行", "列", "格").contains(locationType)) {
+            return "StorageSection";
+        }
+        // 存储容器
+        if (Arrays.asList("盒", "箱", "笼", "抽屉").contains(locationType)) {
+            return "Container";
+        }
+        // 孔位
+        if ("孔".equals(locationType)) {
+            return "ContainerPosition";
+        }
+        return "StorageType";
+    }
+
+    /**
+     * 构建仓库显示名称
+     */
+    private String buildWarehouseDisplayName(Warehouse warehouse) {
+        StringBuilder sb = new StringBuilder();
+        // 仓库类型标签
+        String typeLabel = "";
+        if ("QUARANTINE".equals(warehouse.getWarehouseType())) {
+            typeLabel = "隔离仓";
+        } else if ("SAMPLE".equals(warehouse.getWarehouseType())) {
+            typeLabel = "留样仓";
+        } else {
+            typeLabel = warehouse.getWarehouseType();
+        }
+        sb.append(typeLabel);
+
+        // 温区
+        if (warehouse.getTemperatureZone() != null) {
+            sb.append(" - ").append(warehouse.getTemperatureZone()).append("区");
+        }
+
+        // 仓库名称
+        sb.append("（").append(warehouse.getWarehouseCode()).append("）");
+
+        return sb.toString();
+    }
+
+    /**
+     * 生成排序号
+     */
+    private String generateSortNo(Long parentId, int locationLevel) {
+        if (parentId == null) {
+            return "L" + String.format("%04d", 1);
+        }
+        return "L" + String.format("%04d", locationLevel);
     }
 }

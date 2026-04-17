@@ -14,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 仓库档案业务层
@@ -52,6 +55,22 @@ public class WarehouseBiz {
     public R<List<Warehouse>> listAll() {
         List<Warehouse> list = warehouseService.listAll();
         return R.ok(list);
+    }
+
+    /**
+     * 查询仓库简单列表（用于下拉选择，返回 label/value 格式）
+     */
+    public R<List<?>> listSimple() {
+        List<Warehouse> list = warehouseService.listAll();
+        List<Map<String, Object>> result = list.stream()
+                .map(w -> {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("label", w.getWarehouseName());
+                    item.put("value", w.getWarehouseCode());
+                    return item;
+                })
+                .collect(Collectors.toList());
+        return R.ok(result);
     }
 
     /**

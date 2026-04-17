@@ -128,4 +128,14 @@ public class WarehouseServiceImpl implements WarehouseService {
     public List<String> listDistinctCompany() {
         return warehouseMapper.selectDistinctCompany();
     }
+
+    @Override
+    public Warehouse getByWarehouseCode(String warehouseCode) {
+        return warehouseMapper.selectByWarehouseCode(warehouseCode);
+    }
+
+    @Override
+    public List<Warehouse> listByTemperatureZoneAndTypes(String temperatureZone) {
+        return warehouseMapper.selectByTemperatureZoneAndTypes(temperatureZone);
+    }
 }
