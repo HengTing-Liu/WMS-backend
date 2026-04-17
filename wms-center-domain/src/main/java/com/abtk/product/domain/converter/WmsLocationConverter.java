@@ -44,12 +44,9 @@ public interface WmsLocationConverter {
         @Mapping(target = "id", ignore = true),
         @Mapping(target = "internalSerialNo", ignore = true),
         @Mapping(target = "internalQuantity", ignore = true),
-        @Mapping(target = "locationNo", ignore = true),
         @Mapping(target = "locationName", ignore = true),
         @Mapping(target = "locationSortNo", ignore = true),
         @Mapping(target = "locationFullpathName", ignore = true),
-        @Mapping(target = "capacityTotal", expression = "java(calculateCapacity(request.getSpecification()))"),
-        @Mapping(target = "capacityUsed", constant = "0"),
         @Mapping(target = "isUse", constant = "0"),
         @Mapping(target = "isDeleted", constant = "0"),
         @Mapping(target = "children", ignore = true),
@@ -78,7 +75,7 @@ public interface WmsLocationConverter {
      */
     @Named("entityToResponseWithOccupancy")
     @Mappings({
-        @Mapping(target = "occupancyRate", expression = "java(calculateOccupancyRate(entity.getCapacityUsed(), entity.getCapacityTotal()))"),
+        @Mapping(target = "occupancyRate", constant = "0"),
         @Mapping(target = "children", ignore = true)
     })
     WmsLocationResponse entityToResponseWithOccupancy(WmsLocation entity);
@@ -88,8 +85,8 @@ public interface WmsLocationConverter {
      */
     @Mappings({
         @Mapping(target = "locationId", source = "id"),
-        @Mapping(target = "capacityFree", expression = "java(calculateFreeCapacity(entity.getCapacityTotal(), entity.getCapacityUsed()))"),
-        @Mapping(target = "occupancyRate", expression = "java(calculateOccupancyRate(entity.getCapacityUsed(), entity.getCapacityTotal()))")
+        @Mapping(target = "capacityFree", constant = "0"),
+        @Mapping(target = "occupancyRate", constant = "0")
     })
     WmsLocationOccupancyResponse entityToOccupancyResponse(WmsLocation entity);
 

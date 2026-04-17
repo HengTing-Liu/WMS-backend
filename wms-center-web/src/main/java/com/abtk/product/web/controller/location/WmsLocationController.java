@@ -288,7 +288,7 @@ public class WmsLocationController extends BaseController {
     @Operation(summary = "分配仓库初始化", description = "获取分配仓库所需的初始化信息（可选仓库列表）")
     public R<AssignWarehouseInitResponse> initAssignWarehouse(
             @RequestParam Long locationId,
-            @RequestParam List<Long> containerIds) {
+            @RequestParam(required = false) List<Long> containerIds) {
         return wmsLocationBiz.initAssignWarehouse(locationId, containerIds);
     }
 

@@ -25,6 +25,7 @@ import com.abtk.product.service.location.service.WmsLocationService;
 import com.abtk.product.service.redis.service.RedisService;
 import com.abtk.product.service.security.utils.SecurityUtils;
 import com.abtk.product.service.sys.service.WarehouseService;
+import com.abtk.product.biz.system.SysSerialNumberBiz;
 import com.abtk.product.service.system.service.I18nService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -66,6 +67,9 @@ public class WmsLocationBiz {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private SysSerialNumberBiz sysSerialNumberBiz;
 
     private static final String CACHE_KEY_PREFIX = "wms:location:";
     private static final String CACHE_KEY_TREE = CACHE_KEY_PREFIX + "tree:";
@@ -766,14 +770,62 @@ public class WmsLocationBiz {
     }
 
     /**
-     * 查询子节点列表
+     * 查询子节点列表（包含完整树形结构，用于库位预览）
+     * 返回指定父节点的所有子孙节点，构建为树形结构
      */
     public R<List<WmsLocationResponse>> queryChildren(Long parentId) {
-        List<WmsLocation> children = wmsLocationService.queryByParentId(parentId);
-        List<WmsLocationResponse> responseList = children.stream()
+        // 递归查询所有子孙节点
+        List<WmsLocation> allChildren = wmsLocationService.queryAllChildren(parentId);
+
+        // 转换为 Response 并构建树形结构
+        List<WmsLocationResponse> responseList = allChildren.stream()
                 .map(WmsLocationConverter.INSTANCE::entityToResponseWithOccupancy)
                 .collect(Collectors.toList());
-        return R.ok(responseList);
+
+        // 构建父子关系
+        Map<Long, WmsLocationResponse> nodeMap = responseList.stream()
+                .collect(Collectors.toMap(WmsLocationResponse::getId, n -> n, (a, b) -> a));
+
+        List<WmsLocationResponse> result = new ArrayList<>();
+
+        for (WmsLocationResponse node : responseList) {
+            if (node.getParentId() == null) {
+                result.add(node);
+            } else {
+                WmsLocationResponse parent = nodeMap.get(node.getParentId());
+                if (parent != null) {
+                    if (parent.getChildren() == null) {
+                        parent.setChildren(new ArrayList<>());
+                    }
+                    parent.getChildren().add(node);
+                    parent.setHasChildren(true);
+                } else {
+                    result.add(node);
+                }
+            }
+        }
+
+        // 设置叶子节点的 hasChildren 为 false
+        for (WmsLocationResponse node : responseList) {
+            if (node.getChildren() == null || node.getChildren().isEmpty()) {
+                node.setHasChildren(false);
+            }
+        }
+
+        // 排序
+        result.sort((a, b) -> {
+            if (a.getLocationSortNo() == null || b.getLocationSortNo() == null) {
+                return 0;
+            }
+            return a.getLocationSortNo().compareTo(b.getLocationSortNo());
+        });
+
+        // 递归重新计算占用率（根据子节点实际状态）
+        for (WmsLocationResponse node : result) {
+            recalculateOccupancy(node);
+        }
+
+        return R.ok(result);
     }
 
     /**
@@ -872,11 +924,11 @@ public class WmsLocationBiz {
             // 🔴 新增：根据父节点等级和当前层级推断 locationGrade
             request.setLocationGrade(inferLocationGradeFromParent(request.getLocationType(), parent.getLocationGrade(), request.getLocationLevel()));
         } else {
-            // 根节点 - 默认为 StorageType（存储类型）
+            // 根节点 - 默认为 存储对象
             request.setLocationLevel(1);
-            request.setLocationGrade("StorageType");
+            request.setLocationGrade("存储对象");
             if (request.getLocationLevelCount() == null) {
-                request.setLocationLevelCount(5);
+                request.setLocationLevelCount(1);
             }
         }
         return null;
@@ -891,13 +943,13 @@ public class WmsLocationBiz {
             return determineLocationGrade(locationType);
         }
         // 否则根据父节点等级推断子节点等级
-        if ("StorageType".equals(parentGrade)) {
-            return "StorageSection"; // 存储类型下的子节点 -> 存储分区
+        if ("StorageType".equals(parentGrade) || "存储对象".equals(parentGrade)) {
+            return "StorageSection"; // 存储对象下的子节点 -> 存储分区
         }
-        if ("StorageSection".equals(parentGrade)) {
+        if ("StorageSection".equals(parentGrade) || "存储分区".equals(parentGrade)) {
             return "Container"; // 存储分区下的子节点 -> 存储容器
         }
-        if ("Container".equals(parentGrade)) {
+        if ("Container".equals(parentGrade) || "存储容器".equals(parentGrade)) {
             return "ContainerPosition"; // 存储容器下的子节点 -> 孔位
         }
         return "StorageSection"; // 默认存储分区
@@ -931,8 +983,9 @@ public class WmsLocationBiz {
                 request.setLocationFullpathName(generateFullpathName(request, parent.getLocationName()));
             }
         } else {
-            // 根节点
-            request.setLocationSortNo("L0001");
+            // 根节点：从流水号规则获取排序号
+            String serialNo = sysSerialNumberBiz.generateSerialNumber("location_sort_no_object", SecurityUtils.getUsername());
+            request.setLocationSortNo(serialNo);
             request.setLocationFullpathName(request.getLocationName());
         }
     }
@@ -1088,9 +1141,7 @@ public class WmsLocationBiz {
             total = node.getChildren().size();
         }
 
-        // 更新当前节点的统计数据
-        node.setCapacityTotal(total);
-        node.setCapacityUsed(used);
+        // 只更新占用率，不再设置已删除的字段
         node.setOccupancyRate(calculateOccupancyRate(used, total));
     }
 
@@ -1156,8 +1207,6 @@ public class WmsLocationBiz {
             used = (location.getIsUse() != null && location.getIsUse() == 1) ? 1 : 0;
         }
 
-        response.setCapacityTotal(total);
-        response.setCapacityUsed(used);
         response.setCapacityFree(total - used);
 
         if (total > 0) {
@@ -1451,7 +1500,7 @@ public class WmsLocationBiz {
             Long parentId = null;
             String parentName = null;
             int locationLevel = 1;
-            int locationLevelCount = 5; // 默认5层
+            int locationLevelCount = 1; // 默认1层
 
             if (record.getParentLocationFullpathName() != null && !record.getParentLocationFullpathName().trim().isEmpty()) {
                 // 查询父节点
@@ -1602,9 +1651,9 @@ public class WmsLocationBiz {
      * 确定库位等级
      */
     private String determineLocationGrade(String locationType) {
-        // 存储类型
+        // 存储对象
         if (Arrays.asList("冰箱", "货架", "地堆", "托盘").contains(locationType)) {
-            return "StorageType";
+            return "存储对象";
         }
         // 存储分区
         if (Arrays.asList("层", "架", "行", "列", "格").contains(locationType)) {

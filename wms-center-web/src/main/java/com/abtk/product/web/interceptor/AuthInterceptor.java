@@ -78,7 +78,14 @@ public class AuthInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        Claims claims = JwtUtils.parseToken(token);
+        Claims claims;
+        try {
+            claims = JwtUtils.parseToken(token);
+        } catch (Exception e) {
+            log.error("[Auth] JWT parse error: {}", e.getMessage());
+            unauthorized(request, response, i18nService.getMessage("auth.token.invalid"));
+            return false;
+        }
         if (claims == null) {
             unauthorized(request, response, i18nService.getMessage("auth.token.expired"));
             return false;

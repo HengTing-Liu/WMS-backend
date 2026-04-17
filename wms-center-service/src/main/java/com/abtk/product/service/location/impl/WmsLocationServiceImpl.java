@@ -89,12 +89,6 @@ public class WmsLocationServiceImpl implements WmsLocationService {
         if (wmsLocation.getIsUse() == null) {
             wmsLocation.setIsUse(0);
         }
-        if (wmsLocation.getCapacityTotal() == null) {
-            wmsLocation.setCapacityTotal(0);
-        }
-        if (wmsLocation.getCapacityUsed() == null) {
-            wmsLocation.setCapacityUsed(0);
-        }
         wmsLocationMapper.insert(wmsLocation);
         return wmsLocation;
     }
@@ -117,12 +111,6 @@ public class WmsLocationServiceImpl implements WmsLocationService {
             }
             if (entity.getIsUse() == null) {
                 entity.setIsUse(0);
-            }
-            if (entity.getCapacityTotal() == null) {
-                entity.setCapacityTotal(0);
-            }
-            if (entity.getCapacityUsed() == null) {
-                entity.setCapacityUsed(0);
             }
         }
         return wmsLocationMapper.insertBatch(entities);

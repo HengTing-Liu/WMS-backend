@@ -44,9 +44,9 @@ public class SqlInjectionValidator {
             "supplier_id", "supplier_name", "customer_id", "customer_name",
             // 库位档案字段
             "location_grade", "location_type", "location_level", "location_level_count",
-            "internal_serial_no", "internal_quantity", "location_no", "location_name",
+            "internal_serial_no", "internal_quantity", "location_name",
             "parent_name", "storage_mode", "specification", "is_use",
-            "location_sort_no", "location_fullpath_name", "capacity_total", "capacity_used"
+            "location_sort_no", "location_fullpath_name"
     ));
 
     /** 表名正则：仅允许 字母、数字、下划线 */

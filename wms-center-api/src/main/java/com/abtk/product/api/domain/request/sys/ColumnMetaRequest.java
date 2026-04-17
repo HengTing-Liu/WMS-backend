@@ -21,6 +21,8 @@ public class ColumnMetaRequest implements Serializable {
     private String dictType;
     private Integer showInList;
     private Integer showInForm;
+    private Integer showInExport;
+    private Integer showInImport;
     private Integer searchable;
     private Integer sortable;
     private Integer required;

@@ -34,18 +34,6 @@ public class WmsLocationOccupancyResponse {
     private String warehouseCode;
 
     /**
-     * 总容量
-     */
-    @Schema(description = "总容量")
-    private Integer capacityTotal;
-
-    /**
-     * 已用容量
-     */
-    @Schema(description = "已用容量")
-    private Integer capacityUsed;
-
-    /**
      * 空闲容量
      */
     @Schema(description = "空闲容量")

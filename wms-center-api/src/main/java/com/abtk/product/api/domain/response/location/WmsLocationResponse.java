@@ -68,12 +68,6 @@ public class WmsLocationResponse extends BaseResponse {
     private Integer internalQuantity;
 
     /**
-     * 库位编号（业务编码）
-     */
-    @Schema(description = "库位编号（业务编码）")
-    private String locationNo;
-
-    /**
      * 库位名称
      */
     @Schema(description = "库位名称")
@@ -120,18 +114,6 @@ public class WmsLocationResponse extends BaseResponse {
      */
     @Schema(description = "全路径名称")
     private String locationFullpathName;
-
-    /**
-     * 总容量
-     */
-    @Schema(description = "总容量（子节点数量或孔位数）")
-    private Integer capacityTotal;
-
-    /**
-     * 已用容量
-     */
-    @Schema(description = "已用容量（仅独占模式计算）")
-    private Integer capacityUsed;
 
     /**
      * 占用率（百分比）

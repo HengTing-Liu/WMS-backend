@@ -11,7 +11,6 @@
         <result property="locationLevelCount" column="location_level_count" jdbcType="TINYINT"/>
         <result property="internalSerialNo" column="internal_serial_no" jdbcType="SMALLINT"/>
         <result property="internalQuantity" column="internal_quantity" jdbcType="SMALLINT"/>
-        <result property="locationNo" column="location_no" jdbcType="VARCHAR"/>
         <result property="locationName" column="location_name" jdbcType="VARCHAR"/>
         <result property="warehouseCode" column="warehouse_code" jdbcType="VARCHAR"/>
         <result property="parentName" column="parent_name" jdbcType="VARCHAR"/>
@@ -20,8 +19,6 @@
         <result property="isUse" column="is_use" jdbcType="TINYINT"/>
         <result property="locationSortNo" column="location_sort_no" jdbcType="VARCHAR"/>
         <result property="locationFullpathName" column="location_fullpath_name" jdbcType="VARCHAR"/>
-        <result property="capacityTotal" column="capacity_total" jdbcType="INTEGER"/>
-        <result property="capacityUsed" column="capacity_used" jdbcType="INTEGER"/>
         <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
         <result property="remarks" column="remarks" jdbcType="VARCHAR"/>
         <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
@@ -32,9 +29,9 @@
 
     <sql id="Base_Column_List">
         id, parent_id, location_grade, location_type, location_level, location_level_count,
-        internal_serial_no, internal_quantity, location_no, location_name, warehouse_code,
+        internal_serial_no, internal_quantity, location_name, warehouse_code,
         parent_name, storage_mode, specification, is_use, location_sort_no, location_fullpath_name,
-        capacity_total, capacity_used, is_deleted, remarks, create_by, create_time, update_by, update_time
+        is_deleted, remarks, create_by, create_time, update_by, update_time
     </sql>
 
     <!-- 查询单个 -->
@@ -66,9 +63,6 @@
             </if>
             <if test="locationLevel != null">
                 and location_level = #{locationLevel}
-            </if>
-            <if test="locationNo != null and locationNo != ''">
-                and location_no like concat('%', #{locationNo}, '%')
             </if>
             <if test="locationName != null and locationName != ''">
                 and location_name like concat('%', #{locationName}, '%')
@@ -196,19 +190,18 @@
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">
         insert into inv_location(
             parent_id, location_grade, location_type, location_level, location_level_count,
-            internal_serial_no, internal_quantity, location_no, location_name, warehouse_code,
+            internal_serial_no, internal_quantity, location_name, warehouse_code,
             parent_name, storage_mode, specification, is_use, location_sort_no, location_fullpath_name,
-            capacity_total, capacity_used, is_deleted, remarks, create_by, create_time, update_by, update_time
+            is_deleted, remarks, create_by, create_time, update_by, update_time
         ) values (
             #{parentId}, #{locationGrade}, #{locationType}, #{locationLevel}, #{locationLevelCount},
-            #{internalSerialNo}, #{internalQuantity}, #{locationNo}, #{locationName}, #{warehouseCode},
+            #{internalSerialNo}, #{internalQuantity}, #{locationName}, #{warehouseCode},
             #{parentName}, #{storageMode}, #{specification},
             <choose>
                 <when test="isUse != null">#{isUse}</when>
                 <otherwise>0</otherwise>
             </choose>,
             #{locationSortNo}, #{locationFullpathName},
-            #{capacityTotal}, #{capacityUsed},
             0, #{remarks}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
         )
     </insert>
@@ -217,21 +210,20 @@
     <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
         insert into inv_location(
             parent_id, location_grade, location_type, location_level, location_level_count,
-            internal_serial_no, internal_quantity, location_no, location_name, warehouse_code,
+            internal_serial_no, internal_quantity, location_name, warehouse_code,
             parent_name, storage_mode, specification, is_use, location_sort_no, location_fullpath_name,
-            capacity_total, capacity_used, is_deleted, remarks, create_by, create_time, update_by, update_time
+            is_deleted, remarks, create_by, create_time, update_by, update_time
         ) values
         <foreach collection="entities" item="entity" separator=",">
             (
                 #{entity.parentId}, #{entity.locationGrade}, #{entity.locationType}, #{entity.locationLevel}, #{entity.locationLevelCount},
-                #{entity.internalSerialNo}, #{entity.internalQuantity}, #{entity.locationNo}, #{entity.locationName}, #{entity.warehouseCode},
+                #{entity.internalSerialNo}, #{entity.internalQuantity}, #{entity.locationName}, #{entity.warehouseCode},
                 #{entity.parentName}, #{entity.storageMode}, #{entity.specification},
                 <choose>
                     <when test="entity.isUse != null">#{entity.isUse}</when>
                     <otherwise>0</otherwise>
                 </choose>,
                 #{entity.locationSortNo}, #{entity.locationFullpathName},
-                #{entity.capacityTotal}, #{entity.capacityUsed},
                 0, #{entity.remarks}, #{entity.createBy}, #{entity.createTime}, #{entity.updateBy}, #{entity.updateTime}
             )
         </foreach>
@@ -241,21 +233,20 @@
     <insert id="insertOrUpdateBatch">
         insert into inv_location(
             id, parent_id, location_grade, location_type, location_level, location_level_count,
-            internal_serial_no, internal_quantity, location_no, location_name, warehouse_code,
+            internal_serial_no, internal_quantity, location_name, warehouse_code,
             parent_name, storage_mode, specification, is_use, location_sort_no, location_fullpath_name,
-            capacity_total, capacity_used, is_deleted, remarks, create_by, create_time, update_by, update_time
+            is_deleted, remarks, create_by, create_time, update_by, update_time
         ) values
         <foreach collection="entities" item="entity" separator=",">
             (
                 #{entity.id}, #{entity.parentId}, #{entity.locationGrade}, #{entity.locationType}, #{entity.locationLevel}, #{entity.locationLevelCount},
-                #{entity.internalSerialNo}, #{entity.internalQuantity}, #{entity.locationNo}, #{entity.locationName}, #{entity.warehouseCode},
+                #{entity.internalSerialNo}, #{entity.internalQuantity}, #{entity.locationName}, #{entity.warehouseCode},
                 #{entity.parentName}, #{entity.storageMode}, #{entity.specification},
                 <choose>
                     <when test="entity.isUse != null">#{entity.isUse}</when>
                     <otherwise>0</otherwise>
                 </choose>,
                 #{entity.locationSortNo}, #{entity.locationFullpathName},
-                #{entity.capacityTotal}, #{entity.capacityUsed},
                 0, #{entity.remarks}, #{entity.createBy}, #{entity.createTime}, #{entity.updateBy}, #{entity.updateTime}
             )
         </foreach>
@@ -267,7 +258,6 @@
             location_level_count = values(location_level_count),
             internal_serial_no = values(internal_serial_no),
             internal_quantity = values(internal_quantity),
-            location_no = values(location_no),
             location_name = values(location_name),
             warehouse_code = values(warehouse_code),
             parent_name = values(parent_name),
@@ -276,10 +266,8 @@
             is_use = values(is_use),
             location_sort_no = values(location_sort_no),
             location_fullpath_name = values(location_fullpath_name),
-            capacity_total = values(capacity_total),
-            capacity_used = values(capacity_used),
             update_by = values(update_by),
-            update_time = values(update_time)
+            update_time = now()
     </insert>
 
     <!-- 修改 -->
@@ -307,9 +295,6 @@
             <if test="internalQuantity != null">
                 internal_quantity = #{internalQuantity},
             </if>
-            <if test="locationNo != null and locationNo != ''">
-                location_no = #{locationNo},
-            </if>
             <if test="locationName != null and locationName != ''">
                 location_name = #{locationName},
             </if>
@@ -333,12 +318,6 @@
             </if>
             <if test="locationFullpathName != null and locationFullpathName != ''">
                 location_fullpath_name = #{locationFullpathName},
-            </if>
-            <if test="capacityTotal != null">
-                capacity_total = #{capacityTotal},
-            </if>
-            <if test="capacityUsed != null">
-                capacity_used = #{capacityUsed},
             </if>
             <if test="remarks != null">
                 remarks = #{remarks},
@@ -385,12 +364,6 @@
                 </foreach>
                 else location_name
             end,
-            location_no = case id
-                <foreach collection="list" item="item">
-                    when #{item.id} then #{item.locationNo}
-                </foreach>
-                else location_no
-            end,
             warehouse_code = case id
                 <foreach collection="list" item="item">
                     when #{item.id} then #{item.warehouseCode}
@@ -432,18 +405,6 @@
                     when #{item.id} then #{item.locationFullpathName}
                 </foreach>
                 else location_fullpath_name
-            end,
-            capacity_total = case id
-                <foreach collection="list" item="item">
-                    when #{item.id} then #{item.capacityTotal}
-                </foreach>
-                else capacity_total
-            end,
-            capacity_used = case id
-                <foreach collection="list" item="item">
-                    when #{item.id} then #{item.capacityUsed}
-                </foreach>
-                else capacity_used
             end,
             remarks = case id
                 <foreach collection="list" item="item">

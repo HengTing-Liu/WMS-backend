@@ -79,14 +79,6 @@ public class WmsLocationRequest extends BaseRequest {
     private Integer internalQuantity;
 
     /**
-     * 库位编号（业务编码）
-     */
-    @NotBlank(message = "库位编号不能为空")
-    @Excel(name = "库位编号", type = Type.ALL)
-    @Schema(description = "库位编号（业务编码）")
-    private String locationNo;
-
-    /**
      * 库位名称
      */
     @NotBlank(message = "库位名称不能为空")
@@ -142,20 +134,6 @@ public class WmsLocationRequest extends BaseRequest {
     @Excel(name = "全路径名称", type = Type.ALL)
     @Schema(description = "全路径名称（如：卧式冰箱_层1/2_架1/2_行1/2_BOX001_A01）")
     private String locationFullpathName;
-
-    /**
-     * 总容量（子节点数量或孔位数）
-     */
-    @Excel(name = "总容量", type = Type.ALL, cellType = ColumnType.NUMERIC)
-    @Schema(description = "总容量（子节点数量或孔位数）")
-    private Integer capacityTotal;
-
-    /**
-     * 已用容量（仅独占模式计算）
-     */
-    @Excel(name = "已用容量", type = Type.ALL, cellType = ColumnType.NUMERIC)
-    @Schema(description = "已用容量（仅独占模式计算）")
-    private Integer capacityUsed;
 
     /**
      * 是否删除：0=正常，1=已删除
