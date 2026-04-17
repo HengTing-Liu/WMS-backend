@@ -18,6 +18,7 @@
         <result property="eventType" column="event_type"/>
         <result property="eventConfig" column="event_config"/>
         <result property="confirmMessage" column="confirm_message"/>
+        <result property="showButton" column="show_button"/>
     </resultMap>
 
     <select id="selectByTableCode" resultMap="TableOperationResult">
@@ -34,11 +35,11 @@
         INSERT INTO sys_table_operation (
             table_code, operation_code, operation_name, operation_type,
             icon, permission, position, sort_order, status,
-            event_type, event_config, confirm_message
+            event_type, event_config, confirm_message, show_button
         ) VALUES (
             #{tableCode}, #{operationCode}, #{operationName}, #{operationType},
             #{icon}, #{permission}, #{position}, #{sortOrder}, #{status},
-            #{eventType}, #{eventConfig}, #{confirmMessage}
+            #{eventType}, #{eventConfig}, #{confirmMessage}, #{showButton}
         )
     </insert>
 
@@ -55,7 +56,8 @@
             status = #{status},
             event_type = #{eventType},
             event_config = #{eventConfig},
-            confirm_message = #{confirmMessage}
+            confirm_message = #{confirmMessage},
+            show_button = #{showButton}
         WHERE id = #{id}
     </update>
 

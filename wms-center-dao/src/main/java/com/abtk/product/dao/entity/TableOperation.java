@@ -52,4 +52,7 @@ public class TableOperation extends BaseEntity {
 
     /** 确认提示消息 */
     private String confirmMessage;
+
+    /** 是否展示按钮: 0-隐藏 1-展示 */
+    private Integer showButton;
 }

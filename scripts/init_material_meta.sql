@@ -81,20 +81,22 @@ ON DUPLICATE KEY UPDATE
     updated_at = NOW();
 
 -- 1.3 操作按钮配置
-INSERT INTO sys_table_operation (table_code, operation_code, operation_name, operation_type, icon, permission, position, sort_order, status, is_enabled)
+INSERT INTO sys_table_operation (table_code, operation_code, operation_name, operation_type, icon, permission, position, sort_order, status, is_enabled, show_button)
 VALUES
-('sys_material', 'add', '新增', 'button', 'PlusOutlined', 'wms:base:material:add', 'toolbar', 1, 1, 1),
-('sys_material', 'edit', '编辑', 'button', 'EditOutlined', 'wms:base:material:edit', 'toolbar', 2, 1, 1),
-('sys_material', 'delete', '删除', 'button', 'DeleteOutlined', 'wms:base:material:delete', 'toolbar', 3, 1, 1),
-('sys_material', 'export', '导出', 'button', 'DownloadOutlined', 'wms:base:material:export', 'toolbar', 4, 1, 1),
-('sys_material', 'row_edit', '编辑', 'link', 'EditOutlined', 'wms:base:material:edit', 'row', 1, 1, 1),
-('sys_material', 'row_delete', '删除', 'link', 'DeleteOutlined', 'wms:base:material:delete', 'row', 2, 1, 1)
+('sys_material', 'add', '新增', 'button', 'PlusOutlined', 'wms:base:material:add', 'toolbar', 1, 1, 1, 1),
+('sys_material', 'edit', '编辑', 'button', 'EditOutlined', 'wms:base:material:edit', 'toolbar', 2, 1, 1, 1),
+('sys_material', 'delete', '删除', 'button', 'DeleteOutlined', 'wms:base:material:delete', 'toolbar', 3, 1, 1, 1),
+('sys_material', 'export', '导出', 'button', 'DownloadOutlined', 'wms:base:material:export', 'toolbar', 4, 1, 1, 1),
+('sys_material', 'row_edit', '编辑', 'link', 'EditOutlined', 'wms:base:material:edit', 'row', 1, 1, 1, 1),
+('sys_material', 'row_read', '查看', 'link', 'EyeOutlined', 'wms:base:material:query', 'row', 2, 1, 1, 1),
+('sys_material', 'row_delete', '删除', 'link', 'DeleteOutlined', 'wms:base:material:delete', 'row', 3, 1, 1, 1)
 ON DUPLICATE KEY UPDATE
     operation_name = VALUES(operation_name),
     icon = VALUES(icon),
     permission = VALUES(permission),
     position = VALUES(position),
-    sort_order = VALUES(sort_order);
+    sort_order = VALUES(sort_order),
+    show_button = VALUES(show_button);
 
 -- ============================================
 -- 验证查询
