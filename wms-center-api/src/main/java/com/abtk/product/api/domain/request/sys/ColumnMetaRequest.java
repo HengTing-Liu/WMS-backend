@@ -66,4 +66,6 @@ public class ColumnMetaRequest implements Serializable {
     private String refTargetField;
     @Schema(description = "当前表外键字段(snake_case)，为空时默认取 field 自身")
     private String refLocalField;
+    @Schema(description = "虚拟列多字段拼接分隔符，仅多字段场景生效，空值时后端兜底为 ❤，长度 1-4")
+    private String refSeparator;
 }

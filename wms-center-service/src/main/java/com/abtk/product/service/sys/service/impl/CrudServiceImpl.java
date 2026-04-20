@@ -169,9 +169,10 @@ public class CrudServiceImpl implements CrudService {
         if (hasLookup) {
             LookupSqlBuilder.VirtualParamHolder virtual = lookupSqlBuilder.splitVirtualParams(filteredParams, lookups);
             Map<String, String> virtualQueryModes = extractVirtualQueryModes(queryModes, virtual.getValues().keySet());
+            Map<String, String> separatorParams = lookupSqlBuilder.buildSeparatorParams(lookups);
             list = dynamicMapper.selectListJoined(tableCode, lookups, filteredParams, queryModes,
                     virtual.getValues(), virtual.getSqlExpressions(), virtualQueryModes,
-                    deleteColumn, dataScope);
+                    separatorParams, deleteColumn, dataScope);
         } else {
             list = dynamicMapper.selectList(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
         }
@@ -222,9 +223,10 @@ public class CrudServiceImpl implements CrudService {
         if (lookups != null && !lookups.isEmpty()) {
             LookupSqlBuilder.VirtualParamHolder virtual = lookupSqlBuilder.splitVirtualParams(filteredParams, lookups);
             Map<String, String> virtualQueryModes = extractVirtualQueryModes(queryModes, virtual.getValues().keySet());
+            Map<String, String> separatorParams = lookupSqlBuilder.buildSeparatorParams(lookups);
             rawList = dynamicMapper.selectAllJoined(tableCode, lookups, filteredParams, queryModes,
                     virtual.getValues(), virtual.getSqlExpressions(), virtualQueryModes,
-                    deleteColumn, dataScope);
+                    separatorParams, deleteColumn, dataScope);
         } else {
             rawList = dynamicMapper.selectAll(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
         }
@@ -248,7 +250,8 @@ public class CrudServiceImpl implements CrudService {
         List<LookupColumn> lookups = lookupSqlBuilder.buildForTable(tableCode);
         Map<String, Object> result;
         if (lookups != null && !lookups.isEmpty()) {
-            result = dynamicMapper.selectByIdJoined(tableCode, lookups, pkColumn, id);
+            Map<String, String> separatorParams = lookupSqlBuilder.buildSeparatorParams(lookups);
+            result = dynamicMapper.selectByIdJoined(tableCode, lookups, separatorParams, pkColumn, id);
         } else {
             result = dynamicMapper.selectByIdWithColumn(tableCode, pkColumn, id);
         }
@@ -391,9 +394,10 @@ public class CrudServiceImpl implements CrudService {
         if (exportLookups != null && !exportLookups.isEmpty()) {
             LookupSqlBuilder.VirtualParamHolder virtual = lookupSqlBuilder.splitVirtualParams(filteredParams, exportLookups);
             Map<String, String> virtualQueryModes = extractVirtualQueryModes(queryModes, virtual.getValues().keySet());
+            Map<String, String> separatorParams = lookupSqlBuilder.buildSeparatorParams(exportLookups);
             dataList = dynamicMapper.selectAllJoined(tableCode, exportLookups, filteredParams, queryModes,
                     virtual.getValues(), virtual.getSqlExpressions(), virtualQueryModes,
-                    deleteColumn, dataScope);
+                    separatorParams, deleteColumn, dataScope);
         } else {
             dataList = dynamicMapper.selectAll(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
         }

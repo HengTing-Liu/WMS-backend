@@ -47,6 +47,9 @@ public class LookupSqlBuilder {
     /** 约定：所有表逻辑删除列 */
     private static final String DEFAULT_DELETE_COLUMN = "is_deleted";
 
+    /** WMS-LOWCODE-LOOKUP-SEP：分隔符长度上限（与 sys_column_meta.ref_separator VARCHAR(16) 比，保守取 4） */
+    private static final int SEPARATOR_MAX_LENGTH = 4;
+
     /** 驼峰转 snake_case 用 */
     private static final Pattern CAMEL_PATTERN = Pattern.compile("([a-z0-9])([A-Z])");
 
@@ -199,6 +202,21 @@ public class LookupSqlBuilder {
 
         String joinAlias = JOIN_ALIAS_PREFIX + aliasIdx;
 
+        // WMS-LOWCODE-LOOKUP-SEP：读取自定义分隔符，null/空 → ❤；长度限制 1–4
+        String separator = col.getRefSeparator();
+        if (separator != null) {
+            // 显式空串也视为走默认
+            if (separator.isEmpty()) {
+                separator = null;
+            } else if (separator.length() > SEPARATOR_MAX_LENGTH) {
+                throw new ServiceException("refSeparator 长度超过 " + SEPARATOR_MAX_LENGTH
+                        + " 个字符: field=" + col.getField());
+            }
+        }
+        if (separator == null) {
+            separator = LookupColumn.CONCAT_SEPARATOR;
+        }
+
         return new LookupColumn(
                 joinAlias,
                 refTable,
@@ -207,8 +225,27 @@ public class LookupSqlBuilder {
                 targetFields,
                 aliasField,
                 DEFAULT_DELETE_COLUMN,
-                col.getField()
+                col.getField(),
+                separator
         );
+    }
+
+    /**
+     * 构造 separatorParams Map，供 DynamicMapper joined 查询透传。
+     * <p>key = {@link LookupColumn#getSeparatorParamKey()}，value = 分隔符字面值。
+     * 分隔符通过 MyBatis {@code #{}} 参数化传递，与 SQL 字面量分离，无注入风险。</p>
+     */
+    public Map<String, String> buildSeparatorParams(List<LookupColumn> lookups) {
+        Map<String, String> params = new HashMap<>();
+        if (lookups == null || lookups.isEmpty()) {
+            return params;
+        }
+        for (LookupColumn lk : lookups) {
+            // 无论是否 concat，都填一条；单字段不会在 SQL 里引用，也不会浪费（PreparedStatement 不绑定未使用参数）
+            params.put(lk.getSeparatorParamKey(),
+                    lk.getSeparator() == null ? LookupColumn.CONCAT_SEPARATOR : lk.getSeparator());
+        }
+        return params;
     }
 
     /** 如果关联表已在 sys_column_meta 中配置过字段，则必须命中其中之一 */

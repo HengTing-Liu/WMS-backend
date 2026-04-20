@@ -109,4 +109,7 @@ public class ColumnMetaVO {
 
     @Schema(description = "当前表外键字段(snake_case)，为空时默认取 code 自身")
     private String refLocalField;
+
+    @Schema(description = "虚拟列多字段拼接分隔符，空值时默认 ❤")
+    private String refSeparator;
 }

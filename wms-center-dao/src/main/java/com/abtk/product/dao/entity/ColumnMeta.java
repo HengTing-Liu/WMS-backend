@@ -157,6 +157,13 @@ public class ColumnMeta extends BaseEntity {
     /** 当前表外键字段(snake_case)，为空时默认取 field 自身 */
     private String refLocalField;
 
+    /**
+     * 虚拟列多字段拼接分隔符（WMS-LOWCODE-LOOKUP-SEP）
+     * <p>仅当 refTargetField 含多字段（逗号分隔）时生效；NULL 或空串时运行时兜底为 ❤。
+     * 长度限制 1–4 字符，由 service 层 LookupSqlBuilder 校验，传值使用 MyBatis 参数化防止注入。</p>
+     */
+    private String refSeparator;
+
     // 代码生成器适配方法（兼容 common.generator.ColumnMeta）
     public String getJavaType() {
         return mapDataTypeToJavaType(dataType);

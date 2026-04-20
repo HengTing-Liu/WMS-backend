@@ -451,6 +451,7 @@ public class MetaServiceImpl implements MetaService {
                 .refMatchField(col.getRefMatchField())
                 .refTargetField(col.getRefTargetField())
                 .refLocalField(col.getRefLocalField())
+                .refSeparator(col.getRefSeparator())
                 .build();
         }).collect(java.util.stream.Collectors.toList());
     }

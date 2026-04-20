@@ -80,6 +80,7 @@ public interface DynamicMapper {
                                                @Param("virtualValues") Map<String, Object> virtualValues,
                                                @Param("virtualExpressions") Map<String, String> virtualExpressions,
                                                @Param("virtualQueryModes") Map<String, String> virtualQueryModes,
+                                               @Param("separatorParams") Map<String, String> separatorParams,
                                                @Param("deleteColumn") String deleteColumn,
                                                @Param("dataScope") String dataScope);
 
@@ -93,6 +94,7 @@ public interface DynamicMapper {
                                               @Param("virtualValues") Map<String, Object> virtualValues,
                                               @Param("virtualExpressions") Map<String, String> virtualExpressions,
                                               @Param("virtualQueryModes") Map<String, String> virtualQueryModes,
+                                              @Param("separatorParams") Map<String, String> separatorParams,
                                               @Param("deleteColumn") String deleteColumn,
                                               @Param("dataScope") String dataScope);
 
@@ -101,6 +103,7 @@ public interface DynamicMapper {
      */
     Map<String, Object> selectByIdJoined(@Param("tableCode") String tableCode,
                                          @Param("lookups") List<com.abtk.product.dao.support.lookup.LookupColumn> lookups,
+                                         @Param("separatorParams") Map<String, String> separatorParams,
                                          @Param("pkColumn") String pkColumn,
                                          @Param("pkValue") Long pkValue);
 
