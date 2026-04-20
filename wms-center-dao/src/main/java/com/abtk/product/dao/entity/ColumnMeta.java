@@ -164,6 +164,23 @@ public class ColumnMeta extends BaseEntity {
      */
     private String refSeparator;
 
+    // Lookup 字段的 setter（显式声明，避免 MyBatis 反射问题）
+    public void setRefTableCode(String refTableCode) {
+        this.refTableCode = refTableCode;
+    }
+
+    public void setRefMatchField(String refMatchField) {
+        this.refMatchField = refMatchField;
+    }
+
+    public void setRefTargetField(String refTargetField) {
+        this.refTargetField = refTargetField;
+    }
+
+    public void setRefLocalField(String refLocalField) {
+        this.refLocalField = refLocalField;
+    }
+
     // 代码生成器适配方法（兼容 common.generator.ColumnMeta）
     public String getJavaType() {
         return mapDataTypeToJavaType(dataType);
