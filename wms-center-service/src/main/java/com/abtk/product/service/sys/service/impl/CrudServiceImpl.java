@@ -18,6 +18,7 @@ import com.abtk.product.service.security.utils.SecurityUtils;
 import com.abtk.product.service.sys.service.CrudService;
 import com.abtk.product.service.sys.service.lookup.LookupSqlBuilder;
 import com.abtk.product.service.system.service.I18nService;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -145,7 +146,19 @@ public class CrudServiceImpl implements CrudService {
                 ? buildOrderByClauseJoined(params, lookups)
                 : buildOrderByClause(params);
         if (StringUtils.isNotEmpty(orderByClause)) {
-            PageHelper.startPage(pageNum, pageSize, orderByClause);
+            if (hasLookup) {
+                // WMS-LOWCODE-LOOKUP-DEDUP 补丁 2：
+                // 虚拟列 clause 是相关子查询表达式（含括号/引号/等号/中文心形分隔符），
+                // PageHelper 5.3.2 默认会触发 SQL 注入检查并抛出 "存在 SQL 注入风险"。
+                // 本分支的 clause 由 LookupSqlBuilder + buildOrderByClauseJoined 构造：
+                //   - 虚拟列：动态片段均经 SqlInjectionValidator 严格白名单校验，其余为固定字面量
+                //   - 主表列：clause 仍经 SqlUtil.escapeOrderBySql 过滤
+                // 因此使用 setUnsafeOrderBy 跳过 PageHelper 的内置检查是安全的。
+                Page<?> page = PageHelper.startPage(pageNum, pageSize);
+                page.setUnsafeOrderBy(orderByClause);
+            } else {
+                PageHelper.startPage(pageNum, pageSize, orderByClause);
+            }
         } else {
             PageHelper.startPage(pageNum, pageSize);
         }
@@ -586,8 +599,29 @@ public class CrudServiceImpl implements CrudService {
         if (!SAFE_FIELD_PATTERN.matcher(sqlOrderField).matches()) {
             throw new ServiceException("排序字段不合法: " + orderByColumn);
         }
+        String direction = normalizeSortDirection(params.get("isAsc"));
+
+        // WMS-LOWCODE-LOOKUP-DEDUP：判断是否命中虚拟列，命中则直接用已校验的子查询表达式，
+        // 不走 SqlUtil.escapeOrderBySql（那个工具的白名单拒绝括号/等号/引号，子查询天然无法通过）。
+        // 安全保障：LookupColumn.getSqlExpression() 的所有动态片段都已在 LookupSqlBuilder.buildOne 里
+        // 经过 SqlInjectionValidator + SAFE_FIELD_PATTERN 双重校验，其余为固定字面量，无注入点。
+        boolean isVirtualColumn = false;
+        if (lookups != null) {
+            for (LookupColumn lk : lookups) {
+                if (lk.getAliasField().equalsIgnoreCase(sqlOrderField)) {
+                    isVirtualColumn = true;
+                    break;
+                }
+            }
+        }
+        if (isVirtualColumn) {
+            String expression = lookupSqlBuilder.resolveOrderByExpression(sqlOrderField, lookups);
+            return expression + " " + direction;
+        }
+
+        // 主表列：继续走原有 SqlUtil 防御
         String expression = lookupSqlBuilder.resolveOrderByExpression(sqlOrderField, lookups);
-        String orderByClause = expression + " " + normalizeSortDirection(params.get("isAsc"));
+        String orderByClause = expression + " " + direction;
         return SqlUtil.escapeOrderBySql(orderByClause);
     }
 

@@ -27,7 +27,9 @@ public class SqlInjectionValidator {
             // 仓库相关表（inv_ 前缀）
             "inv_warehouse", "inv_warehouse_receiver", "inv_location", "inv_location_type_config",
             // 低代码动态业务表
-            "inv_material", "inv_batch", "sys_basic_data", "sys_material_category"
+            "inv_material", "inv_batch", "sys_basic_data", "sys_material_category",
+            // 系统流水号表
+            "sys_serial_number"
     ));
 
     /** 允许访问的字段名白名单 */

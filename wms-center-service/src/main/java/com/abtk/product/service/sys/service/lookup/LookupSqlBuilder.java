@@ -162,7 +162,7 @@ public class LookupSqlBuilder {
     private LookupColumn buildOne(ColumnMeta col, int aliasIdx) {
         String refTable = col.getRefTableCode().trim();
         String matchField = col.getRefMatchField().trim();
-        String targetField = col.getRefTargetField().trim();
+        String rawTargetField = col.getRefTargetField().trim();
         String localField = isNotBlank(col.getRefLocalField())
                 ? col.getRefLocalField().trim()
                 : camelToSnake(col.getField());
@@ -173,12 +173,25 @@ public class LookupSqlBuilder {
 
         // 字段级格式校验（强制）
         SqlInjectionValidator.validateFieldFormat(matchField);
-        SqlInjectionValidator.validateFieldFormat(targetField);
         SqlInjectionValidator.validateFieldFormat(localField);
+
+        // WMS-LOWCODE-LOOKUP-CONCAT：支持多字段拼接，按逗号拆分并逐个校验
+        List<String> targetFields = new ArrayList<>();
+        for (String part : rawTargetField.split(",")) {
+            String trimmed = part == null ? "" : part.trim();
+            if (trimmed.isEmpty()) {
+                continue;
+            }
+            SqlInjectionValidator.validateFieldFormat(trimmed);
+            assertRefFieldConfigured(refTable, trimmed, "refTargetField");
+            targetFields.add(trimmed);
+        }
+        if (targetFields.isEmpty()) {
+            throw new ServiceException("refTargetField 不能为空: field=" + col.getField());
+        }
 
         // 字段级存在性校验（软约束：若关联表在 sys_column_meta 中已有配置，则强制命中）
         assertRefFieldConfigured(refTable, matchField, "refMatchField");
-        assertRefFieldConfigured(refTable, targetField, "refTargetField");
 
         // 别名 = column_meta.field 转 snake
         String aliasField = camelToSnake(col.getField());
@@ -191,7 +204,7 @@ public class LookupSqlBuilder {
                 refTable,
                 localField,
                 matchField,
-                targetField,
+                targetFields,
                 aliasField,
                 DEFAULT_DELETE_COLUMN,
                 col.getField()

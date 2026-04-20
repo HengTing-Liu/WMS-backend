@@ -170,16 +170,22 @@
 
     <!--
     ========================================================================
-    Lookup 虚拟列 JOIN 查询（WMS-LOWCODE-LOOKUP）
+    Lookup 虚拟列查询（WMS-LOWCODE-LOOKUP + WMS-LOWCODE-LOOKUP-DEDUP）
     ========================================================================
     安全：所有 ${} 占位符的值都来自已校验的 LookupColumn / SqlInjectionValidator 通过的字段。
-    结构：
-      SELECT m.*, j1.target_field AS alias_field, ...
+
+    实现策略：<b>相关子查询 + LIMIT 1</b>（而非 LEFT JOIN），确保主表行数不会因关联
+    表一对多匹配而膨胀。LookupColumn.getSqlExpression() 负责输出：
+      (SELECT j.target_field FROM ref_table j WHERE j.match = m.local AND j.is_deleted = 0 LIMIT 1)
+    或（多字段拼接）：
+      (SELECT CONCAT_WS('❤', j.f1, j.f2) FROM ref_table j WHERE ... LIMIT 1)
+
+    SQL 骨架：
+      SELECT m.*, <子查询> AS alias_field, ...
       FROM ${tableCode} m
-      LEFT JOIN ${refTable} j1 ON m.${localField} = j1.${matchField} AND j1.${deleteColumn} = 0
       WHERE m.${deleteColumn} = 0
         AND (主表参数)
-        AND (虚拟列参数)
+        AND (<子查询> LIKE '%xx%')
         AND (dataScope)
     -->
 
@@ -187,19 +193,13 @@
         m.*
         <if test="lookups != null and lookups.size > 0">
             <foreach collection="lookups" item="lk">
-                , ${lk.joinAlias}.${lk.targetField} AS ${lk.aliasField}
+                , ${lk.sqlExpression} AS ${lk.aliasField}
             </foreach>
         </if>
     </sql>
 
+    <!-- 保留空片段：历史已 include 的三个查询无需再改 -->
     <sql id="lookupJoinClauses">
-        <if test="lookups != null and lookups.size > 0">
-            <foreach collection="lookups" item="lk">
-                LEFT JOIN ${lk.refTable} ${lk.joinAlias}
-                    ON m.${lk.localField} = ${lk.joinAlias}.${lk.matchField}
-                   AND ${lk.joinAlias}.${lk.deleteColumn} = 0
-            </foreach>
-        </if>
     </sql>
 
     <sql id="lookupMainWhere">
