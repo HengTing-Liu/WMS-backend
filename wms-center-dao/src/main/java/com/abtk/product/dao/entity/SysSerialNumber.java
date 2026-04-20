@@ -95,6 +95,13 @@ public class SysSerialNumber extends BaseEntity {
     private Integer isEnabled;
 
     /**
+     * 应用表单字段（指定该流水号规则应用在哪个表单字段）
+     */
+    @Excel(name = "应用表单字段", type = Type.EXPORT)
+    @Schema(description = "应用表单字段")
+    private String applyFormField;
+
+    /**
      * 使用范围
      */
     @Excel(name = "使用范围", type = Type.EXPORT)
@@ -192,6 +199,14 @@ public class SysSerialNumber extends BaseEntity {
 
     public void setIsEnabled(Integer isEnabled) {
         this.isEnabled = isEnabled;
+    }
+
+    public String getApplyFormField() {
+        return applyFormField;
+    }
+
+    public void setApplyFormField(String applyFormField) {
+        this.applyFormField = applyFormField;
     }
 
     public String getUsageScope() {

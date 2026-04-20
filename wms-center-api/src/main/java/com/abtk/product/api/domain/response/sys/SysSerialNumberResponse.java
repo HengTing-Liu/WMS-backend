@@ -50,6 +50,9 @@ public class SysSerialNumberResponse extends BaseResponse {
     @Schema(description = "状态：0-启用, 1-停用")
     private String status;
 
+    @Schema(description = "应用表单字段")
+    private String applyFormField;
+
     @Schema(description = "描述")
     private String description;
 }
