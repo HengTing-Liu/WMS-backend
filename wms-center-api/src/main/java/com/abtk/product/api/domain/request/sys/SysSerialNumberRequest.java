@@ -80,6 +80,12 @@ public class SysSerialNumberRequest extends BaseRequest {
     private String status;
 
     /**
+     * 应用表单字段
+     */
+    @Schema(description = "应用表单字段")
+    private String applyFormField;
+
+    /**
      * 描述
      */
     @Schema(description = "描述")

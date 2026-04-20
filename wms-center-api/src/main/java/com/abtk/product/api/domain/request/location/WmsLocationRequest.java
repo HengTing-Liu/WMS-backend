@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import com.abtk.product.api.domain.request.validation.AddGroup;
 import javax.validation.constraints.NotBlank;
 
 /**
@@ -45,7 +46,7 @@ public class WmsLocationRequest extends BaseRequest {
     /**
      * 库位类型名称
      */
-    @NotBlank(message = "库位类型不能为空")
+    @NotBlank(message = "库位类型不能为空", groups = AddGroup.class)
     @Excel(name = "库位类型", type = Type.ALL)
     @Schema(description = "库位类型名称（如：冰箱/层/架/行/盒/箱/孔等）")
     private String locationType;

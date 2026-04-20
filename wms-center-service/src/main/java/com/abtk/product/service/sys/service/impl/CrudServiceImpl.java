@@ -131,7 +131,13 @@ public class CrudServiceImpl implements CrudService {
         Map<String, String> queryModes = buildSafeQueryModes(rawQueryModes, filteredParams.keySet());
         // 闂佽桨鑳舵晶妤€鐣垫笟鈧鍫曞礃椤旂瓔鈧瑦绻涙径鍫濆闁告瑥妫濋弫宥夊醇閵忥紕鍑介梺瑙勪航閸庝即骞堥妸鈺佺哗?filteredParams闂佹寧绋戦張顒勫极閻愬搫绀?dataScope raw SQL 闂佺粯顨呭ú锕傤敊瀹€鍕櫖?
         CrudPermissionUtil.injectDataScope(filteredParams);
-        PageHelper.startPage(pageNum, pageSize);
+        String orderByColumn = params != null ? (String) params.get("orderByColumn") : null;
+        String isAsc = params != null ? (String) params.get("isAsc") : null;
+        String orderBy = "";
+        if (StringUtils.isNotEmpty(orderByColumn)) {
+            orderBy = StringUtils.toUnderScoreCase(orderByColumn) + " " + (StringUtils.isNotEmpty(isAsc) ? isAsc : "asc");
+        }
+        PageHelper.startPage(pageNum, pageSize, orderBy);
         String deleteColumn = getDeleteColumn(tableCode);
         String dataScope = (String) filteredParams.remove("dataScope");
         List<Map<String, Object>> list = dynamicMapper.selectList(tableCode, filteredParams, queryModes, deleteColumn, dataScope);

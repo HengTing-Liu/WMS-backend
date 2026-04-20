@@ -2,6 +2,7 @@ package com.abtk.product.web.controller.location;
 
 import com.abtk.product.api.domain.request.location.WmsLocationBatchCreateRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationBatchRequest;
+import com.abtk.product.api.domain.request.location.WmsLocationHierarchyCreateRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationTreeRequest;
 import com.abtk.product.api.domain.request.location.LocationImportRequest;
@@ -30,6 +31,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import org.springframework.validation.annotation.Validated;
+import com.abtk.product.api.domain.request.validation.AddGroup;
 import com.abtk.product.api.domain.request.location.AssignWarehouseRequest;
 import java.io.IOException;
 import java.util.Date;
@@ -94,7 +97,7 @@ public class WmsLocationController extends BaseController {
     @PostMapping({"/add", ""})
     @RequiresPermissions("wms:base:location:add")
     @Operation(summary = "新增库位", description = "新增单个库位档案")
-    public R<WmsLocationResponse> add(@Valid @RequestBody WmsLocationRequest request) {
+    public R<WmsLocationResponse> add(@Validated(AddGroup.class) @RequestBody WmsLocationRequest request) {
         return wmsLocationBiz.add(request);
     }
 
@@ -187,6 +190,16 @@ public class WmsLocationController extends BaseController {
     @Operation(summary = "批量创建库位", description = "根据模板批量生成库位结构，如冰箱-层-架-行-盒-孔")
     public R<List<WmsLocationResponse>> batchCreate(@Valid @RequestBody WmsLocationBatchCreateRequest request) {
         return wmsLocationBiz.batchCreate(request);
+    }
+
+    /**
+     * 层级批量创建（支持多级分区 + 容器 + 孔位）
+     */
+    @PostMapping("/batch-create-hierarchy")
+    @RequiresPermissions("wms:base:location:add")
+    @Operation(summary = "层级批量创建库位", description = "支持多级分区、容器、孔位一次性批量创建")
+    public R<List<WmsLocationResponse>> batchCreateHierarchy(@Valid @RequestBody WmsLocationHierarchyCreateRequest request) {
+        return wmsLocationBiz.batchCreateHierarchy(request);
     }
 
     // ==================== 树形结构接口 ====================

@@ -2,8 +2,11 @@ package com.abtk.product.biz.location;
 
 import com.abtk.product.api.domain.request.location.AssignWarehouseRequest;
 import com.abtk.product.api.domain.request.location.LocationImportRequest;
+import com.abtk.product.api.domain.request.location.ContainerConfig;
+import com.abtk.product.api.domain.request.location.LevelConfig;
 import com.abtk.product.api.domain.request.location.WmsLocationBatchCreateRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationBatchRequest;
+import com.abtk.product.api.domain.request.location.WmsLocationHierarchyCreateRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationRequest;
 import com.abtk.product.api.domain.request.location.WmsLocationTreeRequest;
 import com.abtk.product.api.domain.response.location.AssignWarehouseInitResponse;
@@ -26,6 +29,8 @@ import com.abtk.product.service.redis.service.RedisService;
 import com.abtk.product.service.security.utils.SecurityUtils;
 import com.abtk.product.service.sys.service.WarehouseService;
 import com.abtk.product.biz.system.SysSerialNumberBiz;
+import com.abtk.product.dao.entity.SysDictData;
+import com.abtk.product.service.system.ISysDictTypeService;
 import com.abtk.product.service.system.service.I18nService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,6 +45,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -71,10 +77,55 @@ public class WmsLocationBiz {
     @Autowired
     private SysSerialNumberBiz sysSerialNumberBiz;
 
+    @Autowired
+    private ISysDictTypeService dictTypeService;
+
     private static final String CACHE_KEY_PREFIX = "wms:location:";
     private static final String CACHE_KEY_TREE = CACHE_KEY_PREFIX + "tree:";
     private static final String CACHE_KEY_OCCUPANCY = CACHE_KEY_PREFIX + "occupancy:";
     private static final long CACHE_EXPIRE_MINUTES = 30;
+
+    // 字典类型 -> locationGrade 映射
+    private static final Map<String, String> DICT_TYPE_TO_GRADE = new HashMap<>();
+    static {
+        DICT_TYPE_TO_GRADE.put("location_type_for_object", "存储对象");
+        DICT_TYPE_TO_GRADE.put("location_type_for_section", "存储分区");
+        DICT_TYPE_TO_GRADE.put("location_type_for_container", "存储容器");
+    }
+
+    // 缓存：dictLabel -> locationGrade
+    private volatile Map<String, String> locationTypeGradeCache;
+
+    /**
+     * 从字典加载 locationType -> locationGrade 映射缓存
+     */
+    private Map<String, String> getLocationTypeGradeCache() {
+        if (locationTypeGradeCache != null) {
+            return locationTypeGradeCache;
+        }
+        synchronized (this) {
+            if (locationTypeGradeCache != null) {
+                return locationTypeGradeCache;
+            }
+            Map<String, String> cache = new HashMap<>();
+            for (Map.Entry<String, String> entry : DICT_TYPE_TO_GRADE.entrySet()) {
+                String dictType = entry.getKey();
+                String grade = entry.getValue();
+                List<SysDictData> list = dictTypeService.selectDictDataByType(dictType);
+                if (list != null) {
+                    for (SysDictData d : list) {
+                        if (d.getDictLabel() != null) {
+                            cache.put(d.getDictLabel().trim(), grade);
+                        }
+                    }
+                }
+            }
+            // 孔位固定映射
+            cache.put("孔", "存储孔位");
+            locationTypeGradeCache = cache;
+            return locationTypeGradeCache;
+        }
+    }
 
     // 缓存空值的过期时间（分钟）- 用于防止缓存穿透
     private static final long CACHE_NULL_EXPIRE_MINUTES = 5;
@@ -219,9 +270,11 @@ public class WmsLocationBiz {
             // 因为需要用户指定规格，且可能同时创建多个容器
         }
 
-        // 如果修改了名称，需要更新全路径名称
+        // 如果修改了名称，需要更新全路径名称，并级联更新所有子节点的 parentName 和 locationFullpathName
         if (request.getLocationName() != null && !request.getLocationName().equals(existing.getLocationName())) {
-            request.setLocationFullpathName(generateFullpathName(request, existing.getParentName()));
+            String newFullpathName = generateFullpathName(request, existing.getParentName());
+            request.setLocationFullpathName(newFullpathName);
+            cascadeUpdateChildrenName(existing.getId(), request.getLocationName(), newFullpathName);
         }
 
         WmsLocation entity = WmsLocationConverter.INSTANCE.requestToEntity(request);
@@ -599,6 +652,7 @@ public class WmsLocationBiz {
         int levelCount = parent != null ? parent.getLocationLevelCount() : 5;
         String warehouseCode = parent != null ? parent.getWarehouseCode() : request.getWarehouseCode();
         String parentName = parent != null ? parent.getLocationName() : null;
+        String parentFullpathName = parent != null ? parent.getLocationFullpathName() : null;
         String parentSortNo = parent != null ? parent.getLocationSortNo() : "L";
 
         for (int i = 0; i < request.getQuantity(); i++) {
@@ -622,7 +676,7 @@ public class WmsLocationBiz {
 
             entity.setLocationName(namePrefix + serialNo);
             entity.setLocationSortNo(parentSortNo + String.format("%04d", serialNo));
-            entity.setLocationFullpathName(buildFullpathName(namePrefix + serialNo, parentName));
+            entity.setLocationFullpathName(buildFullpathName(namePrefix + serialNo, parentFullpathName));
 
             // 设置系统字段
             entity.setCreateBy(currentUser);
@@ -634,11 +688,6 @@ public class WmsLocationBiz {
         }
 
         wmsLocationService.insertBatchAtomic(entityList);
-
-        // 🔴 新增：更新父节点的 internal_quantity
-        if (parent != null) {
-            wmsLocationService.updateInternalQuantity(parent.getId(), request.getQuantity());
-        }
 
         // 如果需要同时创建子节点
         if (Boolean.TRUE.equals(request.getCreateChildren()) 
@@ -656,6 +705,223 @@ public class WmsLocationBiz {
                 .collect(Collectors.toList());
 
         return R.ok(responses, i18nService.getMessage("batch.create.success", entityList.size()));
+    }
+
+    /**
+     * 层级批量创建库位（支持多级分区 + 容器 + 孔位）
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public R<List<WmsLocationResponse>> batchCreateHierarchy(WmsLocationHierarchyCreateRequest request) {
+        WmsLocation parent = wmsLocationService.queryById(request.getParentId());
+        if (parent == null) {
+            return R.fail(i18nService.getMessage("wms.location.parent.not.found"));
+        }
+
+        String currentUser = SecurityUtils.getUsername();
+        Date now = new Date();
+        List<WmsLocation> allCreated = new ArrayList<>();
+
+        // 当前层级的父节点列表（从传入的parent开始）
+        List<WmsLocation> currentParents = new ArrayList<>();
+        currentParents.add(parent);
+
+        List<LevelConfig> levels = request.getLevels();
+        for (int levelIdx = 0; levelIdx < levels.size(); levelIdx++) {
+            LevelConfig levelConfig = levels.get(levelIdx);
+            List<WmsLocation> nextParents = new ArrayList<>();
+
+            for (WmsLocation p : currentParents) {
+                List<WmsLocation> created = createLevelNodes(
+                    p, levelConfig, levelIdx, levels.size(), currentUser, now
+                );
+                nextParents.addAll(created);
+                allCreated.addAll(created);
+            }
+
+            currentParents = nextParents;
+        }
+
+        // 最底层分区下创建容器 + 孔位
+        ContainerConfig containerConfig = request.getContainer();
+        if (containerConfig != null && !currentParents.isEmpty()) {
+            for (WmsLocation p : currentParents) {
+                List<WmsLocation> containers = createContainers(
+                    p, containerConfig, currentUser, now
+                );
+                allCreated.addAll(containers);
+
+                // 为每个容器创建孔位
+                if (containerConfig.getChildrenQuantity() != null
+                        && containerConfig.getChildrenQuantity() > 0) {
+                    for (WmsLocation container : containers) {
+                        List<WmsLocation> positions = createContainerPositions(
+                            container, containerConfig, currentUser, now
+                        );
+                        allCreated.addAll(positions);
+                    }
+                }
+            }
+        }
+
+        clearLocationCache();
+
+        // 只返回最外层创建的节点（分区层）作为响应
+        List<WmsLocationResponse> responses = allCreated.stream()
+                .filter(e -> e.getLocationGrade() != null
+                        && (e.getLocationGrade().equals("StorageSection") || e.getLocationGrade().equals("存储分区")))
+                .map(WmsLocationConverter.INSTANCE::entityToResponseWithOccupancy)
+                .collect(Collectors.toList());
+
+        return R.ok(responses, i18nService.getMessage("batch.create.success", allCreated.size()));
+    }
+
+    /**
+     * 创建一层分区节点
+     */
+    private List<WmsLocation> createLevelNodes(WmsLocation parent, LevelConfig config,
+                                                int levelIdx, int totalLevels,
+                                                String currentUser, Date now) {
+        List<WmsLocation> list = new ArrayList<>();
+        int level = parent.getLocationLevel() + 1;
+        String parentSortNo = parent.getLocationSortNo() != null ? parent.getLocationSortNo() : "L";
+        String parentName = parent.getLocationName();
+        String locationType = config.getLocationType();
+        String locationGrade = determineLocationGrade(locationType);
+        int quantity = config.getQuantity();
+        int defaultStart = config.getStartSerialNo() != null ? config.getStartSerialNo() : 1;
+        int startSerial = getNextSerialNo(parent.getId(), defaultStart);
+
+        for (int i = 0; i < quantity; i++) {
+            int serialNo = startSerial + i;
+            WmsLocation entity = new WmsLocation();
+            entity.setParentId(parent.getId());
+            entity.setLocationGrade(locationGrade);
+            entity.setLocationType(locationType);
+            entity.setLocationLevel(level);
+            entity.setLocationLevelCount(parent.getLocationLevelCount());
+            entity.setInternalSerialNo(serialNo);
+            entity.setInternalQuantity(quantity);
+            entity.setWarehouseCode(parent.getWarehouseCode());
+            entity.setParentName(parentName);
+            entity.setIsUse(0);
+            entity.setIsDeleted(0);
+            entity.setCreateBy(currentUser);
+            entity.setCreateTime(now);
+            entity.setUpdateBy(currentUser);
+            entity.setUpdateTime(now);
+
+            String name = locationType + serialNo;
+            entity.setLocationName(name);
+            entity.setLocationSortNo(parentSortNo + String.format("%04d", serialNo));
+            entity.setLocationFullpathName(buildFullpathName(name, parent.getLocationFullpathName()));
+
+            list.add(entity);
+        }
+
+        wmsLocationService.insertBatchAtomic(list);
+
+        return list;
+    }
+
+    /**
+     * 创建存储容器节点
+     */
+    private List<WmsLocation> createContainers(WmsLocation parent, ContainerConfig config,
+                                                String currentUser, Date now) {
+        List<WmsLocation> list = new ArrayList<>();
+        int level = parent.getLocationLevel() + 1;
+        String parentSortNo = parent.getLocationSortNo() != null ? parent.getLocationSortNo() : "L";
+        String parentName = parent.getLocationName();
+        String locationType = config.getLocationType();
+        int quantity = config.getQuantity();
+        int startSerial = getNextSerialNo(parent.getId(), 1);
+
+        for (int i = 0; i < quantity; i++) {
+            int serialNo = startSerial + i;
+            WmsLocation entity = new WmsLocation();
+            entity.setParentId(parent.getId());
+            entity.setLocationGrade("存储容器");
+            entity.setLocationType(locationType);
+            entity.setLocationLevel(level);
+            entity.setLocationLevelCount(parent.getLocationLevelCount());
+            entity.setInternalSerialNo(serialNo);
+            entity.setInternalQuantity(quantity);
+            entity.setWarehouseCode(parent.getWarehouseCode());
+            entity.setParentName(parentName);
+            String storageMode = "1x1".equals(config.getSpecification()) ? "Shared" : "Exclusive";
+            entity.setStorageMode(storageMode);
+            entity.setSpecification(config.getSpecification());
+            entity.setIsUse(0);
+            entity.setIsDeleted(0);
+            entity.setCreateBy(currentUser);
+            entity.setCreateTime(now);
+            entity.setUpdateBy(currentUser);
+            entity.setUpdateTime(now);
+
+            String name = locationType + serialNo;
+            entity.setLocationName(name);
+            entity.setLocationSortNo(parentSortNo + String.format("%04d", serialNo));
+            entity.setLocationFullpathName(buildFullpathName(name, parent.getLocationFullpathName()));
+
+            list.add(entity);
+        }
+
+        wmsLocationService.insertBatchAtomic(list);
+
+        return list;
+    }
+
+    /**
+     * 创建存储孔位节点
+     */
+    private List<WmsLocation> createContainerPositions(WmsLocation parent, ContainerConfig config,
+                                                        String currentUser, Date now) {
+        List<WmsLocation> list = new ArrayList<>();
+        int level = parent.getLocationLevel() + 1;
+        String parentSortNo = parent.getLocationSortNo() != null ? parent.getLocationSortNo() : "L";
+        String parentName = parent.getLocationName();
+        String specification = config.getSpecification();
+        int cols = parseSpecCols(specification);
+        int total = config.getChildrenQuantity();
+        String childrenType = config.getChildrenType() != null ? config.getChildrenType() : "孔";
+        int startSerial = getNextSerialNo(parent.getId(), 1);
+
+        for (int i = 0; i < total; i++) {
+            int serialNo = startSerial + i;
+            WmsLocation child = new WmsLocation();
+            child.setParentId(parent.getId());
+            child.setLocationGrade("存储孔位");
+            child.setLocationType(childrenType);
+            child.setLocationLevel(level);
+            child.setLocationLevelCount(parent.getLocationLevelCount());
+            child.setInternalSerialNo(serialNo);
+            child.setInternalQuantity(total);
+            child.setWarehouseCode(parent.getWarehouseCode());
+            child.setParentName(parentName);
+            child.setStorageMode("Exclusive");
+            child.setSpecification("1x1");
+            child.setIsUse(0);
+            child.setIsDeleted(0);
+            child.setCreateBy(currentUser);
+            child.setCreateTime(now);
+            child.setUpdateBy(currentUser);
+            child.setUpdateTime(now);
+
+            int rowIdx = i / cols;
+            int colIdx = i % cols;
+            char rowChar = (char) ('A' + rowIdx);
+            String colStr = String.format("%02d", colIdx + 1);
+            String positionNo = rowChar + colStr;
+
+            child.setLocationName(positionNo);
+            child.setLocationSortNo(parentSortNo + String.format("%04d", serialNo));
+            child.setLocationFullpathName(parent.getLocationFullpathName() + "_" + positionNo);
+
+            list.add(child);
+        }
+
+        wmsLocationService.insertBatchAtomic(list);
+        return list;
     }
 
     /**
@@ -944,15 +1210,15 @@ public class WmsLocationBiz {
         }
         // 否则根据父节点等级推断子节点等级
         if ("StorageType".equals(parentGrade) || "存储对象".equals(parentGrade)) {
-            return "StorageSection"; // 存储对象下的子节点 -> 存储分区
+            return "存储分区"; // 存储对象下的子节点 -> 存储分区
         }
         if ("StorageSection".equals(parentGrade) || "存储分区".equals(parentGrade)) {
-            return "Container"; // 存储分区下的子节点 -> 存储容器
+            return "存储容器"; // 存储分区下的子节点 -> 存储容器
         }
         if ("Container".equals(parentGrade) || "存储容器".equals(parentGrade)) {
-            return "ContainerPosition"; // 存储容器下的子节点 -> 孔位
+            return "存储孔位"; // 存储容器下的子节点 -> 孔位
         }
-        return "StorageSection"; // 默认存储分区
+        return "存储分区"; // 默认存储分区
     }
 
     /**
@@ -980,7 +1246,7 @@ public class WmsLocationBiz {
                 int serialNo = request.getInternalSerialNo() != null ? 
                         request.getInternalSerialNo() : 1;
                 request.setLocationSortNo(parentSortNo + String.format("%04d", serialNo));
-                request.setLocationFullpathName(generateFullpathName(request, parent.getLocationName()));
+                request.setLocationFullpathName(generateFullpathName(request, parent.getLocationFullpathName()));
             }
         } else {
             // 根节点：从流水号规则获取排序号
@@ -1005,6 +1271,71 @@ public class WmsLocationBiz {
             return parentName + "_" + locationName;
         }
         return locationName;
+    }
+
+    /**
+     * 级联更新子节点的 parentName 和 locationFullpathName
+     *
+     * @param parentId             父节点ID
+     * @param newParentName        父节点新名称
+     * @param newParentFullpathName 父节点新全路径名称
+     */
+    private void cascadeUpdateChildrenName(Long parentId, String newParentName, String newParentFullpathName) {
+        List<WmsLocation> children = wmsLocationService.queryByParentId(parentId);
+        if (children == null || children.isEmpty()) {
+            return;
+        }
+        String updateBy = SecurityUtils.getUsername();
+        Date updateTime = new Date();
+        for (WmsLocation child : children) {
+            String oldFullpath = child.getLocationFullpathName();
+            String newFullpath = buildFullpathName(child.getLocationName(), newParentFullpathName);
+            boolean changed = false;
+
+            if (!Objects.equals(child.getParentName(), newParentName)) {
+                child.setParentName(newParentName);
+                changed = true;
+            }
+            if (!Objects.equals(oldFullpath, newFullpath)) {
+                child.setLocationFullpathName(newFullpath);
+                changed = true;
+            }
+
+            if (changed) {
+                child.setUpdateBy(updateBy);
+                child.setUpdateTime(updateTime);
+                wmsLocationService.update(child);
+            }
+
+            // 递归更新孙节点（子节点自身的名称未变，但全路径已变）
+            cascadeUpdateChildrenName(child.getId(), child.getLocationName(), newFullpath);
+        }
+    }
+
+    /**
+     * 获取父节点下下一个可用的序列号（根据已有子节点的 location_sort_no 后4位）
+     */
+    private int getNextSerialNo(Long parentId, int defaultStartSerial) {
+        List<WmsLocation> siblings = wmsLocationService.queryByParentId(parentId);
+        if (siblings == null || siblings.isEmpty()) {
+            return defaultStartSerial;
+        }
+        int maxSerial = 0;
+        for (WmsLocation sibling : siblings) {
+            String sortNo = sibling.getLocationSortNo();
+            if (sortNo != null && sortNo.length() >= 4) {
+                try {
+                    String last4 = sortNo.substring(sortNo.length() - 4);
+                    int serial = Integer.parseInt(last4);
+                    if (serial > maxSerial) {
+                        maxSerial = serial;
+                    }
+                } catch (NumberFormatException e) {
+                    // 忽略非数字后缀
+                }
+            }
+        }
+        return Math.max(defaultStartSerial, maxSerial + 1);
     }
 
     /**
@@ -1499,6 +1830,7 @@ public class WmsLocationBiz {
             // 7. 处理父节点
             Long parentId = null;
             String parentName = null;
+            String parentFullpathName = null;
             int locationLevel = 1;
             int locationLevelCount = 1; // 默认1层
 
@@ -1515,6 +1847,7 @@ public class WmsLocationBiz {
                 WmsLocation parent = parentList.get(0);
                 parentId = parent.getId();
                 parentName = parent.getLocationName();
+                parentFullpathName = parent.getLocationFullpathName();
                 locationLevel = parent.getLocationLevel() + 1;
                 locationLevelCount = parent.getLocationLevelCount();
             }
@@ -1561,7 +1894,7 @@ public class WmsLocationBiz {
             }
 
             // 11. 生成全路径名称
-            String locationFullpathName = buildFullpathName(record.getLocationName().trim(), parentName);
+            String locationFullpathName = buildFullpathName(record.getLocationName().trim(), parentFullpathName);
             String locationSortNo = generateSortNo(parentId, locationLevel);
 
             // 构建实体
@@ -1648,26 +1981,14 @@ public class WmsLocationBiz {
     }
 
     /**
-     * 确定库位等级
+     * 确定库位等级：根据字典数据动态判断，不再硬编码
      */
     private String determineLocationGrade(String locationType) {
-        // 存储对象
-        if (Arrays.asList("冰箱", "货架", "地堆", "托盘").contains(locationType)) {
+        if (locationType == null || locationType.trim().isEmpty()) {
             return "存储对象";
         }
-        // 存储分区
-        if (Arrays.asList("层", "架", "行", "列", "格").contains(locationType)) {
-            return "StorageSection";
-        }
-        // 存储容器
-        if (Arrays.asList("盒", "箱", "笼", "抽屉").contains(locationType)) {
-            return "Container";
-        }
-        // 孔位
-        if ("孔".equals(locationType)) {
-            return "ContainerPosition";
-        }
-        return "StorageType";
+        String grade = getLocationTypeGradeCache().get(locationType.trim());
+        return grade != null ? grade : "存储对象";
     }
 
     /**
