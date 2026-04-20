@@ -140,6 +140,23 @@ public class ColumnMeta extends BaseEntity {
     /** 导入显示: 0-否 1-是 */
     private Integer showInImport;
 
+    // ========== Lookup 虚拟列配置（关联表字段显示） ==========
+    // 当 refTableCode + refMatchField + refTargetField 都不为空时，此字段视为“虚拟联表列”。
+    // 运行时由 LookupSqlBuilder 转为 LEFT JOIN 并将目标字段以 field 作为别名返回。
+    // 数据库无需存在同名物理列。
+
+    /** 关联表 tableCode（必须存在于 sys_table_meta） */
+    private String refTableCode;
+
+    /** 关联表匹配字段(snake_case) */
+    private String refMatchField;
+
+    /** 关联表展示字段(snake_case) */
+    private String refTargetField;
+
+    /** 当前表外键字段(snake_case)，为空时默认取 field 自身 */
+    private String refLocalField;
+
     // 代码生成器适配方法（兼容 common.generator.ColumnMeta）
     public String getJavaType() {
         return mapDataTypeToJavaType(dataType);

@@ -56,4 +56,14 @@ public class ColumnMetaRequest implements Serializable {
     private Boolean nullable;
     private Integer columnSize;
     private Integer decimalDigits;
+
+    // ========== Lookup 虚拟列配置（WMS-LOWCODE-LOOKUP） ==========
+    @Schema(description = "关联表 tableCode（虚拟联表列用）")
+    private String refTableCode;
+    @Schema(description = "关联表匹配字段(snake_case)")
+    private String refMatchField;
+    @Schema(description = "关联表展示字段(snake_case)")
+    private String refTargetField;
+    @Schema(description = "当前表外键字段(snake_case)，为空时默认取 field 自身")
+    private String refLocalField;
 }

@@ -95,4 +95,18 @@ public class ColumnMetaVO {
 
     @Schema(description = "显示条件 JSON")
     private String visibleCondition;
+
+    // ========== Lookup 虚拟列配置（WMS-LOWCODE-LOOKUP） ==========
+
+    @Schema(description = "关联表 tableCode（虚拟联表列用）")
+    private String refTableCode;
+
+    @Schema(description = "关联表匹配字段(snake_case)")
+    private String refMatchField;
+
+    @Schema(description = "关联表展示字段(snake_case)")
+    private String refTargetField;
+
+    @Schema(description = "当前表外键字段(snake_case)，为空时默认取 code 自身")
+    private String refLocalField;
 }

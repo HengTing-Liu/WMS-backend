@@ -352,6 +352,26 @@ public class MetaController extends BaseController {
     }
 
     /**
+     * 批量新增字段元数据（非破坏性，逐条 addColumnMeta）
+     * <p>WMS-LOWCODE-LOOKUP 批量添加关联字段向导使用。</p>
+     * <p>与 {@link #saveColumnMeta} 区别：batch-insert 不会删除已有字段，只做追加。</p>
+     */
+    @Operation(summary = "批量新增字段元数据（追加）")
+    @RequiresPermissions("system:meta:table:manage")
+    @PostMapping("/column/batch-insert")
+    public R<Void> batchInsertColumnMeta(@RequestBody java.util.List<ColumnMetaRequest> requests) {
+        if (requests == null || requests.isEmpty()) {
+            return R.ok();
+        }
+        for (ColumnMetaRequest request : requests) {
+            ColumnMeta column = new ColumnMeta();
+            BeanUtils.copyProperties(request, column);
+            metaService.addColumnMeta(column);
+        }
+        return R.ok();
+    }
+
+    /**
      * 更新字段元数据
      */
     @Operation(summary = "更新字段元数据")

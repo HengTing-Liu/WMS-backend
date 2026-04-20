@@ -40,6 +40,10 @@
         <result property="sectionOpen" column="section_open"/>
         <result property="columnName" column="column_name"/>
         <result property="defaultValue" column="default_value"/>
+        <result property="refTableCode" column="ref_table_code"/>
+        <result property="refMatchField" column="ref_match_field"/>
+        <result property="refTargetField" column="ref_target_field"/>
+        <result property="refLocalField" column="ref_local_field"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -53,6 +57,7 @@
                component_props, data_source, api_url, label_field, value_field, col_span, is_readonly, edit_readonly,
                section_key, section_title, section_order, section_type, section_open,
                column_name, default_value,
+               ref_table_code, ref_match_field, ref_target_field, ref_local_field,
                create_by, create_time, update_by, update_time
         FROM sys_column_meta
         WHERE table_code = #{tableCode} AND status = 1 AND is_deleted = 0
@@ -66,6 +71,7 @@
                component_props, data_source, api_url, label_field, value_field,
                section_key, section_title, section_order, section_type, section_open,
                column_name, default_value,
+               ref_table_code, ref_match_field, ref_target_field, ref_local_field,
                create_by, create_time, update_by, update_time
         FROM sys_column_meta
         WHERE id = #{id}
@@ -79,6 +85,7 @@
             component_props, data_source, api_url, label_field, value_field, col_span, is_readonly, edit_readonly,
             section_key, section_title, section_order, section_type, section_open,
             column_name, default_value,
+            ref_table_code, ref_match_field, ref_target_field, ref_local_field,
             create_by, create_time, update_by, update_time
         ) VALUES (
             #{tableCode}, #{field}, #{title}, #{dataType}, #{formType}, #{dictType},
@@ -87,6 +94,7 @@
             #{componentProps}, #{dataSource}, #{apiUrl}, #{labelField}, #{valueField}, #{colSpan}, #{readonly}, #{editReadonly},
             #{sectionKey}, #{sectionTitle}, #{sectionOrder}, #{sectionType}, #{sectionOpen},
             #{columnName}, #{defaultValue},
+            #{refTableCode}, #{refMatchField}, #{refTargetField}, #{refLocalField},
             #{createBy}, #{createTime}, #{updateBy}, #{updateTime}
         )
     </insert>
@@ -127,6 +135,10 @@
             section_open = #{sectionOpen},
             column_name = #{columnName},
             default_value = #{defaultValue},
+            ref_table_code = #{refTableCode},
+            ref_match_field = #{refMatchField},
+            ref_target_field = #{refTargetField},
+            ref_local_field = #{refLocalField},
             update_by = #{updateBy},
             update_time = #{updateTime}
         WHERE id = #{id}

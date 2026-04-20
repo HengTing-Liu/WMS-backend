@@ -9,12 +9,14 @@ import com.abtk.product.common.web.page.TableDataInfo;
 import com.abtk.product.dao.mapper.ColumnMetaMapper;
 import com.abtk.product.dao.mapper.DynamicMapper;
 import com.abtk.product.dao.mapper.TableMetaMapper;
+import com.abtk.product.dao.support.lookup.LookupColumn;
 import com.abtk.product.dao.util.SqlInjectionValidator;
 import com.abtk.product.dao.entity.ColumnMeta;
 import com.abtk.product.dao.entity.TableMeta;
 import com.abtk.product.service.permission.util.CrudPermissionUtil;
 import com.abtk.product.service.security.utils.SecurityUtils;
 import com.abtk.product.service.sys.service.CrudService;
+import com.abtk.product.service.sys.service.lookup.LookupSqlBuilder;
 import com.abtk.product.service.system.service.I18nService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -65,6 +67,9 @@ public class CrudServiceImpl implements CrudService {
 
     @Autowired
     private I18nService i18nService;
+
+    @Autowired
+    private LookupSqlBuilder lookupSqlBuilder;
 
     /**
      * 闂佸吋鍎抽崲鑼躲亹閸モ晜鍋橀柕濞у嫮鏆犻梻渚囧亝濡叉帞娆㈤锕€绀嗛柣妯肩帛閻濈喖鏌涢幒鎿冩當闁?
@@ -131,7 +136,14 @@ public class CrudServiceImpl implements CrudService {
         Map<String, String> queryModes = buildSafeQueryModes(rawQueryModes, filteredParams.keySet());
         // 闂佽桨鑳舵晶妤€鐣垫笟鈧鍫曞礃椤旂瓔鈧瑦绻涙径鍫濆闁告瑥妫濋弫宥夊醇閵忥紕鍑介梺瑙勪航閸庝即骞堥妸鈺佺哗?filteredParams闂佹寧绋戦張顒勫极閻愬搫绀?dataScope raw SQL 闂佺粯顨呭ú锕傤敊瀹€鍕櫖?
         CrudPermissionUtil.injectDataScope(filteredParams);
-        String orderByClause = buildOrderByClause(params);
+
+        // Lookup 虚拟列路由分支（WMS-LOWCODE-LOOKUP）
+        List<LookupColumn> lookups = lookupSqlBuilder.buildForTable(tableCode);
+        boolean hasLookup = lookups != null && !lookups.isEmpty();
+
+        String orderByClause = hasLookup
+                ? buildOrderByClauseJoined(params, lookups)
+                : buildOrderByClause(params);
         if (StringUtils.isNotEmpty(orderByClause)) {
             PageHelper.startPage(pageNum, pageSize, orderByClause);
         } else {
@@ -139,7 +151,17 @@ public class CrudServiceImpl implements CrudService {
         }
         String deleteColumn = getDeleteColumn(tableCode);
         String dataScope = (String) filteredParams.remove("dataScope");
-        List<Map<String, Object>> list = dynamicMapper.selectList(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
+
+        List<Map<String, Object>> list;
+        if (hasLookup) {
+            LookupSqlBuilder.VirtualParamHolder virtual = lookupSqlBuilder.splitVirtualParams(filteredParams, lookups);
+            Map<String, String> virtualQueryModes = extractVirtualQueryModes(queryModes, virtual.getValues().keySet());
+            list = dynamicMapper.selectListJoined(tableCode, lookups, filteredParams, queryModes,
+                    virtual.getValues(), virtual.getSqlExpressions(), virtualQueryModes,
+                    deleteColumn, dataScope);
+        } else {
+            list = dynamicMapper.selectList(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
+        }
         PageInfo<Map<String, Object>> pageInfo = new PageInfo<>(list);
         TableDataInfo dataTable = new TableDataInfo();
         // 闂佽桨娴峰ú鏍告奖濡?SQL 闂佽桨娴风槐鍟搁柣銏犵?闁稿海娴锋晶妤€鐣垫ā闁告挸绉堕崢宀€澧愭ā闁稿海娴锋ú鏍告奖濡?
@@ -180,7 +202,19 @@ public class CrudServiceImpl implements CrudService {
         CrudPermissionUtil.injectDataScope(filteredParams);
         String deleteColumn = getDeleteColumn(tableCode);
         String dataScope = (String) filteredParams.remove("dataScope");
-        List<Map<String, Object>> rawList = dynamicMapper.selectAll(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
+
+        // Lookup 虚拟列路由分支
+        List<LookupColumn> lookups = lookupSqlBuilder.buildForTable(tableCode);
+        List<Map<String, Object>> rawList;
+        if (lookups != null && !lookups.isEmpty()) {
+            LookupSqlBuilder.VirtualParamHolder virtual = lookupSqlBuilder.splitVirtualParams(filteredParams, lookups);
+            Map<String, String> virtualQueryModes = extractVirtualQueryModes(queryModes, virtual.getValues().keySet());
+            rawList = dynamicMapper.selectAllJoined(tableCode, lookups, filteredParams, queryModes,
+                    virtual.getValues(), virtual.getSqlExpressions(), virtualQueryModes,
+                    deleteColumn, dataScope);
+        } else {
+            rawList = dynamicMapper.selectAll(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
+        }
         List<Map<String, Object>> normalized = new ArrayList<>();
         for (Map<String, Object> row : rawList) {
             Map<String, Object> normRow = new LinkedHashMap<>();
@@ -196,7 +230,15 @@ public class CrudServiceImpl implements CrudService {
     public Map<String, Object> getById(String tableCode, Long id) {
         SqlInjectionValidator.validateTable(tableCode);
         String pkColumn = getPkColumn(tableCode);
-        Map<String, Object> result = dynamicMapper.selectByIdWithColumn(tableCode, pkColumn, id);
+
+        // Lookup 虚拟列路由分支
+        List<LookupColumn> lookups = lookupSqlBuilder.buildForTable(tableCode);
+        Map<String, Object> result;
+        if (lookups != null && !lookups.isEmpty()) {
+            result = dynamicMapper.selectByIdJoined(tableCode, lookups, pkColumn, id);
+        } else {
+            result = dynamicMapper.selectByIdWithColumn(tableCode, pkColumn, id);
+        }
         if (result == null) {
             throw new ServiceException(i18nService.getMessage("crud.entity.not.found", tableCode));
         }
@@ -331,7 +373,17 @@ public class CrudServiceImpl implements CrudService {
         String dataScope = (String) filteredParams.remove("dataScope");
 
         // 闂佸搫琚崕鎾敋濡ゅ懎绀傞柕濞炬櫅閸斻儵鏌℃担鍝勵暭鐎规挷绶氶弫宥夊醇濠婂懐鎲归梺鍛婂笒濡繈濡存径鎰櫖?
-        List<Map<String, Object>> dataList = dynamicMapper.selectAll(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
+        List<LookupColumn> exportLookups = lookupSqlBuilder.buildForTable(tableCode);
+        List<Map<String, Object>> dataList;
+        if (exportLookups != null && !exportLookups.isEmpty()) {
+            LookupSqlBuilder.VirtualParamHolder virtual = lookupSqlBuilder.splitVirtualParams(filteredParams, exportLookups);
+            Map<String, String> virtualQueryModes = extractVirtualQueryModes(queryModes, virtual.getValues().keySet());
+            dataList = dynamicMapper.selectAllJoined(tableCode, exportLookups, filteredParams, queryModes,
+                    virtual.getValues(), virtual.getSqlExpressions(), virtualQueryModes,
+                    deleteColumn, dataScope);
+        } else {
+            dataList = dynamicMapper.selectAll(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
+        }
 
         // 闁诲繐绻愬Λ娆撳汲閻旂厧绠?Map 闂?key 婵炲濮寸花鑲╃箔閸涙潙绀嗛柟鐑樻煥濞堢娀寮堕悜鍡楀幐閻犳劗鍠愰妵娆撴偂鎼粹剝些闂佹寧绋戦悧鍛箔?ColumnMeta.field 闂佸搫绉堕崢褏妲愰埄鍐攳婵犻潧娲ら惁顔尖槈閹绢垰浜鹃梺鑲╂焿閹活亞妲?
         List<Map<String, Object>> normalizedDataList = new ArrayList<>();
@@ -512,5 +564,49 @@ public class CrudServiceImpl implements CrudService {
             return "desc";
         }
         return "asc";
+    }
+
+    /**
+     * 构造带 JOIN 语义的 ORDER BY 片段。
+     * 虚拟列 → "j1.warehouse_name asc"；主表列 → "m.warehouse_code asc"。
+     */
+    private String buildOrderByClauseJoined(Map<String, Object> params, List<LookupColumn> lookups) {
+        if (params == null || params.isEmpty()) {
+            return "";
+        }
+        Object rawOrderByColumn = params.get("orderByColumn");
+        if (rawOrderByColumn == null) {
+            return "";
+        }
+        String orderByColumn = String.valueOf(rawOrderByColumn).trim();
+        if (orderByColumn.isEmpty()) {
+            return "";
+        }
+        String sqlOrderField = toSqlFieldName(orderByColumn);
+        if (!SAFE_FIELD_PATTERN.matcher(sqlOrderField).matches()) {
+            throw new ServiceException("排序字段不合法: " + orderByColumn);
+        }
+        String expression = lookupSqlBuilder.resolveOrderByExpression(sqlOrderField, lookups);
+        String orderByClause = expression + " " + normalizeSortDirection(params.get("isAsc"));
+        return SqlUtil.escapeOrderBySql(orderByClause);
+    }
+
+    /**
+     * 从完整 queryModes 中提取仅属于虚拟列参数的查询模式，用于传入 joined mapper。
+     * 主表 queryModes 保持不变（由 mapper 直接忽略虚拟列 key）。
+     */
+    private Map<String, String> extractVirtualQueryModes(Map<String, String> queryModes,
+                                                         java.util.Set<String> virtualKeys) {
+        Map<String, String> result = new HashMap<>();
+        if (queryModes == null || virtualKeys == null || virtualKeys.isEmpty()) {
+            return result;
+        }
+        for (String k : virtualKeys) {
+            String mode = queryModes.get(k);
+            if (mode != null) {
+                result.put(k, mode);
+            }
+        }
+        return result;
     }
 }

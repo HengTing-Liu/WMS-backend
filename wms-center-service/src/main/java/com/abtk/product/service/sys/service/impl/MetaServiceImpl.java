@@ -447,6 +447,10 @@ public class MetaServiceImpl implements MetaService {
                 .sectionOpen(col.getSectionOpen())
                 .i18nKey(col.getI18nKey())
                 .visibleCondition(col.getVisibleCondition())
+                .refTableCode(col.getRefTableCode())
+                .refMatchField(col.getRefMatchField())
+                .refTargetField(col.getRefTargetField())
+                .refLocalField(col.getRefLocalField())
                 .build();
         }).collect(java.util.stream.Collectors.toList());
     }

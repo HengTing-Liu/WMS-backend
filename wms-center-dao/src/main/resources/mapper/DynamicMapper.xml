@@ -168,4 +168,103 @@
         </if>
     </select>
 
+    <!--
+    ========================================================================
+    Lookup 虚拟列 JOIN 查询（WMS-LOWCODE-LOOKUP）
+    ========================================================================
+    安全：所有 ${} 占位符的值都来自已校验的 LookupColumn / SqlInjectionValidator 通过的字段。
+    结构：
+      SELECT m.*, j1.target_field AS alias_field, ...
+      FROM ${tableCode} m
+      LEFT JOIN ${refTable} j1 ON m.${localField} = j1.${matchField} AND j1.${deleteColumn} = 0
+      WHERE m.${deleteColumn} = 0
+        AND (主表参数)
+        AND (虚拟列参数)
+        AND (dataScope)
+    -->
+
+    <sql id="lookupSelectColumns">
+        m.*
+        <if test="lookups != null and lookups.size > 0">
+            <foreach collection="lookups" item="lk">
+                , ${lk.joinAlias}.${lk.targetField} AS ${lk.aliasField}
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="lookupJoinClauses">
+        <if test="lookups != null and lookups.size > 0">
+            <foreach collection="lookups" item="lk">
+                LEFT JOIN ${lk.refTable} ${lk.joinAlias}
+                    ON m.${lk.localField} = ${lk.joinAlias}.${lk.matchField}
+                   AND ${lk.joinAlias}.${lk.deleteColumn} = 0
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="lookupMainWhere">
+        <if test="params != null and params.size > 0">
+            <foreach collection="params" item="value" index="key" open="AND " separator=" AND " close="">
+                <if test="value != null and value != ''">
+                    <choose>
+                        <when test="queryModes != null and queryModes[key] != null and queryModes[key] == 'like'">
+                            m.${key} LIKE CONCAT('%', #{value}, '%')
+                        </when>
+                        <otherwise>
+                            m.${key} = #{value}
+                        </otherwise>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="lookupVirtualWhere">
+        <if test="virtualValues != null and virtualValues.size > 0">
+            <foreach collection="virtualValues" item="value" index="key" open="AND " separator=" AND " close="">
+                <if test="value != null and value != ''">
+                    <choose>
+                        <when test="virtualQueryModes != null and virtualQueryModes[key] != null and virtualQueryModes[key] == 'like'">
+                            ${virtualExpressions[key]} LIKE CONCAT('%', #{value}, '%')
+                        </when>
+                        <otherwise>
+                            ${virtualExpressions[key]} = #{value}
+                        </otherwise>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <select id="selectListJoined" resultType="java.util.Map">
+        SELECT <include refid="lookupSelectColumns"/>
+        FROM ${tableCode} m
+        <include refid="lookupJoinClauses"/>
+        WHERE m.${deleteColumn} = 0
+        <include refid="lookupMainWhere"/>
+        <include refid="lookupVirtualWhere"/>
+        <if test="dataScope != null and dataScope != ''">
+            AND (${dataScope})
+        </if>
+    </select>
+
+    <select id="selectAllJoined" resultType="java.util.Map">
+        SELECT <include refid="lookupSelectColumns"/>
+        FROM ${tableCode} m
+        <include refid="lookupJoinClauses"/>
+        WHERE m.${deleteColumn} = 0
+        <include refid="lookupMainWhere"/>
+        <include refid="lookupVirtualWhere"/>
+        <if test="dataScope != null and dataScope != ''">
+            AND (${dataScope})
+        </if>
+    </select>
+
+    <select id="selectByIdJoined" resultType="java.util.Map">
+        SELECT <include refid="lookupSelectColumns"/>
+        FROM ${tableCode} m
+        <include refid="lookupJoinClauses"/>
+        WHERE m.${pkColumn} = #{pkValue}
+    </select>
+
 </mapper>

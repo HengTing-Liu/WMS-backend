@@ -56,6 +56,54 @@ public interface DynamicMapper {
      */
     Map<String, Object> selectByIdWithColumn(@Param("tableCode") String tableCode, @Param("pkColumn") String pkColumn, @Param("pkValue") Long pkValue);
 
+    // ========== Lookup 虚拟列 JOIN 查询（WMS-LOWCODE-LOOKUP） ==========
+    // 以下方法专用于主表配置了虚拟联表列的场景。调用方必须传入已通过 LookupSqlBuilder 校验的 lookups 列表，
+    // lookups 中所有字段都可直接作为 ${} 占位符使用。
+    // 未配置虚拟列的表必须继续走上方老接口（selectList/selectAll/selectByIdWithColumn），以确保零影响。
+
+    /**
+     * 分页查询列表（带 JOIN）
+     * @param tableCode 主表名（SqlInjectionValidator.validateTable 校验）
+     * @param lookups 已校验的 LookupColumn 列表
+     * @param params 主表 WHERE 参数（已剥离虚拟列参数，key 为 snake_case 列）
+     * @param queryModes 主表查询模式（eq/like）
+     * @param virtualValues 虚拟列参数 key(snake_case) -> value
+     * @param virtualExpressions 虚拟列 key -> SQL 表达式（如 j1.warehouse_name）
+     * @param virtualQueryModes 虚拟列查询模式（eq/like）
+     * @param deleteColumn 主表逻辑删除列
+     * @param dataScope 数据权限 raw SQL 片段（含 m. 前缀由调用侧负责）
+     */
+    List<Map<String, Object>> selectListJoined(@Param("tableCode") String tableCode,
+                                               @Param("lookups") List<com.abtk.product.dao.support.lookup.LookupColumn> lookups,
+                                               @Param("params") Map<String, Object> params,
+                                               @Param("queryModes") Map<String, String> queryModes,
+                                               @Param("virtualValues") Map<String, Object> virtualValues,
+                                               @Param("virtualExpressions") Map<String, String> virtualExpressions,
+                                               @Param("virtualQueryModes") Map<String, String> virtualQueryModes,
+                                               @Param("deleteColumn") String deleteColumn,
+                                               @Param("dataScope") String dataScope);
+
+    /**
+     * 全量查询（带 JOIN，导出 / listAll 使用）
+     */
+    List<Map<String, Object>> selectAllJoined(@Param("tableCode") String tableCode,
+                                              @Param("lookups") List<com.abtk.product.dao.support.lookup.LookupColumn> lookups,
+                                              @Param("params") Map<String, Object> params,
+                                              @Param("queryModes") Map<String, String> queryModes,
+                                              @Param("virtualValues") Map<String, Object> virtualValues,
+                                              @Param("virtualExpressions") Map<String, String> virtualExpressions,
+                                              @Param("virtualQueryModes") Map<String, String> virtualQueryModes,
+                                              @Param("deleteColumn") String deleteColumn,
+                                              @Param("dataScope") String dataScope);
+
+    /**
+     * 按主键查询（带 JOIN，详情页使用）
+     */
+    Map<String, Object> selectByIdJoined(@Param("tableCode") String tableCode,
+                                         @Param("lookups") List<com.abtk.product.dao.support.lookup.LookupColumn> lookups,
+                                         @Param("pkColumn") String pkColumn,
+                                         @Param("pkValue") Long pkValue);
+
     /**
      * 插入数据（SQL字符串方式）【已废弃】
      * 风险：直接拼接SQL字符串，存在高注入风险
