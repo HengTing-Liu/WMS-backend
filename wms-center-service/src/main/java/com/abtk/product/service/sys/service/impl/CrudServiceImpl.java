@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.abtk.product.common.exception.ServiceException;
 import com.abtk.product.common.utils.StringUtils;
+import com.abtk.product.common.utils.sql.SqlUtil;
 import com.abtk.product.common.web.page.TableDataInfo;
 import com.abtk.product.dao.mapper.ColumnMetaMapper;
 import com.abtk.product.dao.mapper.DynamicMapper;
@@ -23,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -131,7 +131,12 @@ public class CrudServiceImpl implements CrudService {
         Map<String, String> queryModes = buildSafeQueryModes(rawQueryModes, filteredParams.keySet());
         // 闂佽桨鑳舵晶妤€鐣垫笟鈧鍫曞礃椤旂瓔鈧瑦绻涙径鍫濆闁告瑥妫濋弫宥夊醇閵忥紕鍑介梺瑙勪航閸庝即骞堥妸鈺佺哗?filteredParams闂佹寧绋戦張顒勫极閻愬搫绀?dataScope raw SQL 闂佺粯顨呭ú锕傤敊瀹€鍕櫖?
         CrudPermissionUtil.injectDataScope(filteredParams);
-        PageHelper.startPage(pageNum, pageSize);
+        String orderByClause = buildOrderByClause(params);
+        if (StringUtils.isNotEmpty(orderByClause)) {
+            PageHelper.startPage(pageNum, pageSize, orderByClause);
+        } else {
+            PageHelper.startPage(pageNum, pageSize);
+        }
         String deleteColumn = getDeleteColumn(tableCode);
         String dataScope = (String) filteredParams.remove("dataScope");
         List<Map<String, Object>> list = dynamicMapper.selectList(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
@@ -476,5 +481,36 @@ public class CrudServiceImpl implements CrudService {
             }
         }
         return safeModes;
+    }
+
+    private String buildOrderByClause(Map<String, Object> params) {
+        if (params == null || params.isEmpty()) {
+            return "";
+        }
+        Object rawOrderByColumn = params.get("orderByColumn");
+        if (rawOrderByColumn == null) {
+            return "";
+        }
+        String orderByColumn = String.valueOf(rawOrderByColumn).trim();
+        if (orderByColumn.isEmpty()) {
+            return "";
+        }
+        String sqlOrderField = toSqlFieldName(orderByColumn);
+        if (!SAFE_FIELD_PATTERN.matcher(sqlOrderField).matches()) {
+            throw new ServiceException("排序字段不合法: " + orderByColumn);
+        }
+        String orderByClause = sqlOrderField + " " + normalizeSortDirection(params.get("isAsc"));
+        return SqlUtil.escapeOrderBySql(orderByClause);
+    }
+
+    private String normalizeSortDirection(Object rawIsAsc) {
+        if (rawIsAsc == null) {
+            return "asc";
+        }
+        String isAsc = String.valueOf(rawIsAsc).trim().toLowerCase(Locale.ROOT);
+        if ("descending".equals(isAsc) || "descend".equals(isAsc) || "desc".equals(isAsc)) {
+            return "desc";
+        }
+        return "asc";
     }
 }
