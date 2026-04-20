@@ -97,6 +97,15 @@ public class SysSerialNumberBiz {
         return doGenerateSerialNumber(rule, updateBy);
     }
 
+    /**
+     * 根据应用表单字段生成流水号
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public String generateSerialNumberByApplyFormField(String applyFormField, String updateBy) {
+        SysSerialNumber rule = findRuleByApplyFormField(applyFormField);
+        return doGenerateSerialNumber(rule, updateBy);
+    }
+
     // ==================== 批量生成 ====================
 
     /**
@@ -134,6 +143,27 @@ public class SysSerialNumberBiz {
         SysSerialNumberResponse response = list.get(0);
         if (!"0".equals(response.getStatus())) {
             throw new RuntimeException(i18nService.getMessage("serial.number.rule.disabled") + ": " + ruleName);
+        }
+
+        // Response 转 Entity
+        return toEntity(response);
+    }
+
+    /**
+     * 根据应用表单字段查找规则
+     */
+    private SysSerialNumber findRuleByApplyFormField(String applyFormField) {
+        SysSerialNumberQueryRequest query = new SysSerialNumberQueryRequest();
+        query.setApplyFormField(applyFormField);
+        List<SysSerialNumberResponse> list = sysSerialNumberService.queryByCondition(query);
+
+        if (list == null || list.isEmpty()) {
+            throw new RuntimeException(i18nService.getMessage("serial.number.rule.not.found") + ": " + applyFormField);
+        }
+
+        SysSerialNumberResponse response = list.get(0);
+        if (!"0".equals(response.getStatus())) {
+            throw new RuntimeException(i18nService.getMessage("serial.number.rule.disabled") + ": " + applyFormField);
         }
 
         // Response 转 Entity

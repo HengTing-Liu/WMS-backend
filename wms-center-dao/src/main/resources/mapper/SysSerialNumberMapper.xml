@@ -14,6 +14,7 @@
         <result property="currentValue" column="current_value" jdbcType="BIGINT"/>
         <result property="lastResetKey" column="last_reset_key" jdbcType="VARCHAR"/>
         <result property="isEnabled" column="is_enabled" jdbcType="TINYINT"/>
+        <result property="applyFormField" column="apply_form_field" jdbcType="VARCHAR"/>
         <result property="usageScope" column="usage_scope" jdbcType="VARCHAR"/>
         <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
@@ -26,7 +27,7 @@
     <!--查询单个-->
     <select id="queryById" resultMap="SysSerialNumberMap">
         select
-        id, name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, usage_scope, create_by, create_time, update_by, update_time, remarks, is_deleted
+        id, name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, apply_form_field, usage_scope, create_by, create_time, update_by, update_time, remarks, is_deleted
         from sys_serial_number
         where id = #{id} and is_deleted = '0'
     </select>
@@ -34,7 +35,7 @@
     <!--查询指定行数据-->
     <select id="queryAll" resultMap="SysSerialNumberMap">
         select
-        id, name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, usage_scope, create_by, create_time, update_by, update_time, remarks, is_deleted
+        id, name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, apply_form_field, usage_scope, create_by, create_time, update_by, update_time, remarks, is_deleted
         from sys_serial_number
         <where>
             is_deleted = '0'
@@ -70,6 +71,9 @@
             </if>
             <if test="isEnabled != null">
                 and is_enabled = #{isEnabled}
+            </if>
+            <if test="applyFormField != null and applyFormField != ''">
+                and apply_form_field = #{applyFormField}
             </if>
             <if test="usageScope != null and usageScope != ''">
                 and usage_scope = #{usageScope}
@@ -154,7 +158,7 @@
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into sys_serial_number(name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, usage_scope, create_by, create_time, update_by, update_time, remarks)
+        insert into sys_serial_number(name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, apply_form_field, usage_scope, create_by, create_time, update_by, update_time, remarks)
         values (
         #{name}
         ,
@@ -176,6 +180,8 @@
         ,
         #{isEnabled}
         ,
+        #{applyFormField}
+        ,
         #{usageScope}
         ,
         #{createBy}
@@ -191,7 +197,7 @@
     </insert>
 
     <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
-        insert into sys_serial_number(name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, usage_scope, create_by, create_time, update_by, update_time, remarks)
+        insert into sys_serial_number(name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, apply_form_field, usage_scope, create_by, create_time, update_by, update_time, remarks)
         values
         <foreach collection="entities" item="entity" separator=",">
             (
@@ -214,6 +220,8 @@
             #{entity.lastResetKey}
             ,
             #{entity.isEnabled}
+            ,
+            #{entity.applyFormField}
             ,
             #{entity.usageScope}
             ,
@@ -231,7 +239,7 @@
     </insert>
 
     <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
-        insert into sys_serial_number(name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, usage_scope, create_by, create_time, update_by, update_time, remarks)
+        insert into sys_serial_number(name, prefix, number_type, digit_length, suffix, start_value, reset_rule, current_value, last_reset_key, is_enabled, apply_form_field, usage_scope, create_by, create_time, update_by, update_time, remarks)
         values
         <foreach collection="entities" item="entity" separator=",">
             (
@@ -254,6 +262,8 @@
             #{entity.lastResetKey}
             ,
             #{entity.isEnabled}
+            ,
+            #{entity.applyFormField}
             ,
             #{entity.usageScope}
             ,
@@ -279,6 +289,7 @@
         current_value = values(current_value),
         last_reset_key = values(last_reset_key),
         is_enabled = values(is_enabled),
+        apply_form_field = values(apply_form_field),
         usage_scope = values(usage_scope),
         create_by = values(create_by),
         create_time = values(create_time),
@@ -320,6 +331,9 @@
             </if>
             <if test="isEnabled != null">
                 is_enabled = #{isEnabled},
+            </if>
+            <if test="applyFormField != null and applyFormField != ''">
+                apply_form_field = #{applyFormField},
             </if>
             <if test="usageScope != null and usageScope != ''">
                 usage_scope = #{usageScope},
@@ -393,6 +407,9 @@
                 </if>
                 <if test="item.isEnabled != null">
                     is_enabled = #{item.isEnabled},
+                </if>
+                <if test="item.applyFormField != null and item.applyFormField != ''">
+                    apply_form_field = #{item.applyFormField},
                 </if>
                 <if test="item.usageScope != null and item.usageScope != ''">
                     usage_scope = #{item.usageScope},

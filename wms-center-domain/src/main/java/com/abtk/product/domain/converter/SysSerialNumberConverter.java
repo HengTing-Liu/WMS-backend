@@ -51,7 +51,8 @@ public interface SysSerialNumberConverter {
         @Mapping(source = "numberType", target = "dateFormat", qualifiedByName = "numberTypeToDateFormat"),
         @Mapping(source = "resetRule", target = "resetType", qualifiedByName = "resetRuleToResetType"),
         @Mapping(source = "isEnabled", target = "status", qualifiedByName = "isEnabledToStatus"),
-        @Mapping(target = "step", constant = "1")
+        @Mapping(target = "step", constant = "1"),
+        @Mapping(source = "applyFormField", target = "applyFormField")
     })
     SysSerialNumberResponse entityToResponse(SysSerialNumber entity);
 

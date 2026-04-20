@@ -858,7 +858,13 @@ public class WmsLocationBiz {
             entity.setUpdateBy(currentUser);
             entity.setUpdateTime(now);
 
-            String name = locationType + serialNo;
+            String name;
+            if (config.getLocationName() != null && !config.getLocationName().isEmpty()) {
+                // 使用流水号规则生成容器名称（按规则名称查找）
+                name = sysSerialNumberBiz.generateSerialNumber(config.getLocationName(), currentUser);
+            } else {
+                name = locationType + serialNo;
+            }
             entity.setLocationName(name);
             entity.setLocationSortNo(parentSortNo + String.format("%04d", serialNo));
             entity.setLocationFullpathName(buildFullpathName(name, parent.getLocationFullpathName()));
@@ -1250,7 +1256,8 @@ public class WmsLocationBiz {
             }
         } else {
             // 根节点：从流水号规则获取排序号
-            String serialNo = sysSerialNumberBiz.generateSerialNumber("location_sort_no_object", SecurityUtils.getUsername());
+            // 使用 apply_form_field 格式的规则名称 inv_location|location_sort_no
+            String serialNo = sysSerialNumberBiz.generateSerialNumberByApplyFormField("inv_location|location_sort_no", SecurityUtils.getUsername());
             request.setLocationSortNo(serialNo);
             request.setLocationFullpathName(request.getLocationName());
         }

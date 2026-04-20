@@ -27,4 +27,7 @@ public class SysSerialNumberQueryRequest extends BaseRequest {
 
     @Schema(description = "重置类型：NEVER-从不, DAY-按天, MONTH-按月, YEAR-按年")
     private String resetType;
+
+    @Schema(description = "应用表单字段")
+    private String applyFormField;
 }

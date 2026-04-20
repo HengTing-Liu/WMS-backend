@@ -80,6 +80,7 @@ public class SysSerialNumberServiceImpl implements ISysSerialNumberService {
         if (request.getRuleCode() != null) condition.setUsageScope(request.getRuleCode());
         if (request.getStatus() != null) condition.setIsEnabled("0".equals(request.getStatus()) ? 1 : 0);
         if (request.getResetType() != null) condition.setResetRule(resetTypeToResetRule(request.getResetType()));
+        if (request.getApplyFormField() != null) condition.setApplyFormField(request.getApplyFormField());
         return condition;
     }
 
@@ -163,6 +164,7 @@ public class SysSerialNumberServiceImpl implements ISysSerialNumberService {
         resp.setResetType(resetRuleToResetType(entity.getResetRule()));
         resp.setStatus(isEnabledToStatus(entity.getIsEnabled()));
         resp.setStep(1);
+        resp.setApplyFormField(entity.getApplyFormField());
         resp.setCreateBy(entity.getCreateBy());
         resp.setCreateTime(entity.getCreateTime());
         resp.setUpdateBy(entity.getUpdateBy());

@@ -47,4 +47,10 @@ public class ContainerConfig {
      */
     @Schema(description = "孔位类型，默认'孔'")
     private String childrenType = "孔";
+
+    /**
+     * 容器名称生成规则（apply_form_field，如 inv_location|location_name）
+     */
+    @Schema(description = "容器名称生成规则（apply_form_field）")
+    private String locationName;
 }
