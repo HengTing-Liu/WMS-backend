@@ -63,6 +63,26 @@ public interface LowcodeMapper {
             @Param("parentValue") Long parentValue);
 
     /**
+     * 统计子节点数量（支持按指定列过滤）
+     * <p>当 filterColumn 非空且 filterValues 非空时，额外追加 {@code AND ${filterColumn} IN (...)} 条件；
+     * 当 filterColumn 为空或 filterValues 为空时，退化为普通的父子计数。</p>
+     *
+     * @param tableCode 表名（必须通过 SqlInjectionValidator.validateTable 校验）
+     * @param deleteColumn 删除标志列名（必须通过 SqlInjectionValidator.validateFieldFormat 校验）
+     * @param parentColumn 父节点列名（必须通过 SqlInjectionValidator.validateFieldFormat 校验）
+     * @param parentValue 父节点值
+     * @param filterColumn 过滤列名（必须通过 SqlInjectionValidator.validateFieldFormat 校验）
+     * @param filterValues 过滤值列表（作为参数化 IN 值）
+     */
+    Long countByParentFiltered(
+            @Param("tableCode") String tableCode,
+            @Param("deleteColumn") String deleteColumn,
+            @Param("parentColumn") String parentColumn,
+            @Param("parentValue") Long parentValue,
+            @Param("filterColumn") String filterColumn,
+            @Param("filterValues") List<String> filterValues);
+
+    /**
      * 查询所有子节点的ID（递归，MySQL 8.0+ CTE 实现）
      * @param tableCode 表名
      * @param deleteColumn 删除标志列名

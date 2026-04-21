@@ -86,13 +86,18 @@ public class LowcodeCrudController extends BaseController {
         return R.ok(list);
     }
 
-    @Operation(summary = "查询子节点数量", description = "查询指定节点的直接子节点数量")
+    @Operation(summary = "查询子节点数量", description = "查询指定节点的直接子节点数量，可选按列值过滤")
     @GetMapping("/{tableCode}/tree/count")
     public R<Long> countChildren(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
             @Parameter(description = "父节点列名", required = true) @RequestParam String parentColumn,
-            @Parameter(description = "父节点值", required = true) @RequestParam Long parentValue) {
-        Long count = lowcodeTreeService.countChildren(tableCode, parentColumn, parentValue);
+            @Parameter(description = "父节点值", required = true) @RequestParam Long parentValue,
+            @Parameter(description = "过滤列名（可选，例如 location_grade）")
+            @RequestParam(required = false) String filterColumn,
+            @Parameter(description = "过滤值列表（可选，与 filterColumn 配合使用，为 IN 查询）")
+            @RequestParam(required = false) List<String> filterValues) {
+        Long count = lowcodeTreeService.countChildren(tableCode, parentColumn, parentValue,
+                filterColumn, filterValues);
         return R.ok(count);
     }
 

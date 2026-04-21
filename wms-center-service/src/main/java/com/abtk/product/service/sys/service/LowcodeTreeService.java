@@ -38,6 +38,20 @@ public interface LowcodeTreeService {
     Long countChildren(String tableCode, String parentColumn, Long parentValue);
 
     /**
+     * 查询指定节点的直接子节点数量，支持按指定列过滤
+     * <p>例如 filterColumn="location_grade", filterValues=["StorageSection", "存储分区"]
+     * 只统计属于"存储分区"类型的子节点。</p>
+     *
+     * @param tableCode 表标识
+     * @param parentColumn 父节点列名
+     * @param parentValue 父节点值
+     * @param filterColumn 过滤列名（允许 null/空表示不过滤）
+     * @param filterValues 过滤值列表（允许 null/空表示不过滤）
+     */
+    Long countChildren(String tableCode, String parentColumn, Long parentValue,
+                       String filterColumn, List<String> filterValues);
+
+    /**
      * 获取节点的所有子孙节点ID（递归，不含自身）
      * MySQL 8.0+ WITH RECURSIVE CTE 实现
      * @param tableCode 表标识

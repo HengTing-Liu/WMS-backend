@@ -63,6 +63,12 @@ public class WmsLocationBatchCreateRequest {
     private String locationNamePrefix;
 
     /**
+     * 库位名称（用于指定流水号规则名称）
+     */
+    @Schema(description = "库位名称（用于指定流水号规则名称）")
+    private String locationName;
+
+    /**
      * 起始序号
      */
     @Min(value = 1, message = "起始序号至少为1")

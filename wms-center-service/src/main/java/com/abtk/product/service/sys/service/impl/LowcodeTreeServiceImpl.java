@@ -145,9 +145,22 @@ public class LowcodeTreeServiceImpl implements LowcodeTreeService {
 
     @Override
     public Long countChildren(String tableCode, String parentColumn, Long parentValue) {
+        return countChildren(tableCode, parentColumn, parentValue, null, null);
+    }
+
+    @Override
+    public Long countChildren(String tableCode, String parentColumn, Long parentValue,
+                              String filterColumn, List<String> filterValues) {
         SqlInjectionValidator.validateTable(tableCode);
         SqlInjectionValidator.validateFieldFormat(parentColumn);
         String deleteColumn = getDeleteColumn(tableCode);
+        boolean hasFilter = StringUtils.isNotEmpty(filterColumn)
+                && filterValues != null && !filterValues.isEmpty();
+        if (hasFilter) {
+            SqlInjectionValidator.validateFieldFormat(filterColumn);
+            return lowcodeMapper.countByParentFiltered(tableCode, deleteColumn, parentColumn,
+                    parentValue, filterColumn, filterValues);
+        }
         return lowcodeMapper.countByParent(tableCode, deleteColumn, parentColumn, parentValue);
     }
 

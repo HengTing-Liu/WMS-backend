@@ -660,7 +660,11 @@ public class WmsLocationBiz {
 
             // 使用 Converter 创建基础实体
             WmsLocation entity = WmsLocationConverter.INSTANCE.batchCreateRequestToEntity(request);
-            
+
+            // 根据父节点等级自动推断子节点等级
+            String parentGrade = parent != null ? parent.getLocationGrade() : null;
+            entity.setLocationGrade(determineLocationGrade(parentGrade));
+
             // 设置批量创建相关字段
             entity.setParentId(request.getParentId());
             entity.setLocationLevel(level);
@@ -672,9 +676,16 @@ public class WmsLocationBiz {
 
             // 生成名称和排序号
             String namePrefix = request.getLocationNamePrefix() != null ? request.getLocationNamePrefix() : "";
-            String serialStr = String.format("%03d", serialNo);
 
-            entity.setLocationName(namePrefix + serialNo);
+            String name;
+            if (request.getLocationName() != null && !request.getLocationName().isEmpty()) {
+                // 使用流水号规则生成容器名称
+                name = sysSerialNumberBiz.generateSerialNumber(request.getLocationName(), currentUser);
+            } else {
+                name = namePrefix + serialNo;
+            }
+
+            entity.setLocationName(name);
             entity.setLocationSortNo(parentSortNo + String.format("%04d", serialNo));
             entity.setLocationFullpathName(buildFullpathName(namePrefix + serialNo, parentFullpathName));
 
@@ -946,7 +957,7 @@ public class WmsLocationBiz {
         for (int i = 1; i <= total; i++) {
             WmsLocation child = new WmsLocation();
             child.setParentId(parent.getId());
-            child.setLocationGrade("ContainerPosition");
+            child.setLocationGrade(determineLocationGrade(parent.getLocationGrade()));
             child.setLocationType(request.getChildrenType() != null ? request.getChildrenType() : "孔");
             child.setLocationLevel(parent.getLocationLevel() + 1);
             child.setLocationLevelCount(parent.getLocationLevelCount());

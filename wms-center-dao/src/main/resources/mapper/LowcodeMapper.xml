@@ -49,6 +49,26 @@
         </choose>
     </select>
 
+    <!-- 统计子节点数量（按列值过滤） -->
+    <select id="countByParentFiltered" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM ${tableCode}
+        WHERE ${deleteColumn} = '0'
+        <choose>
+            <when test="parentValue != null">
+                AND ${parentColumn} = #{parentValue}
+            </when>
+            <otherwise>
+                AND (${parentColumn} IS NULL OR ${parentColumn} = 0 OR ${parentColumn} = '')
+            </otherwise>
+        </choose>
+        <if test="filterColumn != null and filterColumn != '' and filterValues != null and filterValues.size() > 0">
+            AND ${filterColumn} IN
+            <foreach collection="filterValues" item="v" open="(" separator="," close=")">
+                #{v}
+            </foreach>
+        </if>
+    </select>
+
     <!-- 查询所有子节点的ID（递归，MySQL 8.0+ CTE 实现） -->
     <select id="selectAllChildIds" resultType="java.lang.Long">
         WITH RECURSIVE tree_nodes AS (
