@@ -61,6 +61,7 @@ public interface WarehouseConverter {
         response.setErpLocationCode(entity.getErpLocationCode());
         response.setIsEnabled(entity.getIsEnabled());
         response.setRemarks(entity.getRemarks());
+        response.setStoredMaterial(entity.getStoredMaterial());
         if (entity.getCreateTime() != null) {
             response.setGmtCreate(LocalDateTime.ofInstant(entity.getCreateTime().toInstant(), ZoneId.systemDefault()));
         }

@@ -720,7 +720,7 @@ public class WmsLocationBiz {
 
             entity.setLocationName(name);
             entity.setLocationSortNo(parentSortNo + String.format("%04d", serialNo));
-            entity.setLocationFullpathName(buildFullpathName(namePrefix + serialNo, parentFullpathName));
+            entity.setLocationFullpathName(buildFullpathName(name, parentFullpathName));
 
             // 设置系统字段
             entity.setCreateBy(currentUser);
