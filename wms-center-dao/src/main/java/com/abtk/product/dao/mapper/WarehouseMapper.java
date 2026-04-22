@@ -86,8 +86,16 @@ public interface WarehouseMapper {
     /**
      * 查询指定温区的隔离仓/留样仓列表
      *
-     * @param temperatureZone 温区
+     * @param condition 查询条件（temperatureZone, deptCode, warehouseType, storedMaterial）
      * @return 仓库列表
      */
-    List<Warehouse> selectByTemperatureZoneAndTypes(@Param("temperatureZone") String temperatureZone);
+    List<Warehouse> selectByTemperatureZoneAndTypes(Warehouse condition);
+
+    /**
+     * 根据仓库编码列表批量查询仓库
+     *
+     * @param warehouseCodes 仓库编码列表
+     * @return 仓库列表
+     */
+    List<Warehouse> selectByWarehouseCodes(@Param("warehouseCodes") List<String> warehouseCodes);
 }

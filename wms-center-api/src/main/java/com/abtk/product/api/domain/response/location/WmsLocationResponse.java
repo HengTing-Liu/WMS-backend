@@ -80,6 +80,30 @@ public class WmsLocationResponse extends BaseResponse {
     private String warehouseCode;
 
     /**
+     * 仓库名称
+     */
+    @Schema(description = "仓库名称")
+    private String warehouseName;
+
+    /**
+     * 仓库所在地
+     */
+    @Schema(description = "仓库所在地")
+    private String warehouseLocation;
+
+    /**
+     * 温度分区
+     */
+    @Schema(description = "温度分区")
+    private String temperatureZone;
+
+    /**
+     * 质量分区
+     */
+    @Schema(description = "质量分区")
+    private String qualityZone;
+
+    /**
      * 上级名称
      */
     @Schema(description = "上级名称")

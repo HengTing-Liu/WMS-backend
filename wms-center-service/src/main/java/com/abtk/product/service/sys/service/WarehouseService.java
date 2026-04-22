@@ -80,10 +80,21 @@ public interface WarehouseService {
     Warehouse getByWarehouseCode(String warehouseCode);
 
     /**
-     * 查询指定温区的隔离仓/留样仓列表
+     * 查询可选仓库列表（温区、责任部门、仓库类型、存储物料均一致）
      *
      * @param temperatureZone 温区
+     * @param deptNameFullPath 责任部门全流程名称
+     * @param warehouseType 仓库类型
+     * @param storedMaterial 存储物料
      * @return 仓库列表
      */
-    List<Warehouse> listByTemperatureZoneAndTypes(String temperatureZone);
+    List<Warehouse> listByTemperatureZoneAndTypes(String temperatureZone, String deptNameFullPath, String warehouseType, String storedMaterial);
+
+    /**
+     * 根据仓库编码列表批量查询仓库
+     *
+     * @param warehouseCodes 仓库编码列表
+     * @return 仓库列表
+     */
+    List<Warehouse> listByWarehouseCodes(List<String> warehouseCodes);
 }

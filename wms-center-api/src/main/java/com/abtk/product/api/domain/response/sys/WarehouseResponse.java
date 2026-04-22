@@ -86,6 +86,10 @@ public class WarehouseResponse extends BaseResponse {
     @Schema(description = "备注")
     private String remarks;
 
+    @Excel(name = "存储物料")
+    @Schema(description = "存储物料")
+    private String storedMaterial;
+
     @Excel(name = "创建时间")
     @Schema(description = "创建时间")
     private LocalDateTime gmtCreate;

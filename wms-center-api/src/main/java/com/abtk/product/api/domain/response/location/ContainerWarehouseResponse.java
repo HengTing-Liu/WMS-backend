@@ -50,6 +50,42 @@ public class ContainerWarehouseResponse {
     private String temperatureZone;
 
     /**
+     * ERP公司名称
+     */
+    @Schema(description = "ERP公司名称")
+    private String erpCompanyName;
+
+    /**
+     * 仓库类型
+     */
+    @Schema(description = "仓库类型")
+    private String warehouseType;
+
+    /**
+     * 仓库所在地
+     */
+    @Schema(description = "仓库所在地")
+    private String warehouseLocation;
+
+    /**
+     * 质量分区
+     */
+    @Schema(description = "质量分区")
+    private String qualityZone;
+
+    /**
+     * 库位等级（存储分区/存储容器）
+     */
+    @Schema(description = "库位等级")
+    private String locationGrade;
+
+    /**
+     * 全路径名称
+     */
+    @Schema(description = "全路径名称")
+    private String locationFullpathName;
+
+    /**
      * 是否已选中
      */
     @Schema(description = "是否已选中")

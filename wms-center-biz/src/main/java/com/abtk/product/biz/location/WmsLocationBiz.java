@@ -654,23 +654,54 @@ public class WmsLocationBiz {
         String parentName = parent != null ? parent.getLocationName() : null;
         String parentFullpathName = parent != null ? parent.getLocationFullpathName() : null;
         String parentSortNo = parent != null ? parent.getLocationSortNo() : "L";
+        int startSerial = getNextSerialNo(parent.getId(), request.getStartSerialNo() != null ? request.getStartSerialNo() : 1);
+
+        // 查询同级已有节点，用于计算 internalQuantity（同级总数）
+        List<WmsLocation> existingSiblings = wmsLocationService.queryByParentId(request.getParentId());
+        int existingSiblingCount = existingSiblings != null ? existingSiblings.size() : 0;
+        // 同级总数量 = 已有数量 + 本次创建数量
+        int totalSiblingQuantity = existingSiblingCount + request.getQuantity();
+
+        // 更新已有同级节点的 internalQuantity 和 internalSerialNo（如有必要）
+        if (existingSiblings != null && !existingSiblings.isEmpty()) {
+            for (WmsLocation sibling : existingSiblings) {
+                // 更新 internalQuantity 为新的总数量
+                if (sibling.getInternalQuantity() == null || sibling.getInternalQuantity() != totalSiblingQuantity) {
+                    sibling.setInternalQuantity(totalSiblingQuantity);
+                    sibling.setUpdateBy(currentUser);
+                    sibling.setUpdateTime(now);
+                    wmsLocationService.update(sibling);
+                }
+            }
+        }
 
         for (int i = 0; i < request.getQuantity(); i++) {
-            int serialNo = request.getStartSerialNo() + i;
+            int serialNo = startSerial + i;
 
             // 使用 Converter 创建基础实体
             WmsLocation entity = WmsLocationConverter.INSTANCE.batchCreateRequestToEntity(request);
 
-            // 根据父节点等级自动推断子节点等级
+            // 根据父节点等级自动推断子节点等级，固定使用中文值
             String parentGrade = parent != null ? parent.getLocationGrade() : null;
-            entity.setLocationGrade(determineLocationGrade(parentGrade));
+            if ("Container".equals(parentGrade) || "存储容器".equals(parentGrade)) {
+                entity.setLocationGrade("存储孔位");
+            } else {
+                entity.setLocationGrade("存储容器");
+            }
+
+            // 规格：共享模式固定为1x1，独占模式使用传入值
+            if ("Shared".equals(request.getStorageMode())) {
+                entity.setSpecification("1x1");
+            } else {
+                entity.setSpecification(request.getSpecification());
+            }
 
             // 设置批量创建相关字段
             entity.setParentId(request.getParentId());
             entity.setLocationLevel(level);
             entity.setLocationLevelCount(levelCount);
             entity.setInternalSerialNo(serialNo);
-            entity.setInternalQuantity(request.getQuantity());
+            entity.setInternalQuantity(totalSiblingQuantity);  // 同级总数量
             entity.setWarehouseCode(warehouseCode);
             entity.setParentName(parentName);
 
@@ -682,7 +713,9 @@ public class WmsLocationBiz {
                 // 使用流水号规则生成容器名称
                 name = sysSerialNumberBiz.generateSerialNumber(request.getLocationName(), currentUser);
             } else {
-                name = namePrefix + serialNo;
+                // 未选流水号规则时，使用容器类型+序号
+                String typePrefix = request.getLocationType() != null ? request.getLocationType() : "";
+                name = typePrefix + serialNo;
             }
 
             entity.setLocationName(name);
@@ -957,7 +990,7 @@ public class WmsLocationBiz {
         for (int i = 1; i <= total; i++) {
             WmsLocation child = new WmsLocation();
             child.setParentId(parent.getId());
-            child.setLocationGrade(determineLocationGrade(parent.getLocationGrade()));
+            child.setLocationGrade("存储孔位");
             child.setLocationType(request.getChildrenType() != null ? request.getChildrenType() : "孔");
             child.setLocationLevel(parent.getLocationLevel() + 1);
             child.setLocationLevelCount(parent.getLocationLevelCount());
@@ -1417,9 +1450,31 @@ public class WmsLocationBiz {
                 .map(WmsLocationConverter.INSTANCE::entityToResponseWithOccupancy)
                 .collect(Collectors.toList());
 
+        // 收集所有仓库并建立编码到仓库的映射
+        java.util.Map<String, Warehouse> warehouseMap = new java.util.HashMap<>();
+        List<Warehouse> allWarehouses = warehouseService.listAll();
+        if (allWarehouses != null) {
+            warehouseMap = allWarehouses.stream()
+                    .collect(Collectors.toMap(Warehouse::getWarehouseCode, w -> w, (a, b) -> a));
+        }
+
         // 使用Map存储ID到节点的映射
         java.util.Map<Long, WmsLocationResponse> nodeMap = responseList.stream()
                 .collect(Collectors.toMap(WmsLocationResponse::getId, n -> n, (a, b) -> a));
+
+        // 为每个节点注入仓库档案信息
+        for (WmsLocationResponse node : responseList) {
+            String whCode = node.getWarehouseCode();
+            if (whCode != null && !whCode.isEmpty()) {
+                Warehouse wh = warehouseMap.get(whCode);
+                if (wh != null) {
+                    node.setWarehouseName(wh.getWarehouseName());
+                    node.setWarehouseLocation(wh.getWarehouseLocation());
+                    node.setTemperatureZone(wh.getTemperatureZone());
+                    node.setQualityZone(wh.getQualityZone());
+                }
+            }
+        }
 
         List<WmsLocationResponse> result = new ArrayList<>();
 
@@ -1630,45 +1685,77 @@ public class WmsLocationBiz {
 
         String originalTemperatureZone = originalWarehouse.getTemperatureZone();
 
-        // 3. 查询存储容器列表
+        // 3. 查询存储分区和存储容器列表
+        List<WmsLocation> allChildren = wmsLocationService.queryAllChildren(locationId);
+        // 过滤出存储分区和存储容器（排除根节点和孔位）
         List<WmsLocation> containers;
         if (containerIds != null && !containerIds.isEmpty()) {
-            containers = wmsLocationService.queryByIds(containerIds);
+            // 如果指定了containerIds，只返回这些ID对应的记录
+            containers = allChildren.stream()
+                    .filter(c -> containerIds.contains(c.getId()))
+                    .collect(Collectors.toList());
         } else {
-            // 查询该分区下的所有存储容器
-            containers = wmsLocationService.queryByParentId(locationId);
+            // 返回存储分区和存储容器（locationGrade 为 StorageSection/存储分区/Container/存储容器）
+            containers = allChildren.stream()
+                    .filter(c -> {
+                        String grade = c.getLocationGrade();
+                        return "StorageSection".equals(grade) || "TypeSection".equals(grade)
+                                || "存储分区".equals(grade) || "Container".equals(grade)
+                                || "存储容器".equals(grade);
+                    })
+                    .collect(Collectors.toList());
         }
 
         // 转换为响应DTO
+        // 默认全部选中，除非明确指定了containerIds（用于回显已选项）
+        boolean selectAll = containerIds == null || containerIds.isEmpty();
         List<ContainerWarehouseResponse> containerResponses = containers.stream()
                 .map(c -> {
                     ContainerWarehouseResponse resp = new ContainerWarehouseResponse();
                     resp.setContainerId(c.getId());
                     resp.setContainerName(c.getLocationName());
+                    resp.setContainerNo(c.getLocationSortNo());
                     resp.setWarehouseCode(c.getWarehouseCode());
-                    resp.setSelected(containerIds != null && containerIds.contains(c.getId()));
+                    resp.setLocationGrade(c.getLocationGrade());
+                    resp.setLocationFullpathName(c.getLocationFullpathName());
+                    resp.setSelected(selectAll || (containerIds != null && containerIds.contains(c.getId())));
 
-                    // 查询仓库名称
+                    // 查询仓库信息
                     if (c.getWarehouseCode() != null) {
                         Warehouse wh = warehouseService.getByWarehouseCode(c.getWarehouseCode());
                         if (wh != null) {
                             resp.setWarehouseName(wh.getWarehouseName());
                             resp.setTemperatureZone(wh.getTemperatureZone());
+                            resp.setErpCompanyName(wh.getErpCompanyName());
+                            resp.setWarehouseType(wh.getWarehouseType());
+                            resp.setWarehouseLocation(wh.getWarehouseLocation());
+                            resp.setQualityZone(wh.getQualityZone());
                         }
                     }
                     return resp;
                 })
                 .collect(Collectors.toList());
 
-        // 4. 查询可选仓库（温区一致的隔离仓/留样仓）
-        List<Warehouse> availableWhList = warehouseService.listByTemperatureZoneAndTypes(originalTemperatureZone);
+        // 4. 查询可选仓库（温区、责任部门全流程名称、仓库类型、存储物料均一致，且仓库已启用）
+        List<Warehouse> availableWhList = warehouseService.listByTemperatureZoneAndTypes(
+                originalWarehouse.getTemperatureZone(),
+                originalWarehouse.getDeptNameFullPath(),
+                originalWarehouse.getWarehouseType(),
+                originalWarehouse.getStoredMaterial()
+        );
+        // 排除原仓库
         List<AvailableWarehouseResponse> availableWarehouses = availableWhList.stream()
+                .filter(wh -> !originalWarehouseCode.equals(wh.getWarehouseCode()))
                 .map(wh -> {
                     AvailableWarehouseResponse resp = new AvailableWarehouseResponse();
                     resp.setWarehouseCode(wh.getWarehouseCode());
                     resp.setWarehouseName(wh.getWarehouseName());
                     resp.setWarehouseType(wh.getWarehouseType());
                     resp.setTemperatureZone(wh.getTemperatureZone());
+                    resp.setErpCompanyName(wh.getErpCompanyName());
+                    resp.setWarehouseLocation(wh.getWarehouseLocation());
+                    resp.setQualityZone(wh.getQualityZone());
+                    resp.setDeptNameFullPath(wh.getDeptNameFullPath());
                     resp.setDisplayName(buildWarehouseDisplayName(wh));
                     return resp;
                 })
@@ -1679,6 +1766,13 @@ public class WmsLocationBiz {
         response.setOriginalWarehouseCode(originalWarehouseCode);
         response.setOriginalWarehouseName(originalWarehouse.getWarehouseName());
         response.setOriginalTemperatureZone(originalTemperatureZone);
+        response.setOriginalWarehouseType(originalWarehouse.getWarehouseType());
+        response.setOriginalErpCompanyName(originalWarehouse.getErpCompanyName());
+        response.setOriginalWarehouseLocation(originalWarehouse.getWarehouseLocation());
+        response.setOriginalQualityZone(originalWarehouse.getQualityZone());
+        response.setOriginalEmployeeName(originalWarehouse.getEmployeeName());
+        response.setOriginalStoredMaterial(originalWarehouse.getStoredMaterial());
+        response.setOriginalDeptNameFullPath(originalWarehouse.getDeptNameFullPath());
         response.setContainers(containerResponses);
         response.setAvailableWarehouses(availableWarehouses);
 
@@ -1728,13 +1822,7 @@ public class WmsLocationBiz {
             return R.fail(-1, "新仓库温区与原仓库不一致，无法分配");
         }
 
-        // 5. 仓库类型校验（必须是隔离仓或留样仓）
-        String targetType = targetWarehouse.getWarehouseType();
-        if (!"QUARANTINE".equals(targetType) && !"SAMPLE".equals(targetType)) {
-            return R.fail("仅支持分配到隔离仓或留样仓");
-        }
-
-        // 6. 执行批量更新
+        // 5. 执行批量更新
         String currentUser = SecurityUtils.getUsername();
         int updatedCount = wmsLocationService.batchUpdateWarehouseCode(
                 request.getContainerIds(),
@@ -2011,9 +2099,16 @@ public class WmsLocationBiz {
 
     /**
      * 构建仓库显示名称
+     * 格式：ERP公司名称 仓库类型 - 所在地 仓库名称 温度分区 质量分区（责任部门）(仓库编码)
      */
     private String buildWarehouseDisplayName(Warehouse warehouse) {
         StringBuilder sb = new StringBuilder();
+
+        // ERP公司名称
+        if (warehouse.getErpCompanyName() != null && !warehouse.getErpCompanyName().isEmpty()) {
+            sb.append(warehouse.getErpCompanyName());
+        }
+
         // 仓库类型标签
         String typeLabel = "";
         if ("QUARANTINE".equals(warehouse.getWarehouseType())) {
@@ -2021,17 +2116,43 @@ public class WmsLocationBiz {
         } else if ("SAMPLE".equals(warehouse.getWarehouseType())) {
             typeLabel = "留样仓";
         } else {
-            typeLabel = warehouse.getWarehouseType();
+            typeLabel = warehouse.getWarehouseType() != null ? warehouse.getWarehouseType() : "";
         }
-        sb.append(typeLabel);
+        if (!typeLabel.isEmpty()) {
+            if (sb.length() > 0) sb.append(" ");
+            sb.append(typeLabel);
+        }
 
-        // 温区
-        if (warehouse.getTemperatureZone() != null) {
-            sb.append(" - ").append(warehouse.getTemperatureZone()).append("区");
+        // 所在地
+        if (warehouse.getWarehouseLocation() != null && !warehouse.getWarehouseLocation().isEmpty()) {
+            sb.append(" - ").append(warehouse.getWarehouseLocation());
         }
 
         // 仓库名称
-        sb.append("（").append(warehouse.getWarehouseCode()).append("）");
+        if (warehouse.getWarehouseName() != null && !warehouse.getWarehouseName().isEmpty()) {
+            if (sb.length() > 0) sb.append(" ");
+            sb.append(warehouse.getWarehouseName());
+        }
+
+        // 温度分区
+        if (warehouse.getTemperatureZone() != null && !warehouse.getTemperatureZone().isEmpty()) {
+            sb.append(" ").append(warehouse.getTemperatureZone());
+        }
+
+        // 质量分区
+        if (warehouse.getQualityZone() != null && !warehouse.getQualityZone().isEmpty()) {
+            sb.append(" ").append(warehouse.getQualityZone());
+        }
+
+        // 责任部门
+        if (warehouse.getDeptNameFullPath() != null && !warehouse.getDeptNameFullPath().isEmpty()) {
+            sb.append("（").append(warehouse.getDeptNameFullPath()).append("）");
+        }
+
+        // 仓库编码
+        if (warehouse.getWarehouseCode() != null && !warehouse.getWarehouseCode().isEmpty()) {
+            sb.append("（").append(warehouse.getWarehouseCode()).append("）");
+        }
 
         return sb.toString();
     }

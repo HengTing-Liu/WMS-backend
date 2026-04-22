@@ -135,7 +135,20 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
-    public List<Warehouse> listByTemperatureZoneAndTypes(String temperatureZone) {
-        return warehouseMapper.selectByTemperatureZoneAndTypes(temperatureZone);
+    public List<Warehouse> listByTemperatureZoneAndTypes(String temperatureZone, String deptNameFullPath, String warehouseType, String storedMaterial) {
+        Warehouse condition = new Warehouse();
+        condition.setTemperatureZone(temperatureZone);
+        condition.setDeptNameFullPath(deptNameFullPath);
+        condition.setWarehouseType(warehouseType);
+        condition.setStoredMaterial(storedMaterial);
+        return warehouseMapper.selectByTemperatureZoneAndTypes(condition);
+    }
+
+    @Override
+    public List<Warehouse> listByWarehouseCodes(List<String> warehouseCodes) {
+        if (warehouseCodes == null || warehouseCodes.isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+        return warehouseMapper.selectByWarehouseCodes(warehouseCodes);
     }
 }

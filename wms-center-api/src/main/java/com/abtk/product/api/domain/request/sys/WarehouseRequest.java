@@ -131,4 +131,11 @@ public class WarehouseRequest extends BaseRequest {
     @Size(max = 500, message = "备注长度不能超过500")
     @Schema(description = "备注")
     private String remarks;
+
+    /**
+     * 存储物料
+     */
+    @Size(max = 500, message = "存储物料长度不能超过500")
+    @Schema(description = "存储物料")
+    private String storedMaterial;
 }

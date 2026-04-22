@@ -63,6 +63,9 @@ public class Warehouse extends BaseEntity implements Serializable {
     /** 逻辑删除：0-未删除 1-已删除 */
     private Integer isDeleted;
 
+    /** 存储物料 */
+    private String storedMaterial;
+
     // Getter和Setter方法
     public Long getId() {
         return id;
@@ -206,5 +209,13 @@ public class Warehouse extends BaseEntity implements Serializable {
 
     public void setIsDeleted(Integer isDeleted) {
         this.isDeleted = isDeleted;
+    }
+
+    public String getStoredMaterial() {
+        return storedMaterial;
+    }
+
+    public void setStoredMaterial(String storedMaterial) {
+        this.storedMaterial = storedMaterial;
     }
 }

@@ -22,6 +22,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<result property="erpLocationCode"     column="erp_location_code" />
 		<result property="isEnabled"           column="is_enabled" />
 		<result property="remarks"              column="remarks" />
+		<result property="storedMaterial"      column="stored_material" />
 		<result property="createBy"            column="create_by" />
 		<result property="createTime"          column="create_time" />
 		<result property="updateBy"            column="update_by" />
@@ -34,7 +35,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                temperature_zone, quality_zone, employee_code, employee_name,
                dept_code, dept_name_full_path,
                erp_company_code, erp_company_name, erp_warehouse_code, erp_location_code,
-               is_enabled, remarks, create_by, create_time, update_by, update_time
+               is_enabled, remarks, stored_material, create_by, create_time, update_by, update_time
 		FROM inv_warehouse
 		WHERE is_deleted = 0
     </sql>
@@ -82,6 +83,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			erp_location_code,
 			is_enabled,
 			remarks,
+			stored_material,
 			create_by,
 			create_time
 		) VALUES (
@@ -101,6 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			#{erpLocationCode},
 			#{isEnabled},
 			#{remarks},
+			#{storedMaterial},
 			#{createBy},
 			NOW()
 		)
@@ -125,6 +128,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<if test="erpLocationCode != null">erp_location_code = #{erpLocationCode},</if>
 			<if test="isEnabled != null">is_enabled = #{isEnabled},</if>
 			<if test="remarks != null">remarks = #{remarks},</if>
+			<if test="storedMaterial != null">stored_material = #{storedMaterial},</if>
 			<if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
 			update_time = NOW()
 		</set>
@@ -172,12 +176,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		AND warehouse_code = #{warehouseCode}
 	</select>
 
-	<select id="selectByTemperatureZoneAndTypes" parameterType="String" resultMap="WarehouseResult">
+	<select id="selectByTemperatureZoneAndTypes" parameterType="com.abtk.product.dao.entity.Warehouse" resultMap="WarehouseResult">
 		<include refid="selectWarehouseVo"/>
 		AND temperature_zone = #{temperatureZone}
-		AND warehouse_type IN ('QUARANTINE', 'SAMPLE')
+		AND dept_name_full_path = #{deptNameFullPath}
+		AND warehouse_type = #{warehouseType}
+		AND stored_material IS NOT NULL
+		AND stored_material = #{storedMaterial}
 		AND is_enabled = 1
 		ORDER BY warehouse_code
+	</select>
+
+	<select id="selectByWarehouseCodes" resultMap="WarehouseResult">
+		<include refid="selectWarehouseVo"/>
+		AND warehouse_code IN
+		<foreach collection="warehouseCodes" item="code" open="(" separator="," close=")">
+			#{code}
+		</foreach>
 	</select>
 
 </mapper>

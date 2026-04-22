@@ -34,6 +34,48 @@ public class AssignWarehouseInitResponse {
     private String originalTemperatureZone;
 
     /**
+     * 原仓库类型
+     */
+    @Schema(description = "原仓库类型")
+    private String originalWarehouseType;
+
+    /**
+     * 原仓库ERP公司名称
+     */
+    @Schema(description = "原仓库ERP公司名称")
+    private String originalErpCompanyName;
+
+    /**
+     * 原仓库所在地
+     */
+    @Schema(description = "原仓库所在地")
+    private String originalWarehouseLocation;
+
+    /**
+     * 原仓库质量分区
+     */
+    @Schema(description = "原仓库质量分区")
+    private String originalQualityZone;
+
+    /**
+     * 原仓库责任人
+     */
+    @Schema(description = "原仓库责任人")
+    private String originalEmployeeName;
+
+    /**
+     * 原仓库存储物料
+     */
+    @Schema(description = "原仓库存储物料")
+    private String originalStoredMaterial;
+
+    /**
+     * 原仓库责任部门全路径
+     */
+    @Schema(description = "原仓库责任部门全路径")
+    private String originalDeptNameFullPath;
+
+    /**
      * 存储容器列表
      */
     @Schema(description = "存储容器列表")
