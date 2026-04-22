@@ -122,7 +122,7 @@ public class CrudServiceImpl implements CrudService {
         Map<String, String> rawQueryModes = new HashMap<>();
         if (params != null) {
             params.forEach((key, value) -> {
-                if ("queryModes".equals(key)) {
+                if ("queryModes".equals(key) || "query_modes".equals(key)) {
                     rawQueryModes.putAll(parseQueryModes(value));
                     return;
                 }
@@ -200,7 +200,7 @@ public class CrudServiceImpl implements CrudService {
         Map<String, String> rawQueryModes = new HashMap<>();
         if (params != null) {
             params.forEach((key, value) -> {
-                if ("queryModes".equals(key)) {
+                if ("queryModes".equals(key) || "query_modes".equals(key)) {
                     rawQueryModes.putAll(parseQueryModes(value));
                     return;
                 }
@@ -363,6 +363,8 @@ public class CrudServiceImpl implements CrudService {
     public Map<String, Object> exportList(String tableCode, Map<String, Object> params) {
         SqlInjectionValidator.validateTable(tableCode);
 
+        List<Long> exportIdFilter = extractExportIdList(params);
+
         // 闁哄鏅涘ú锕傚箮閵堝绠冲璺猴工閻庤顪冮妶澶嬫锭鐎殿噮鍓熷?
         Map<String, Object> filteredParams = new HashMap<>();
         Map<String, String> queryModes = new HashMap<>();
@@ -370,8 +372,12 @@ public class CrudServiceImpl implements CrudService {
             for (Map.Entry<String, Object> entry : params.entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
-                if ("queryModes".equals(key)) {
+                if ("queryModes".equals(key) || "query_modes".equals(key)) {
                     queryModes.putAll(parseQueryModes(value));
+                    continue;
+                }
+                // 勾选导出：ids 仅用于导出结果过滤，不能进入动态 WHERE（否则生成 m.ids = ?）
+                if ("ids".equals(key)) {
                     continue;
                 }
                 if (!PAGE_PARAMS.contains(key) && value != null && !"".equals(value)) {
@@ -390,16 +396,56 @@ public class CrudServiceImpl implements CrudService {
 
         // 闂佸搫琚崕鎾敋濡ゅ懎绀傞柕濞炬櫅閸斻儵鏌℃担鍝勵暭鐎规挷绶氶弫宥夊醇濠婂懐鎲归梺鍛婂笒濡繈濡存径鎰櫖?
         List<LookupColumn> exportLookups = lookupSqlBuilder.buildForTable(tableCode);
+        Integer exportPageNum = parsePositiveIntParam(params, "pageNum");
+        Integer exportPageSize = parsePositiveIntParam(params, "pageSize");
+        boolean useExportPaging = exportPageNum != null && exportPageSize != null;
+
         List<Map<String, Object>> dataList;
-        if (exportLookups != null && !exportLookups.isEmpty()) {
-            LookupSqlBuilder.VirtualParamHolder virtual = lookupSqlBuilder.splitVirtualParams(filteredParams, exportLookups);
-            Map<String, String> virtualQueryModes = extractVirtualQueryModes(queryModes, virtual.getValues().keySet());
-            Map<String, String> separatorParams = lookupSqlBuilder.buildSeparatorParams(exportLookups);
-            dataList = dynamicMapper.selectAllJoined(tableCode, exportLookups, filteredParams, queryModes,
-                    virtual.getValues(), virtual.getSqlExpressions(), virtualQueryModes,
-                    separatorParams, deleteColumn, dataScope);
-        } else {
-            dataList = dynamicMapper.selectAll(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
+        try {
+            if (useExportPaging) {
+                PageHelper.startPage(exportPageNum, exportPageSize);
+            }
+            if (exportLookups != null && !exportLookups.isEmpty()) {
+                LookupSqlBuilder.VirtualParamHolder virtual = lookupSqlBuilder.splitVirtualParams(filteredParams, exportLookups);
+                Map<String, String> virtualQueryModes = extractVirtualQueryModes(queryModes, virtual.getValues().keySet());
+                Map<String, String> separatorParams = lookupSqlBuilder.buildSeparatorParams(exportLookups);
+                if (useExportPaging) {
+                    dataList = dynamicMapper.selectListJoined(tableCode, exportLookups, filteredParams, queryModes,
+                            virtual.getValues(), virtual.getSqlExpressions(), virtualQueryModes,
+                            separatorParams, deleteColumn, dataScope);
+                } else {
+                    dataList = dynamicMapper.selectAllJoined(tableCode, exportLookups, filteredParams, queryModes,
+                            virtual.getValues(), virtual.getSqlExpressions(), virtualQueryModes,
+                            separatorParams, deleteColumn, dataScope);
+                }
+            } else {
+                if (useExportPaging) {
+                    dataList = dynamicMapper.selectList(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
+                } else {
+                    dataList = dynamicMapper.selectAll(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
+                }
+            }
+        } finally {
+            if (useExportPaging) {
+                PageHelper.clearPage();
+            }
+        }
+
+        if (exportIdFilter != null && !exportIdFilter.isEmpty()) {
+            Set<Long> allowed = new HashSet<>(exportIdFilter);
+            String pkColumn = getPkColumn(tableCode);
+            dataList = dataList.stream().filter(row -> {
+                Object pkVal = row.get(pkColumn);
+                if (pkVal == null && !"id".equals(pkColumn)) {
+                    pkVal = row.get("id");
+                }
+                if (pkVal == null) {
+                    return false;
+                }
+                long id = pkVal instanceof Number ? ((Number) pkVal).longValue()
+                        : Long.parseLong(String.valueOf(pkVal).trim());
+                return allowed.contains(id);
+            }).collect(Collectors.toList());
         }
 
         // 闁诲繐绻愬Λ娆撳汲閻旂厧绠?Map 闂?key 婵炲濮寸花鑲╃箔閸涙潙绀嗛柟鐑樻煥濞堢娀寮堕悜鍡楀幐閻犳劗鍠愰妵娆撴偂鎼粹剝些闂佹寧绋戦悧鍛箔?ColumnMeta.field 闂佸搫绉堕崢褏妲愰埄鍐攳婵犻潧娲ら惁顔尖槈閹绢垰浜鹃梺鑲╂焿閹活亞妲?
@@ -453,6 +499,109 @@ public class CrudServiceImpl implements CrudService {
         }
         return result.toString();
     }
+
+    /** 导出请求中的 pageNum / pageSize；仅当两者均为正数时启用分页导出 */
+    private Integer parsePositiveIntParam(Map<String, Object> params, String name) {
+        if (params == null) {
+            return null;
+        }
+        Object v = params.get(name);
+        if (v == null) {
+            return null;
+        }
+        int n;
+        if (v instanceof Number) {
+            n = ((Number) v).intValue();
+        } else {
+            try {
+                n = Integer.parseInt(String.valueOf(v).trim());
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return n > 0 ? n : null;
+    }
+
+    /**
+     * 导出勾选：解析 ids 参数（GET 重复键、逗号分隔、JSON 等均兼容），不做 SQL 拼接。
+     */
+    private List<Long> extractExportIdList(Map<String, Object> params) {
+        if (params == null || params.isEmpty()) {
+            return null;
+        }
+        Object raw = params.get("ids");
+        return normalizeIdList(raw);
+    }
+
+    private List<Long> normalizeIdList(Object raw) {
+        if (raw == null) {
+            return null;
+        }
+        List<Long> out = new ArrayList<>();
+        if (raw instanceof Collection<?>) {
+            for (Object o : (Collection<?>) raw) {
+                Long v = parseLongFlexible(o);
+                if (v != null) {
+                    out.add(v);
+                }
+            }
+            return out.isEmpty() ? null : out;
+        }
+        if (raw instanceof String) {
+            String s = ((String) raw).trim();
+            if (s.isEmpty()) {
+                return null;
+            }
+            if (s.startsWith("[") && s.endsWith("]")) {
+                try {
+                    List<?> arr = JSON.parseArray(s);
+                    return normalizeIdList(arr);
+                } catch (Exception e) {
+                    log.warn("normalizeIdList JSON parse failed: {}", s);
+                }
+            }
+            for (String part : s.split(",")) {
+                Long v = parseLongFlexible(part.trim());
+                if (v != null) {
+                    out.add(v);
+                }
+            }
+            return out.isEmpty() ? null : out;
+        }
+        if (raw instanceof long[]) {
+            for (long x : (long[]) raw) {
+                out.add(x);
+            }
+            return out.isEmpty() ? null : out;
+        }
+        if (raw instanceof int[]) {
+            for (int x : (int[]) raw) {
+                out.add((long) x);
+            }
+            return out.isEmpty() ? null : out;
+        }
+        Long single = parseLongFlexible(raw);
+        return single != null ? Collections.singletonList(single) : null;
+    }
+
+    private Long parseLongFlexible(Object o) {
+        if (o == null) {
+            return null;
+        }
+        if (o instanceof Number) {
+            return ((Number) o).longValue();
+        }
+        try {
+            String t = String.valueOf(o).trim();
+            if (t.isEmpty()) {
+                return null;
+            }
+            return Long.parseLong(t);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     /**
      * 闁告挸绉堕?camelCase 閻庢稒顨嗛宀勫触瀹ュ牊绁?SQL snake_case闁挎稒绋戦崙锟犲及?snake_case 闁告帗鐟ョ敮顐﹀冀閻ゎ垳绠查柛?     */
     private String toSqlFieldName(String fieldName) {

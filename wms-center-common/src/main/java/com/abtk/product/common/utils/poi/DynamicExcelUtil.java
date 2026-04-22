@@ -161,7 +161,7 @@ public class DynamicExcelUtil {
                     ExportField field = fields.get(i);
                     Cell cell = row.createCell(i);
                     cell.setCellStyle(dataStyle);
-                    Object value = rowData.get(field.getField());
+                    Object value = resolveRowFieldValue(rowData, field.getField());
                     setCellValue(cell, value, field.getDataType());
                 }
                 rowNum++;
@@ -229,6 +229,47 @@ public class DynamicExcelUtil {
             fields.add(field);
         }
         return fields;
+    }
+
+    /**
+     * 从行 Map 取值：优先匹配元数据 field，其次将 snake_case 字段名转为 camelCase 再取
+     * （与 CrudServiceImpl 导出前对 SQL 列名的规范化一致，避免列配置为 warehouse_code 时单元格为空）
+     */
+    private static Object resolveRowFieldValue(Map<String, Object> rowData, String fieldKey) {
+        if (rowData == null || fieldKey == null || fieldKey.isEmpty()) {
+            return null;
+        }
+        if (rowData.containsKey(fieldKey)) {
+            return rowData.get(fieldKey);
+        }
+        String camel = sqlColumnToCamelCase(fieldKey);
+        if (!camel.equals(fieldKey) && rowData.containsKey(camel)) {
+            return rowData.get(camel);
+        }
+        return null;
+    }
+
+    /** 与动态 CRUD 使用的规则一致：warehouse_code → warehouseCode */
+    private static String sqlColumnToCamelCase(String sqlField) {
+        if (sqlField == null || sqlField.isEmpty()) {
+            return sqlField;
+        }
+        StringBuilder result = new StringBuilder();
+        boolean nextUpper = false;
+        for (int i = 0; i < sqlField.length(); i++) {
+            char c = sqlField.charAt(i);
+            if (c == '_') {
+                nextUpper = true;
+            } else {
+                if (nextUpper) {
+                    result.append(Character.toUpperCase(c));
+                    nextUpper = false;
+                } else {
+                    result.append(c);
+                }
+            }
+        }
+        return result.toString();
     }
 
     /**
