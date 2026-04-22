@@ -842,7 +842,7 @@ public class WmsLocationBiz {
             entity.setLocationGrade(locationGrade);
             entity.setLocationType(locationType);
             entity.setLocationLevel(level);
-            entity.setLocationLevelCount(parent.getLocationLevelCount());
+            entity.setLocationLevelCount(1);
             entity.setInternalSerialNo(serialNo);
             entity.setInternalQuantity(quantity);
             entity.setWarehouseCode(parent.getWarehouseCode());
@@ -887,7 +887,7 @@ public class WmsLocationBiz {
             entity.setLocationGrade("存储容器");
             entity.setLocationType(locationType);
             entity.setLocationLevel(level);
-            entity.setLocationLevelCount(parent.getLocationLevelCount());
+            entity.setLocationLevelCount(1);
             entity.setInternalSerialNo(serialNo);
             entity.setInternalQuantity(quantity);
             entity.setWarehouseCode(parent.getWarehouseCode());
@@ -1685,9 +1685,9 @@ public class WmsLocationBiz {
 
         String originalTemperatureZone = originalWarehouse.getTemperatureZone();
 
-        // 3. 查询存储分区和存储容器列表
+        // 3. 查询存储对象、存储分区和存储容器列表
         List<WmsLocation> allChildren = wmsLocationService.queryAllChildren(locationId);
-        // 过滤出存储分区和存储容器（排除根节点和孔位）
+        // 过滤出存储对象、存储分区和存储容器（排除根节点和孔位）
         List<WmsLocation> containers;
         if (containerIds != null && !containerIds.isEmpty()) {
             // 如果指定了containerIds，只返回这些ID对应的记录
@@ -1695,13 +1695,14 @@ public class WmsLocationBiz {
                     .filter(c -> containerIds.contains(c.getId()))
                     .collect(Collectors.toList());
         } else {
-            // 返回存储分区和存储容器（locationGrade 为 StorageSection/存储分区/Container/存储容器）
+            // 返回存储对象、存储分区和存储容器（排除孔位）
             containers = allChildren.stream()
                     .filter(c -> {
                         String grade = c.getLocationGrade();
-                        return "StorageSection".equals(grade) || "TypeSection".equals(grade)
-                                || "存储分区".equals(grade) || "Container".equals(grade)
-                                || "存储容器".equals(grade);
+                        return "StorageType".equals(grade) || "Type".equals(grade)
+                                || "存储对象".equals(grade) || "StorageSection".equals(grade)
+                                || "TypeSection".equals(grade) || "存储分区".equals(grade)
+                                || "Container".equals(grade) || "存储容器".equals(grade);
                     })
                     .collect(Collectors.toList());
         }
