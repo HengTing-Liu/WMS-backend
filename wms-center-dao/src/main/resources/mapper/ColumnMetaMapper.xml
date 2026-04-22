@@ -65,11 +65,12 @@
         ORDER BY sort_order
     </select>
 
+    <!-- 列集合须与 selectByTableCode 对齐，否则按 id 详情会缺 col_span / 只读等字段（列表能显示、编辑页为空） -->
     <select id="selectById" resultMap="ColumnMetaResult">
         SELECT id, table_code, field, title, data_type, form_type, dict_type,
                show_in_list, show_in_form, show_in_export, show_in_import, searchable, is_sortable,
                required, width, sort_order, remarks, status, rules_json, placeholder,
-               component_props, data_source, api_url, label_field, value_field,
+               component_props, data_source, api_url, label_field, value_field, col_span, is_readonly, edit_readonly,
                section_key, section_title, section_order, section_type, section_open,
                column_name, default_value,
                ref_table_code, ref_match_field, ref_target_field, ref_local_field, ref_separator,
