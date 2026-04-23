@@ -5,32 +5,35 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 /**
- * 仓库档案请求入参
+ * 仓库档案批量创建请求入参
+ * 根据温度分区和质量分区的笛卡尔积批量创建仓库
  *
  * @author backend
- * @since 2026-03-18
+ * @since 2026-04-23
  */
 @Data
-@Schema(description = "仓库档案请求入参")
-public class WarehouseRequest extends BaseRequest {
+@Schema(description = "仓库档案批量创建请求入参")
+public class WarehouseBatchRequest extends BaseRequest {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * 仓库类型
      */
+    @NotBlank(message = "仓库类型不能为空")
     @Size(max = 50, message = "仓库类型长度不能超过50")
     @Schema(description = "仓库类型")
     private String warehouseType;
 
     /**
-     * 仓库编码
+     * 仓库编码（自动生成，传入为空）
      */
-    @Size(max = 100, message = "仓库编码长度不能超过100")
-    @Schema(description = "仓库编码")
+    @Schema(description = "仓库编码（自动生成）")
     private String warehouseCode;
 
     /**
@@ -49,18 +52,18 @@ public class WarehouseRequest extends BaseRequest {
     private String warehouseName;
 
     /**
-     * 温度分区
+     * 温度分区列表（多个温度分区，与质量分区笛卡尔积）
      */
-    @Size(max = 50, message = "温度分区长度不能超过50")
-    @Schema(description = "温度分区")
-    private String temperatureZone;
+    @NotEmpty(message = "温度分区不能为空")
+    @Schema(description = "温度分区列表")
+    private List<String> temperatureZones;
 
     /**
-     * 质量分区
+     * 质量分区列表（多个质量分区，与温度分区笛卡尔积）
      */
-    @Size(max = 50, message = "质量分区长度不能超过50")
-    @Schema(description = "质量分区")
-    private String qualityZone;
+    @NotEmpty(message = "质量分区不能为空")
+    @Schema(description = "质量分区列表")
+    private List<String> qualityZones;
 
     /**
      * 责任人工号

@@ -1,23 +1,29 @@
 package com.abtk.product.biz.sys;
 
+import com.abtk.product.api.domain.request.sys.WarehouseBatchRequest;
 import com.abtk.product.api.domain.request.sys.WarehouseQueryRequest;
 import com.abtk.product.api.domain.request.sys.WarehouseRequest;
 import com.abtk.product.api.domain.response.sys.WarehouseResponse;
 import com.abtk.product.common.domain.R;
+import com.abtk.product.common.exception.ServiceException;
 import com.abtk.product.common.utils.bean.BeanUtils;
 import com.abtk.product.dao.entity.Warehouse;
 import com.abtk.product.domain.converter.WarehouseConverter;
 import com.abtk.product.biz.system.CrudSerialNumberBiz;
 import com.abtk.product.service.sys.service.WarehouseService;
 import com.abtk.product.service.system.service.I18nService;
+import com.abtk.product.biz.system.SysSerialNumberBiz;
+import com.abtk.product.service.security.utils.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 仓库档案业务层
@@ -38,6 +44,9 @@ public class WarehouseBiz {
 
     @Autowired
     private CrudSerialNumberBiz crudSerialNumberBiz;
+
+    @Autowired
+    private SysSerialNumberBiz sysSerialNumberBiz;
 
     /**
      * 查询仓库列表
@@ -92,6 +101,12 @@ public class WarehouseBiz {
      * 新增仓库
      */
     public R<Long> add(WarehouseRequest request) {
+        // 若仓库编码为空，自动生成
+        if (request.getWarehouseCode() == null || request.getWarehouseCode().trim().isEmpty()) {
+            String warehouseCode = sysSerialNumberBiz.generateSerialNumberByApplyFormField("inv_warehouse|warehouse_code", SecurityUtils.getUsername());
+            request.setWarehouseCode(warehouseCode);
+        }
+
         // 使用Converter转换Request到Entity
         Warehouse warehouse = WarehouseConverter.INSTANCE.requestToEntity(request);
 
@@ -100,6 +115,68 @@ public class WarehouseBiz {
 
         Long id = warehouseService.create(warehouse);
         return R.ok(id);
+    }
+
+    /**
+     * 批量创建仓库（根据温度分区和质量分区的笛卡尔积）
+     * 例如：温度分区=[常温,4度]，质量分区=[待检区,合格区]
+     * 则生成4条记录：常温-待检区，常温-合格区，4度-待检区，4度-合格区
+     */
+    public R<List<Long>> createBatch(WarehouseBatchRequest request) {
+        List<String> temperatureZones = request.getTemperatureZones();
+        List<String> qualityZones = request.getQualityZones();
+
+        if (temperatureZones == null || temperatureZones.isEmpty()) {
+            throw new ServiceException("温度分区不能为空");
+        }
+        if (qualityZones == null || qualityZones.isEmpty()) {
+            throw new ServiceException("质量分区不能为空");
+        }
+
+        String username = SecurityUtils.getUsername();
+        List<Long> createdIds = new ArrayList<>();
+
+        // 笛卡尔积：每个温度分区 × 每个质量分区
+        for (String temperatureZone : temperatureZones) {
+            for (String qualityZone : qualityZones) {
+                // 使用已有的 SysSerialNumberBiz 生成仓库编码（复用已验证的流水号逻辑）
+                String warehouseCode = sysSerialNumberBiz.generateSerialNumberByApplyFormField("inv_warehouse|warehouse_code", username);
+
+                // 构建仓库名称：直接使用用户输入的原始名称
+                String warehouseName = request.getWarehouseName();
+
+                // 构建仓库实体
+                Warehouse warehouse = new Warehouse();
+                warehouse.setWarehouseType(request.getWarehouseType());
+                warehouse.setWarehouseCode(warehouseCode);
+                warehouse.setWarehouseLocation(request.getWarehouseLocation());
+                warehouse.setWarehouseName(warehouseName);
+                warehouse.setTemperatureZone(temperatureZone);
+                warehouse.setQualityZone(qualityZone);
+                warehouse.setEmployeeCode(request.getEmployeeCode());
+                warehouse.setEmployeeName(request.getEmployeeName());
+                warehouse.setDeptCode(request.getDeptCode());
+                warehouse.setDeptNameFullPath(request.getDeptNameFullPath());
+                warehouse.setErpCompanyCode(request.getErpCompanyCode());
+                warehouse.setErpCompanyName(request.getErpCompanyName());
+                warehouse.setErpWarehouseCode(request.getErpWarehouseCode());
+                warehouse.setErpLocationCode(request.getErpLocationCode());
+                warehouse.setIsEnabled(request.getIsEnabled() != null ? request.getIsEnabled() : 1);
+                warehouse.setRemarks(request.getRemarks());
+                warehouse.setStoredMaterial(request.getStoredMaterial());
+                warehouse.setIsDeleted(0);
+                warehouse.setCreateBy(username);
+                warehouse.setCreateTime(new Date());
+
+                log.info("准备创建仓库: warehouseCode={}, warehouseName={}", warehouseCode, warehouseName);
+                Long id = warehouseService.create(warehouse);
+                createdIds.add(id);
+                log.info("批量创建仓库成功: id={}, warehouseCode={}, warehouseName={}, temperatureZone={}, qualityZone={}",
+                        id, warehouseCode, warehouseName, temperatureZone, qualityZone);
+            }
+        }
+
+        return R.ok(createdIds);
     }
 
     /**

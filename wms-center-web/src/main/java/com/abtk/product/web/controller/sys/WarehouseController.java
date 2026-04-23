@@ -1,5 +1,6 @@
 package com.abtk.product.web.controller.sys;
 
+import com.abtk.product.api.domain.request.sys.WarehouseBatchRequest;
 import com.abtk.product.api.domain.request.sys.WarehouseQueryRequest;
 import com.abtk.product.api.domain.request.sys.WarehouseRequest;
 import com.abtk.product.api.domain.response.sys.WarehouseResponse;
@@ -83,6 +84,18 @@ public class WarehouseController extends BaseController {
     @PostMapping
     public R create(@RequestBody @Valid WarehouseRequest request) {
         return warehouseBiz.add(request);
+    }
+
+    /**
+     * 批量创建仓库（根据温度分区和质量分区的笛卡尔积）
+     * 例如：温度分区=[常温,4度]，质量分区=[待检区,合格区]
+     * 则生成4条记录：常温-待检区，常温-合格区，4度-待检区，4度-合格区
+     */
+    @Log(title = "仓库档案", businessType = BusinessType.INSERT)
+    @RequiresPermissions("wms:base:warehouse:add")
+    @PostMapping("/batch")
+    public R<List<Long>> createBatch(@RequestBody @Valid WarehouseBatchRequest request) {
+        return warehouseBiz.createBatch(request);
     }
 
     /**
