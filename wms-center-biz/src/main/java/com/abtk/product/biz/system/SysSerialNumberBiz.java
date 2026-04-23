@@ -106,6 +106,23 @@ public class SysSerialNumberBiz {
         return doGenerateSerialNumber(rule, updateBy);
     }
 
+    /**
+     * 根据规则编码生成流水号
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public String generateSerialNumberByRuleCode(String ruleCode, String updateBy) {
+        SysSerialNumber rule = findRuleByRuleCode(ruleCode);
+        return doGenerateSerialNumber(rule, updateBy);
+    }
+
+    /**
+     * 根据规则编码预览下一个流水号（只计算，不更新数据库）
+     */
+    public String previewSerialNumberByRuleCode(String ruleCode) {
+        SysSerialNumber rule = findRuleByRuleCode(ruleCode);
+        return doPreviewSerialNumber(rule);
+    }
+
     // ==================== 批量生成 ====================
 
     /**
@@ -164,6 +181,27 @@ public class SysSerialNumberBiz {
         SysSerialNumberResponse response = list.get(0);
         if (!"0".equals(response.getStatus())) {
             throw new RuntimeException(i18nService.getMessage("serial.number.rule.disabled") + ": " + applyFormField);
+        }
+
+        // Response 转 Entity
+        return toEntity(response);
+    }
+
+    /**
+     * 根据规则编码查找规则
+     */
+    private SysSerialNumber findRuleByRuleCode(String ruleCode) {
+        SysSerialNumberQueryRequest query = new SysSerialNumberQueryRequest();
+        query.setRuleCode(ruleCode);
+        List<SysSerialNumberResponse> list = sysSerialNumberService.queryByCondition(query);
+
+        if (list == null || list.isEmpty()) {
+            throw new RuntimeException(i18nService.getMessage("serial.number.rule.not.found") + ": " + ruleCode);
+        }
+
+        SysSerialNumberResponse response = list.get(0);
+        if (!"0".equals(response.getStatus())) {
+            throw new RuntimeException(i18nService.getMessage("serial.number.rule.disabled") + ": " + ruleCode);
         }
 
         // Response 转 Entity
@@ -241,10 +279,9 @@ public class SysSerialNumberBiz {
     }
 
     /**
-     * 执行生成流水号
-     * 格式：prefix + 日期部分 + 序号 + suffix
+     * 预览下一个流水号（只计算，不更新数据库）
      */
-    private synchronized String doGenerateSerialNumber(SysSerialNumber rule, String updateBy) {
+    private String doPreviewSerialNumber(SysSerialNumber rule) {
         if (rule == null || rule.getId() == null) {
             throw new RuntimeException(i18nService.getMessage("serial.number.rule.not.found"));
         }
@@ -276,9 +313,25 @@ public class SysSerialNumberBiz {
         // 构建完整流水号
         String prefix = rule.getPrefix() != null ? rule.getPrefix() : "";
         String suffix = rule.getSuffix() != null ? rule.getSuffix() : "";
-        String serialNumber = prefix + datePart + numberPart + suffix;
+        return prefix + datePart + numberPart + suffix;
+    }
+
+    /**
+     * 执行生成流水号
+     * 格式：prefix + 日期部分 + 序号 + suffix
+     */
+    private synchronized String doGenerateSerialNumber(SysSerialNumber rule, String updateBy) {
+        // 先预览计算
+        String serialNumber = doPreviewSerialNumber(rule);
+
+        // 获取当前重置周期标识（用于更新）
+        String currentResetKey = getResetKey(rule.getResetRule());
 
         // 更新规则 - 同时设置更新人和更新时间
+        Long currentValue = rule.getCurrentValue();
+        if (currentValue == null) {
+            currentValue = rule.getStartValue();
+        }
         rule.setCurrentValue(currentValue + 1);
         rule.setLastResetKey(currentResetKey);
         rule.setUpdateBy(updateBy);

@@ -164,6 +164,9 @@ public class ColumnMeta extends BaseEntity {
      */
     private String refSeparator;
 
+    /** 关联流水号规则编码（对应 sys_serial_number.usage_scope） */
+    private String serialNumberRule;
+
     // Lookup 字段的 setter（显式声明，避免 MyBatis 反射问题）
     public void setRefTableCode(String refTableCode) {
         this.refTableCode = refTableCode;

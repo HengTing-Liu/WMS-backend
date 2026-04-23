@@ -68,4 +68,7 @@ public class ColumnMetaRequest implements Serializable {
     private String refLocalField;
     @Schema(description = "虚拟列多字段拼接分隔符，仅多字段场景生效，空值时后端兜底为 ❤，长度 1-4")
     private String refSeparator;
+
+    @Schema(description = "关联流水号规则编码（对应 sys_serial_number.usage_scope）")
+    private String serialNumberRule;
 }

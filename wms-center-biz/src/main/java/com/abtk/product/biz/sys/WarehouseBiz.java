@@ -7,6 +7,7 @@ import com.abtk.product.common.domain.R;
 import com.abtk.product.common.utils.bean.BeanUtils;
 import com.abtk.product.dao.entity.Warehouse;
 import com.abtk.product.domain.converter.WarehouseConverter;
+import com.abtk.product.biz.system.CrudSerialNumberBiz;
 import com.abtk.product.service.sys.service.WarehouseService;
 import com.abtk.product.service.system.service.I18nService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,9 @@ public class WarehouseBiz {
 
     @Autowired
     private I18nService i18nService;
+
+    @Autowired
+    private CrudSerialNumberBiz crudSerialNumberBiz;
 
     /**
      * 查询仓库列表
@@ -90,6 +94,9 @@ public class WarehouseBiz {
     public R<Long> add(WarehouseRequest request) {
         // 使用Converter转换Request到Entity
         Warehouse warehouse = WarehouseConverter.INSTANCE.requestToEntity(request);
+
+        // 如果配置了流水号规则且对应字段为空，自动生成流水号
+        crudSerialNumberBiz.fillForEntity("inv_warehouse", warehouse);
 
         Long id = warehouseService.create(warehouse);
         return R.ok(id);

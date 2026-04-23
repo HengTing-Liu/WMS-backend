@@ -112,4 +112,7 @@ public class ColumnMetaVO {
 
     @Schema(description = "虚拟列多字段拼接分隔符，空值时默认 ❤")
     private String refSeparator;
+
+    @Schema(description = "关联流水号规则编码（对应 sys_serial_number.usage_scope）")
+    private String serialNumberRule;
 }

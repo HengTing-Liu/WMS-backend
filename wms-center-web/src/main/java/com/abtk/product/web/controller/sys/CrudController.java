@@ -1,5 +1,6 @@
 package com.abtk.product.web.controller.sys;
 
+import com.abtk.product.biz.system.CrudSerialNumberBiz;
 import com.abtk.product.common.domain.R;
 import com.abtk.product.common.web.controller.BaseController;
 import com.abtk.product.common.web.page.TableDataInfo;
@@ -25,6 +26,9 @@ public class CrudController extends BaseController {
 
     @Autowired
     private CrudService crudService;
+
+    @Autowired
+    private CrudSerialNumberBiz crudSerialNumberBiz;
 
     /**
      * 分页查询列表
@@ -77,6 +81,7 @@ public class CrudController extends BaseController {
             @Parameter(description = "表标识", required = true)
             @PathVariable String tableCode,
             @RequestBody Map<String, Object> data) {
+        crudSerialNumberBiz.fillSerialNumbers(tableCode, data);
         Long id = crudService.create(tableCode, data);
         return R.ok(id);
     }

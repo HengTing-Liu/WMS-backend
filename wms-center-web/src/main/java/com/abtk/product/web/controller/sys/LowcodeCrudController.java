@@ -1,5 +1,6 @@
 package com.abtk.product.web.controller.sys;
 
+import com.abtk.product.biz.system.CrudSerialNumberBiz;
 import com.abtk.product.common.domain.R;
 import com.abtk.product.common.utils.DateUtils;
 import com.abtk.product.common.utils.poi.DynamicExcelUtil;
@@ -36,6 +37,9 @@ public class LowcodeCrudController extends BaseController {
 
     @Autowired
     private LowcodeTreeService lowcodeTreeService;
+
+    @Autowired
+    private CrudSerialNumberBiz crudSerialNumberBiz;
 
     // ========== 列表查询 ==========
 
@@ -163,6 +167,7 @@ public class LowcodeCrudController extends BaseController {
     public R<Long> create(
             @Parameter(description = "表标识", required = true) @PathVariable String tableCode,
             @RequestBody Map<String, Object> data) {
+        crudSerialNumberBiz.fillSerialNumbers(tableCode, data);
         Long id = crudService.create(tableCode, data);
         return R.ok(id);
     }

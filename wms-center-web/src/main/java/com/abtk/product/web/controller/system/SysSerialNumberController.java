@@ -177,6 +177,43 @@ public class SysSerialNumberController extends BaseController {
         return R.ok(result);
     }
 
+    /**
+     * 根据规则编码生成流水号（供低代码表单预填充使用）
+     */
+    @Operation(summary = "根据规则编码生成流水号")
+    @PostMapping("/generateByRuleCode")
+    public R<Map<String, Object>> generateByRuleCode(
+            @Parameter(description = "生成参数", required = true) @RequestBody Map<String, Object> params) {
+        String ruleCode = (String) params.get("ruleCode");
+        String username = SecurityUtils.getUsername();
+
+        String serialNo = sysSerialNumberBiz.generateSerialNumberByRuleCode(ruleCode, username);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("serialNo", serialNo);
+        result.put("ruleCode", ruleCode);
+
+        return R.ok(result);
+    }
+
+    /**
+     * 根据规则编码预览流水号（只计算不消耗，供低代码表单预填充使用）
+     */
+    @Operation(summary = "根据规则编码预览流水号")
+    @PostMapping("/previewByRuleCode")
+    public R<Map<String, Object>> previewByRuleCode(
+            @Parameter(description = "预览参数", required = true) @RequestBody Map<String, Object> params) {
+        String ruleCode = (String) params.get("ruleCode");
+
+        String serialNo = sysSerialNumberBiz.previewSerialNumberByRuleCode(ruleCode);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("serialNo", serialNo);
+        result.put("ruleCode", ruleCode);
+
+        return R.ok(result);
+    }
+
     // ==================== 生成记录接口（预留）====================
 
     /**

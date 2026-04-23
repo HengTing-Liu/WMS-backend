@@ -452,6 +452,7 @@ public class MetaServiceImpl implements MetaService {
                 .refTargetField(col.getRefTargetField())
                 .refLocalField(col.getRefLocalField())
                 .refSeparator(col.getRefSeparator())
+                .serialNumberRule(col.getSerialNumberRule())
                 .build();
         }).collect(java.util.stream.Collectors.toList());
     }
