@@ -129,8 +129,7 @@ public class CrudServiceImpl implements CrudService {
                 if (!PAGE_PARAMS.contains(key)
                         && !"dataScope".equals(key)
                         && value != null && !"".equals(value)) {
-                    String sqlKey = toSqlFieldName(key);
-                    filteredParams.put(sqlKey, value);
+                    putFilteredQueryParam(filteredParams, key, value);
                 }
             });
         }
@@ -207,8 +206,7 @@ public class CrudServiceImpl implements CrudService {
                 if (!PAGE_PARAMS.contains(key)
                         && !"dataScope".equals(key)
                         && value != null && !"".equals(value)) {
-                    String sqlKey = toSqlFieldName(key);
-                    filteredParams.put(sqlKey, value);
+                    putFilteredQueryParam(filteredParams, key, value);
                 }
             });
         }
@@ -381,8 +379,7 @@ public class CrudServiceImpl implements CrudService {
                     continue;
                 }
                 if (!PAGE_PARAMS.contains(key) && value != null && !"".equals(value)) {
-                    String sqlKey = toSqlFieldName(key);
-                    filteredParams.put(sqlKey, value);
+                    putFilteredQueryParam(filteredParams, key, value);
                 }
             }
         }
@@ -627,6 +624,103 @@ public class CrudServiceImpl implements CrudService {
     }
 
     /**
+     * 将数组/集合类型的查询参数统一转为 List，便于 MyBatis XML 中用 IN 处理多选值。
+     * 空数组/空集合返回 null（表示该条件无效，不参与 WHERE）。
+     */
+    private Object normalizeMultiValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Collection) {
+            Collection<?> col = (Collection<?>) value;
+            return col.isEmpty() ? null : new ArrayList<>(col);
+        }
+        if (value.getClass().isArray()) {
+            int len = java.lang.reflect.Array.getLength(value);
+            if (len == 0) {
+                return null;
+            }
+            List<Object> list = new ArrayList<>(len);
+            for (int i = 0; i < len; i++) {
+                list.add(java.lang.reflect.Array.get(value, i));
+            }
+            return list;
+        }
+        return value;
+    }
+
+    /**
+     * 去掉 GET 查询串里常见的数组下标/括号后缀（如 temperature_zone[0]、temperature_zone[]、temperature_zone[:]），
+     * 避免 MyBatis 把整段当作列名拼进 SQL 导致语法错误。
+     */
+    private static String stripBracketSuffix(String requestParamName) {
+        if (requestParamName == null || requestParamName.isEmpty()) {
+            return requestParamName;
+        }
+        int bracket = requestParamName.indexOf('[');
+        if (bracket <= 0) {
+            return requestParamName;
+        }
+        return requestParamName.substring(0, bracket);
+    }
+
+    private String resolveSqlFieldKeyFromRequest(String requestParamName) {
+        String base = stripBracketSuffix(requestParamName.trim());
+        return toSqlFieldName(base);
+    }
+
+    /**
+     * 写入列表查询条件：字段名校验 + 多选/重复参数名合并为 IN 列表。
+     */
+    private void putFilteredQueryParam(Map<String, Object> filteredParams, String requestKey, Object rawValue) {
+        String sqlKey = resolveSqlFieldKeyFromRequest(requestKey);
+        if (sqlKey == null || sqlKey.isEmpty()) {
+            return;
+        }
+        if (!SAFE_FIELD_PATTERN.matcher(sqlKey).matches()) {
+            log.warn("Skipping query parameter with invalid field name after normalization: {}", requestKey);
+            return;
+        }
+        Object normalizedValue = normalizeMultiValue(rawValue);
+        if (normalizedValue == null) {
+            return;
+        }
+        filteredParams.merge(sqlKey, normalizedValue, CrudServiceImpl::mergeQueryParamValues);
+    }
+
+    private static Object mergeQueryParamValues(Object a, Object b) {
+        List<Object> merged = new ArrayList<>();
+        appendQueryParamPieces(merged, a);
+        appendQueryParamPieces(merged, b);
+        return merged;
+    }
+
+    private static void appendQueryParamPieces(List<Object> out, Object v) {
+        if (v == null) {
+            return;
+        }
+        if (v instanceof Collection) {
+            for (Object x : (Collection<?>) v) {
+                if (x != null && !"".equals(x)) {
+                    out.add(x);
+                }
+            }
+            return;
+        }
+        if (v.getClass().isArray()) {
+            int len = java.lang.reflect.Array.getLength(v);
+            for (int i = 0; i < len; i++) {
+                Object x = java.lang.reflect.Array.get(v, i);
+                if (x != null && !"".equals(x)) {
+                    out.add(x);
+                }
+            }
+            return;
+        }
+        out.add(v);
+    }
+
+    /**
      * 鐟滅増甯婄粩鎾礌閺嶃劍娈堕柟璇″枛閻⊙冣枔闂堟稒鍊冲☉?SQL snake_case闁挎稒绋撻埞?key 闁煎浜滄慨鈺勭疀閻ｅ本娈?
      */
     private Map<String, Object> normalizeDataKeysForSql(Map<String, Object> data) {
@@ -659,7 +753,7 @@ public class CrudServiceImpl implements CrudService {
                 return result;
             }
             for (Map.Entry<String, Object> entry : jsonObject.entrySet()) {
-                String field = toSqlFieldName(entry.getKey());
+                String field = toSqlFieldName(stripBracketSuffix(entry.getKey()));
                 String mode = normalizeQueryMode(entry.getValue());
                 if (!StringUtils.isEmpty(field) && !StringUtils.isEmpty(mode)) {
                     result.put(field, mode);

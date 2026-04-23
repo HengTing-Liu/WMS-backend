@@ -40,6 +40,12 @@
             <foreach collection="params" item="value" index="key" open="AND " separator=" AND " close="">
                 <if test="value != null and value != ''">
                     <choose>
+                        <when test="value instanceof java.util.Collection and value.size() > 0">
+                            ${key} IN
+                            <foreach collection="value" item="item" open="(" separator="," close=")">
+                                #{item}
+                            </foreach>
+                        </when>
                         <when test="queryModes != null and queryModes[key] != null and queryModes[key] == 'like'">
                             ${key} LIKE CONCAT('%', #{value}, '%')
                         </when>
@@ -63,6 +69,12 @@
             <foreach collection="params" item="value" index="key" open="AND " separator=" AND " close="">
                 <if test="value != null and value != ''">
                     <choose>
+                        <when test="value instanceof java.util.Collection and value.size() > 0">
+                            ${key} IN
+                            <foreach collection="value" item="item" open="(" separator="," close=")">
+                                #{item}
+                            </foreach>
+                        </when>
                         <when test="queryModes != null and queryModes[key] != null and queryModes[key] == 'like'">
                             ${key} LIKE CONCAT('%', #{value}, '%')
                         </when>
@@ -207,6 +219,12 @@
             <foreach collection="params" item="value" index="key" open="AND " separator=" AND " close="">
                 <if test="value != null and value != ''">
                     <choose>
+                        <when test="value instanceof java.util.Collection and value.size() > 0">
+                            m.${key} IN
+                            <foreach collection="value" item="item" open="(" separator="," close=")">
+                                #{item}
+                            </foreach>
+                        </when>
                         <when test="queryModes != null and queryModes[key] != null and queryModes[key] == 'like'">
                             m.${key} LIKE CONCAT('%', #{value}, '%')
                         </when>
@@ -224,6 +242,12 @@
             <foreach collection="virtualValues" item="value" index="key" open="AND " separator=" AND " close="">
                 <if test="value != null and value != ''">
                     <choose>
+                        <when test="value instanceof java.util.Collection and value.size() > 0">
+                            ${virtualExpressions[key]} IN
+                            <foreach collection="value" item="item" open="(" separator="," close=")">
+                                #{item}
+                            </foreach>
+                        </when>
                         <when test="virtualQueryModes != null and virtualQueryModes[key] != null and virtualQueryModes[key] == 'like'">
                             ${virtualExpressions[key]} LIKE CONCAT('%', #{value}, '%')
                         </when>
