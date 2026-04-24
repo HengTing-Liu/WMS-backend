@@ -160,6 +160,7 @@ public class SysSerialNumberServiceImpl implements ISysSerialNumberService {
         resp.setSeqLength(entity.getDigitLength());
         resp.setCurrentSeq(entity.getCurrentValue());
         resp.setMaxSeq(entity.getStartValue());
+        resp.setLastResetKey(entity.getLastResetKey());
         resp.setSuffix(entity.getSuffix());
         resp.setResetType(resetRuleToResetType(entity.getResetRule()));
         resp.setStatus(isEnabledToStatus(entity.getIsEnabled()));

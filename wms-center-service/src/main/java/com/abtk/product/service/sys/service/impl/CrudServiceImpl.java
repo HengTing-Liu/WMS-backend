@@ -3,7 +3,7 @@ package com.abtk.product.service.sys.service.impl;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.abtk.product.api.domain.request.sys.SysSerialNumberQueryRequest;
-import com.abtk.product.api.domain.request.sys.SysSerialNumberRequest;
+
 import com.abtk.product.api.domain.response.sys.SysSerialNumberResponse;
 import com.abtk.product.common.exception.ServiceException;
 import com.abtk.product.common.utils.StringUtils;
@@ -11,10 +11,12 @@ import com.abtk.product.common.utils.sql.SqlUtil;
 import com.abtk.product.common.web.page.TableDataInfo;
 import com.abtk.product.dao.mapper.ColumnMetaMapper;
 import com.abtk.product.dao.mapper.DynamicMapper;
+import com.abtk.product.dao.mapper.SysSerialNumberMapper;
 import com.abtk.product.dao.mapper.TableMetaMapper;
 import com.abtk.product.dao.support.lookup.LookupColumn;
 import com.abtk.product.dao.util.SqlInjectionValidator;
 import com.abtk.product.dao.entity.ColumnMeta;
+import com.abtk.product.dao.entity.SysSerialNumber;
 import com.abtk.product.dao.entity.TableMeta;
 import com.abtk.product.service.permission.util.CrudPermissionUtil;
 import com.abtk.product.service.security.utils.SecurityUtils;
@@ -78,6 +80,9 @@ public class CrudServiceImpl implements CrudService {
 
     @Autowired
     private ISysSerialNumberService sysSerialNumberService;
+
+    @Autowired
+    private SysSerialNumberMapper sysSerialNumberMapper;
 
     /**
      * 闂佸吋鍎抽崲鑼躲亹閸モ晜鍋橀柕濞у嫮鏆犻梻渚囧亝濡叉帞娆㈤锕€绀嗛柣妯肩帛閻濈喖鏌涢幒鎿冩當闁?
@@ -310,117 +315,57 @@ public class CrudServiceImpl implements CrudService {
     }
 
     /**
-     * 根据 apply_form_field 规则自动填充字段
-     * apply_form_field 格式: tableCode|fieldName  例如: inv_warehouse|warehouse_code
+     * 根据字段元数据配置的 serial_number_rule 自动填充流水号
      * 仅当字段值为空或不存在时才会自动填充
      * 注意：只对 inv_warehouse 和 inv_warehouse_type 表生效，避免跨表污染
      */
     private void autoFillSerialNumbers(String tableCode, Map<String, Object> normalizedData) {
-        // 仅对 inv_warehouse 和 inv_warehouse_type 表执行自动填充
-        if (!"inv_warehouse".equals(tableCode) && !"inv_warehouse_type".equals(tableCode)) {
-            log.debug("自动填充跳过，非 inv_warehouse/inv_warehouse_type 表: table={}", tableCode);
+        // 查询当前表的字段元数据，筛选出配置了流水号规则的字段
+        List<ColumnMeta> columnMetas;
+        try {
+            columnMetas = columnMetaMapper.selectByTableCode(tableCode);
+        } catch (Exception e) {
+            log.debug("查询列元数据失败: tableCode={}, error={}", tableCode, e.getMessage());
             return;
         }
 
-        // 支持自动填充的 apply_form_field 规则映射
-        // key: apply_form_field 值, value: 对应的数据库字段名(snake_case)
-        java.util.Map<String, String> fieldRules = new java.util.LinkedHashMap<>();
-        fieldRules.put("inv_warehouse|warehouse_code", "warehouse_code");
-        fieldRules.put("inv_warehouse|stored_material", "stored_material");
-        fieldRules.put("inv_warehouse|warehouse_type", "warehouse_type");
-        fieldRules.put("inv_warehouse|temperature_zone", "temperature_zone");
-        fieldRules.put("inv_warehouse|quality_zone", "quality_zone");
-        fieldRules.put("inv_warehouse|erp_company_name", "erp_company_name");
-        // inv_warehouse_type|warehouse_location 需要关联查询，稍后单独处理
-        fieldRules.put("inv_warehouse_type|warehouse_location", "warehouse_location");
+        if (columnMetas == null || columnMetas.isEmpty()) {
+            return;
+        }
 
-        for (java.util.Map.Entry<String, String> entry : fieldRules.entrySet()) {
-            String applyFormField = entry.getKey();
-            String sqlFieldName = entry.getValue();
-
-            // 检查字段是否在 normalizedData 中
-            Object existingValue = normalizedData.get(sqlFieldName);
-            boolean hasValue = existingValue != null && !StringUtils.isEmpty(String.valueOf(existingValue));
-
-            // 如果字段已有值（非空），不自动填充
-            if (hasValue) {
-                log.debug("字段已有值，不自动填充: field={}, value={}", sqlFieldName, existingValue);
+        for (ColumnMeta meta : columnMetas) {
+            String serialNumberRule = meta.getSerialNumberRule();
+            if (StringUtils.isEmpty(serialNumberRule)) {
                 continue;
             }
 
-            // 字段为空或不存在，查询流水号规则并生成
+            String sqlFieldName = meta.getField();
+
+            // 根据规则名称查询流水号规则
             try {
                 SysSerialNumberQueryRequest queryReq = new SysSerialNumberQueryRequest();
-                queryReq.setApplyFormField(applyFormField);
+                queryReq.setRuleName(serialNumberRule);
+                queryReq.setStatus("0");
                 List<SysSerialNumberResponse> rules = sysSerialNumberService.queryByCondition(queryReq);
+                if (rules != null) {
+                    rules = rules.stream()
+                            .filter(r -> serialNumberRule.equals(r.getRuleName()))
+                            .collect(Collectors.toList());
+                }
                 if (rules == null || rules.isEmpty()) {
-                    log.debug("未找到流水号规则: applyFormField={}", applyFormField);
+                    log.debug("未找到流水号规则: ruleName={}", serialNumberRule);
                     continue;
                 }
                 SysSerialNumberResponse rule = rules.get(0);
-                if (!"0".equals(rule.getStatus())) {
-                    log.debug("流水号规则已停用: applyFormField={}", applyFormField);
-                    continue;
-                }
 
-                // 生成流水号
+                // 生成流水号并填充
                 String serialNo = generateSerialNumberForRule(rule, SecurityUtils.getUsername());
                 normalizedData.put(sqlFieldName, serialNo);
-                log.info("流水号自动填充: table={}, field={}, applyFormField={}, serialNo={}",
-                        tableCode, sqlFieldName, applyFormField, serialNo);
+                log.info("流水号自动填充: table={}, field={}, ruleName={}, serialNo={}",
+                        tableCode, sqlFieldName, serialNumberRule, serialNo);
             } catch (Exception e) {
-                // 流水号规则不存在或生成失败，不影响主流程，记录日志
-                log.debug("自动生成流水号失败: applyFormField={}, error={}", applyFormField, e.getMessage());
+                log.debug("自动生成流水号失败: ruleName={}, error={}", serialNumberRule, e.getMessage());
             }
-        }
-
-        // 特殊处理: inv_warehouse_type|warehouse_location
-        // 从 inv_warehouse_type 表获取仓库类型对应的所在地
-        autoFillWarehouseLocationFromWarehouseType(normalizedData);
-    }
-
-    /**
-     * 特殊处理: inv_warehouse_type|warehouse_location
-     * 当 warehouse_location 字段为空时，根据 warehouse_type 关联查询 inv_warehouse_type 表获取 warehouse_location
-     */
-    private void autoFillWarehouseLocationFromWarehouseType(Map<String, Object> normalizedData) {
-        // 检查 warehouse_location 是否已有值
-        Object locationValue = normalizedData.get("warehouse_location");
-        if (locationValue != null && !StringUtils.isEmpty(String.valueOf(locationValue))) {
-            log.debug("warehouse_location 已有值，不自动填充");
-            return;
-        }
-
-        // 检查 warehouse_type 是否有值
-        Object typeValue = normalizedData.get("warehouse_type");
-        if (typeValue == null || StringUtils.isEmpty(String.valueOf(typeValue))) {
-            log.debug("warehouse_type 为空，无法自动填充 warehouse_location");
-            return;
-        }
-
-        try {
-            // 查询 inv_warehouse_type 表获取 warehouse_location
-            SysSerialNumberQueryRequest queryReq = new SysSerialNumberQueryRequest();
-            queryReq.setApplyFormField("inv_warehouse_type|warehouse_location");
-            List<SysSerialNumberResponse> rules = sysSerialNumberService.queryByCondition(queryReq);
-            if (rules == null || rules.isEmpty()) {
-                log.debug("未找到 inv_warehouse_type|warehouse_location 流水号规则");
-                return;
-            }
-            SysSerialNumberResponse rule = rules.get(0);
-            if (!"0".equals(rule.getStatus())) {
-                log.debug("inv_warehouse_type|warehouse_location 规则已停用");
-                return;
-            }
-
-            // 生成流水号（这里实际上是根据 warehouse_type 生成 warehouse_location）
-            // 需要根据 warehouse_type 查找对应的 warehouse_location
-            // 由于 warehouse_location 实际上是从仓库类型表关联查询的，这里生成后填充
-            String location = generateSerialNumberForRule(rule, SecurityUtils.getUsername());
-            normalizedData.put("warehouse_location", location);
-            log.info("warehouse_location 自动填充: warehouse_type={}, location={}", typeValue, location);
-        } catch (Exception e) {
-            log.debug("自动生成 warehouse_location 失败: error={}", e.getMessage());
         }
     }
 
@@ -428,47 +373,39 @@ public class CrudServiceImpl implements CrudService {
      * 根据流水号规则生成流水号
      */
     private synchronized String generateSerialNumberForRule(SysSerialNumberResponse rule, String updateBy) {
-        // 构建查询条件
-        SysSerialNumberQueryRequest queryReq = new SysSerialNumberQueryRequest();
-        queryReq.setApplyFormField(rule.getApplyFormField());
-        List<SysSerialNumberResponse> rules = sysSerialNumberService.queryByCondition(queryReq);
-        if (rules == null || rules.isEmpty()) {
-            throw new RuntimeException("流水号规则不存在: " + rule.getApplyFormField());
-        }
-        SysSerialNumberResponse currentRule = rules.get(0);
-        if (!"0".equals(currentRule.getStatus())) {
-            throw new RuntimeException("流水号规则已停用: " + rule.getApplyFormField());
-        }
-
         // 获取日期部分
-        String datePart = getDatePartByNumberType(currentRule.getDateFormat());
+        String datePart = getDatePartByNumberType(rule.getDateFormat());
 
         // 获取当前重置周期标识
-        String currentResetKey = getResetKeyByResetRule(currentRule.getResetType());
+        String currentResetKey = getResetKeyByResetRule(rule.getResetType());
 
         // 获取上次生成的重置周期标识
-        String lastResetKey = currentRule.getCurrentSeq() != null ? String.valueOf(currentRule.getCurrentSeq()) : null;
+        String lastResetKey = rule.getLastResetKey();
 
         Long currentValue;
         if (currentResetKey != null && !currentResetKey.equals(lastResetKey)) {
-            currentValue = currentRule.getMaxSeq() != null ? currentRule.getMaxSeq() : 1L;
+            // 重置周期已变化，使用起始值（maxSeq）
+            currentValue = rule.getMaxSeq() != null ? rule.getMaxSeq() : 1L;
         } else {
-            currentValue = currentRule.getCurrentSeq() != null ? currentRule.getCurrentSeq() : (currentRule.getMaxSeq() != null ? currentRule.getMaxSeq() : 1L);
+            currentValue = rule.getCurrentSeq() != null ? rule.getCurrentSeq() : (rule.getMaxSeq() != null ? rule.getMaxSeq() : 1L);
         }
 
         // 构建序号部分
-        String numberPart = formatNumber(currentValue, currentRule.getSeqLength());
+        String numberPart = formatNumber(currentValue, rule.getSeqLength());
 
         // 构建完整流水号
-        String prefix = currentRule.getPrefix() != null ? currentRule.getPrefix() : "";
-        String suffix = currentRule.getSuffix() != null ? currentRule.getSuffix() : "";
+        String prefix = rule.getPrefix() != null ? rule.getPrefix() : "";
+        String suffix = rule.getSuffix() != null ? rule.getSuffix() : "";
         String serialNumber = prefix + datePart + numberPart + suffix;
 
-        // 更新规则
-        currentRule.setCurrentSeq(currentValue + 1);
-        currentRule.setUpdateBy(updateBy);
-        currentRule.setUpdateTime(new Date());
-        sysSerialNumberService.update(toRequest(currentRule), updateBy);
+        // 直接更新数据库，避免 Service.update 抹掉 currentValue
+        SysSerialNumber entity = new SysSerialNumber();
+        entity.setId(rule.getId());
+        entity.setCurrentValue(currentValue + 1);
+        entity.setLastResetKey(currentResetKey);
+        entity.setUpdateBy(updateBy);
+        entity.setUpdateTime(new Date());
+        sysSerialNumberMapper.update(entity);
 
         return serialNumber;
     }
@@ -515,24 +452,6 @@ public class CrudServiceImpl implements CrudService {
             return String.valueOf(number);
         }
         return String.format("%0" + digitLength + "d", number);
-    }
-
-    private SysSerialNumberRequest toRequest(SysSerialNumberResponse response) {
-        SysSerialNumberRequest request = new SysSerialNumberRequest();
-        request.setId(response.getId());
-        request.setRuleCode(response.getRuleCode());
-        request.setRuleName(response.getRuleName());
-        request.setPrefix(response.getPrefix());
-        request.setDateFormat(response.getDateFormat());
-        request.setSeqLength(response.getSeqLength());
-        request.setCurrentSeq(response.getCurrentSeq());
-        request.setMaxSeq(response.getMaxSeq());
-        request.setSuffix(response.getSuffix());
-        request.setResetType(response.getResetType());
-        request.setStatus(response.getStatus());
-        request.setApplyFormField(response.getApplyFormField());
-        request.setDescription(response.getDescription());
-        return request;
     }
 
     @Override
