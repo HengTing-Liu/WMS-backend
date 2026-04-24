@@ -123,6 +123,14 @@ public class SysSerialNumberBiz {
         return doPreviewSerialNumber(rule);
     }
 
+    /**
+     * 根据规则名称预览下一个流水号（只计算，不更新数据库）
+     */
+    public String previewSerialNumberByRuleName(String ruleName) {
+        SysSerialNumber rule = findRuleByName(ruleName);
+        return doPreviewSerialNumber(rule);
+    }
+
     // ==================== 批量生成 ====================
 
     /**

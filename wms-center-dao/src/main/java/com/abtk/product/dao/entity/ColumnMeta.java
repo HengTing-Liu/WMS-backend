@@ -164,7 +164,7 @@ public class ColumnMeta extends BaseEntity {
      */
     private String refSeparator;
 
-    /** 关联流水号规则编码（对应 sys_serial_number.usage_scope） */
+    /** 关联流水号规则名称（对应 sys_serial_number.name） */
     private String serialNumberRule;
 
     // Lookup 字段的 setter（显式声明，避免 MyBatis 反射问题）

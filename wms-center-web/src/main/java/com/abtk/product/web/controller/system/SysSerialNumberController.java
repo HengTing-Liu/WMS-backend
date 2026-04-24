@@ -214,6 +214,24 @@ public class SysSerialNumberController extends BaseController {
         return R.ok(result);
     }
 
+    /**
+     * 根据规则名称预览流水号（只计算不消耗，供低代码表单预填充使用）
+     */
+    @Operation(summary = "根据规则名称预览流水号")
+    @PostMapping("/previewByRuleName")
+    public R<Map<String, Object>> previewByRuleName(
+            @Parameter(description = "预览参数", required = true) @RequestBody Map<String, Object> params) {
+        String ruleName = (String) params.get("ruleName");
+
+        String serialNo = sysSerialNumberBiz.previewSerialNumberByRuleName(ruleName);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("serialNo", serialNo);
+        result.put("ruleName", ruleName);
+
+        return R.ok(result);
+    }
+
     // ==================== 生成记录接口（预留）====================
 
     /**

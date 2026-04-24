@@ -49,7 +49,7 @@ public class CrudSerialNumberBiz {
                 }
                 if (currentValue == null || "".equals(currentValue)) {
                     try {
-                        String serialNo = sysSerialNumberBiz.generateSerialNumberByRuleCode(serialRule, username);
+                        String serialNo = sysSerialNumberBiz.generateSerialNumber(serialRule, username);
                         // 优先写回前端使用的 camelCase key，如果不存在则写 snake_case
                         if (data.containsKey(camelField) || !data.containsKey(snakeField)) {
                             data.put(camelField, serialNo);
@@ -57,7 +57,7 @@ public class CrudSerialNumberBiz {
                             data.put(snakeField, serialNo);
                         }
                     } catch (Exception e) {
-                        log.warn("自动生成流水号失败, tableCode={}, field={}, ruleCode={}, err={}",
+                        log.warn("自动生成流水号失败, tableCode={}, field={}, ruleName={}, err={}",
                                 tableCode, col.getField(), serialRule, e.getMessage());
                     }
                 }
@@ -92,21 +92,16 @@ public class CrudSerialNumberBiz {
                 // 数据库中 field 是 snake_case，实体类字段可能是 camelCase 或 snake_case
                 String snakeField = col.getField();
                 String camelField = toCamelCase(snakeField);
-                Object currentValue = getFieldValue(clazz, entity, camelField);
-                if (currentValue == null || "".equals(currentValue)) {
-                    currentValue = getFieldValue(clazz, entity, snakeField);
-                }
-                if (currentValue == null || "".equals(currentValue)) {
-                    try {
-                        String serialNo = sysSerialNumberBiz.generateSerialNumberByRuleCode(serialRule, username);
-                        // 优先设置 camelCase 字段，失败则尝试 snake_case
-                        if (!setFieldValue(clazz, entity, camelField, serialNo)) {
-                            setFieldValue(clazz, entity, snakeField, serialNo);
-                        }
-                    } catch (Exception e) {
-                        log.warn("自动生成流水号失败, tableCode={}, field={}, ruleCode={}, err={}",
-                                tableCode, col.getField(), serialRule, e.getMessage());
+                // 新增时强制重新生成流水号并覆盖前端传入的预览值，确保 currentSeq 正确递增
+                try {
+                    String serialNo = sysSerialNumberBiz.generateSerialNumber(serialRule, username);
+                    // 优先设置 camelCase 字段，失败则尝试 snake_case
+                    if (!setFieldValue(clazz, entity, camelField, serialNo)) {
+                        setFieldValue(clazz, entity, snakeField, serialNo);
                     }
+                } catch (Exception e) {
+                    log.warn("自动生成流水号失败, tableCode={}, field={}, ruleName={}, err={}",
+                            tableCode, col.getField(), serialRule, e.getMessage());
                 }
             }
         } catch (Exception e) {

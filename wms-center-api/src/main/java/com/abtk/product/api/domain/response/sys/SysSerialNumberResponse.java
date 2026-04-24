@@ -38,6 +38,9 @@ public class SysSerialNumberResponse extends BaseResponse {
     @Schema(description = "最大序号")
     private Long maxSeq;
 
+    @Schema(description = "上次重置周期标识")
+    private String lastResetKey;
+
     @Schema(description = "后缀")
     private String suffix;
 
