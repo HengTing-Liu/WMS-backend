@@ -63,4 +63,10 @@ public class WmsLocationTreeRequest extends BaseRequest {
      */
     @Schema(description = "最大查询层级，为空则不限制")
     private Integer maxLevel;
+
+    /**
+     * 库位名称（模糊搜索）
+     */
+    @Schema(description = "库位名称（模糊搜索）")
+    private String locationName;
 }

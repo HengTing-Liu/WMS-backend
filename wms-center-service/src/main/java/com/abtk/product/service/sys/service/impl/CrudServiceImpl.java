@@ -313,8 +313,15 @@ public class CrudServiceImpl implements CrudService {
      * 根据 apply_form_field 规则自动填充字段
      * apply_form_field 格式: tableCode|fieldName  例如: inv_warehouse|warehouse_code
      * 仅当字段值为空或不存在时才会自动填充
+     * 注意：只对 inv_warehouse 和 inv_warehouse_type 表生效，避免跨表污染
      */
     private void autoFillSerialNumbers(String tableCode, Map<String, Object> normalizedData) {
+        // 仅对 inv_warehouse 和 inv_warehouse_type 表执行自动填充
+        if (!"inv_warehouse".equals(tableCode) && !"inv_warehouse_type".equals(tableCode)) {
+            log.debug("自动填充跳过，非 inv_warehouse/inv_warehouse_type 表: table={}", tableCode);
+            return;
+        }
+
         // 支持自动填充的 apply_form_field 规则映射
         // key: apply_form_field 值, value: 对应的数据库字段名(snake_case)
         java.util.Map<String, String> fieldRules = new java.util.LinkedHashMap<>();

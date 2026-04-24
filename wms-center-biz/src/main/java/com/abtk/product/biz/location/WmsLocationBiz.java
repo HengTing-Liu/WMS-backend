@@ -1433,6 +1433,8 @@ public class WmsLocationBiz {
                 .filter(n -> request.getLocationType() == null || request.getLocationType().equals(n.getLocationType()))
                 .filter(n -> request.getStorageMode() == null || request.getStorageMode().equals(n.getStorageMode()))
                 .filter(n -> request.getIsUse() == null || request.getIsUse().equals(n.getIsUse()))
+                .filter(n -> request.getLocationName() == null || request.getLocationName().isEmpty()
+                        || (n.getLocationName() != null && n.getLocationName().contains(request.getLocationName())))
                 .collect(Collectors.toList());
     }
 
@@ -1637,6 +1639,7 @@ public class WmsLocationBiz {
         if (request.getIsUse() != null) sb.append(":").append(request.getIsUse());
         sb.append(":").append(request.getRecursive());
         if (request.getMaxLevel() != null) sb.append(":").append(request.getMaxLevel());
+        if (request.getLocationName() != null) sb.append(":").append(request.getLocationName());
         return sb.toString();
     }
 

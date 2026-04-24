@@ -8,9 +8,11 @@ import com.abtk.product.common.domain.R;
 import com.abtk.product.common.exception.ServiceException;
 import com.abtk.product.common.utils.bean.BeanUtils;
 import com.abtk.product.dao.entity.Warehouse;
+import com.abtk.product.dao.entity.WmsLocation;
 import com.abtk.product.domain.converter.WarehouseConverter;
 import com.abtk.product.biz.system.CrudSerialNumberBiz;
 import com.abtk.product.service.sys.service.WarehouseService;
+import com.abtk.product.service.location.service.WmsLocationService;
 import com.abtk.product.service.system.service.I18nService;
 import com.abtk.product.biz.system.SysSerialNumberBiz;
 import com.abtk.product.service.security.utils.SecurityUtils;
@@ -38,6 +40,9 @@ public class WarehouseBiz {
 
     @Autowired
     private WarehouseService warehouseService;
+
+    @Autowired
+    private WmsLocationService wmsLocationService;
 
     @Autowired
     private I18nService i18nService;
@@ -194,6 +199,28 @@ public class WarehouseBiz {
      * 删除仓库
      */
     public R<Void> delete(Long id) {
+        // 1. 查询仓库信息，获取 warehouseCode
+        Warehouse warehouse = warehouseService.getById(id);
+        if (warehouse == null) {
+            return R.fail(i18nService.getMessage("wms.warehouse.not.found"));
+        }
+        String warehouseCode = warehouse.getWarehouseCode();
+
+        // 2. 检查是否有库位档案绑定了该仓库
+        List<WmsLocation> boundLocations = wmsLocationService.queryByWarehouseCode(warehouseCode);
+        if (boundLocations != null && !boundLocations.isEmpty()) {
+            int count = boundLocations.size();
+            String locationNames = boundLocations.stream()
+                    .limit(5)  // 最多展示5个
+                    .map(WmsLocation::getLocationName)
+                    .collect(Collectors.joining("、"));
+            if (count > 5) {
+                locationNames += "等";
+            }
+            return R.fail("该仓库已绑定" + count + "个库位档案，无法删除。请先在库位档案中解除绑定。绑定的库位包括：" + locationNames);
+        }
+
+        // 3. 执行删除
         warehouseService.delete(id);
         return R.ok();
     }

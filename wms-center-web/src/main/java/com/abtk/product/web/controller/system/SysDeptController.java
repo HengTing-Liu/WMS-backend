@@ -47,7 +47,6 @@ public class SysDeptController extends BaseController
     @GetMapping("/list")
     public R<TableDataInfo> list(SysDept dept)
     {
-        startPage();
         List<SysDept> depts = deptService.selectDeptList(dept);
         return R.ok(getDataTable(depts));
     }
@@ -80,7 +79,7 @@ public class SysDeptController extends BaseController
      */
     @RequiresPermissions("system:dept:add")
     @Log(title = "部门管理", businessType = BusinessType.INSERT)
-    @PostMapping
+    @PostMapping("/add")
     public R<String> add(@Validated @RequestBody SysDept dept)
     {
         if (!deptService.checkDeptNameUnique(dept))
@@ -96,7 +95,7 @@ public class SysDeptController extends BaseController
      */
     @RequiresPermissions("system:dept:edit")
     @Log(title = "部门管理", businessType = BusinessType.UPDATE)
-    @PutMapping
+    @PutMapping("/edit")
     public R<String> edit(@Validated @RequestBody SysDept dept)
     {
         Long deptId = dept.getDeptId();
@@ -138,10 +137,6 @@ public class SysDeptController extends BaseController
     @DeleteMapping("/{deptId}")
     public R<String> remove(@PathVariable Long deptId)
     {
-        if (deptService.hasChildByDeptId(deptId))
-        {
-            return R.fail("存在下级部门,不允许删除");
-        }
         if (deptService.checkDeptExistUser(deptId))
         {
             return R.fail("部门存在用户,不允许删除");

@@ -31,6 +31,12 @@ public class SysDept extends BaseEntity
     /** 部门名称 */
     private String deptName;
 
+    /** 部门全路径名称 */
+    private String deptFullPath;
+
+    /** 部门分类 */
+    private String deptCategory;
+
     /** 显示顺序 */
     private Integer orderNum;
 
@@ -51,9 +57,12 @@ public class SysDept extends BaseEntity
 
     /** 父部门名称 */
     private String parentName;
-    
+
     /** 子部门 */
     private List<SysDept> children = new ArrayList<SysDept>();
+
+    /** 用户数量（与部门绑定的在职用户） */
+    private Long userCount;
 
     public Long getDeptId()
     {
@@ -95,6 +104,26 @@ public class SysDept extends BaseEntity
     public void setDeptName(String deptName)
     {
         this.deptName = deptName;
+    }
+
+    public String getDeptFullPath()
+    {
+        return deptFullPath;
+    }
+
+    public void setDeptFullPath(String deptFullPath)
+    {
+        this.deptFullPath = deptFullPath;
+    }
+
+    public String getDeptCategory()
+    {
+        return deptCategory;
+    }
+
+    public void setDeptCategory(String deptCategory)
+    {
+        this.deptCategory = deptCategory;
     }
 
     @NotNull(message = "显示顺序不能为空")
@@ -179,6 +208,16 @@ public class SysDept extends BaseEntity
     public void setChildren(List<SysDept> children)
     {
         this.children = children;
+    }
+
+    public Long getUserCount()
+    {
+        return userCount;
+    }
+
+    public void setUserCount(Long userCount)
+    {
+        this.userCount = userCount;
     }
 
     @Override

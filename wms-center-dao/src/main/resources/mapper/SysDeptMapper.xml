@@ -9,6 +9,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<result property="parentId"   column="parent_id"   />
 		<result property="ancestors"  column="ancestors"   />
 		<result property="deptName"   column="dept_name"   />
+		<result property="deptFullPath" column="dept_full_path" />
+		<result property="deptCategory" column="dept_category" />
 		<result property="orderNum"   column="order_num"   />
 		<result property="leader"     column="leader"      />
 		<result property="phone"      column="phone"       />
@@ -20,10 +22,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<result property="createTime" column="create_time" />
 		<result property="updateBy"   column="update_by"   />
 		<result property="updateTime" column="update_time" />
+		<result property="userCount"  column="user_count"  />
 	</resultMap>
 	
 	<sql id="selectDeptVo">
-        select d.dept_id, d.parent_id, d.ancestors, d.dept_name, d.order_num, d.leader, d.phone, d.email, d.status, d.is_deleted, d.create_by, d.create_time 
+        select d.dept_id, d.parent_id, d.ancestors, d.dept_name, d.dept_full_path, d.dept_category, d.order_num, d.leader, d.phone, d.email, d.status, d.is_deleted, d.create_by, d.create_time,
+               (select count(1) from sys_user u where u.dept_id = d.dept_id and u.is_deleted = '0') as user_count
         from sys_dept d
     </sql>
     
@@ -86,10 +90,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</select>
     
     <insert id="insertDept" parameterType="SysDept">
+		<selectKey keyProperty="deptId" resultType="Long" order="AFTER">
+			SELECT LAST_INSERT_ID()
+		</selectKey>
  		insert into sys_dept(
  			<if test="deptId != null and deptId != 0">dept_id,</if>
  			<if test="parentId != null and parentId != 0">parent_id,</if>
  			<if test="deptName != null and deptName != ''">dept_name,</if>
+ 			<if test="deptFullPath != null and deptFullPath != ''">dept_full_path,</if>
+ 			<if test="deptCategory != null and deptCategory != ''">dept_category,</if>
  			<if test="ancestors != null and ancestors != ''">ancestors,</if>
  			<if test="orderNum != null">order_num,</if>
  			<if test="leader != null and leader != ''">leader,</if>
@@ -102,6 +111,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="deptId != null and deptId != 0">#{deptId},</if>
  			<if test="parentId != null and parentId != 0">#{parentId},</if>
  			<if test="deptName != null and deptName != ''">#{deptName},</if>
+ 			<if test="deptFullPath != null and deptFullPath != ''">#{deptFullPath},</if>
+ 			<if test="deptCategory != null and deptCategory != ''">#{deptCategory},</if>
  			<if test="ancestors != null and ancestors != ''">#{ancestors},</if>
  			<if test="orderNum != null">#{orderNum},</if>
  			<if test="leader != null and leader != ''">#{leader},</if>
@@ -118,6 +129,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  		<set>
  			<if test="parentId != null and parentId != 0">parent_id = #{parentId},</if>
  			<if test="deptName != null and deptName != ''">dept_name = #{deptName},</if>
+ 			<if test="deptFullPath != null">dept_full_path = #{deptFullPath},</if>
+ 			<if test="deptCategory != null">dept_category = #{deptCategory},</if>
  			<if test="ancestors != null and ancestors != ''">ancestors = #{ancestors},</if>
  			<if test="orderNum != null">order_num = #{orderNum},</if>
  			<if test="leader != null">leader = #{leader},</if>
@@ -159,7 +172,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</update>
 	 
 	<delete id="deleteDeptById" parameterType="Long">
-		update sys_dept set is_deleted = '2' where dept_id = #{deptId}
+		update sys_dept set is_deleted = '1' where dept_id = #{deptId}
 	</delete>
+
+	<select id="selectLastInsertId" resultType="Long">
+		SELECT LAST_INSERT_ID()
+	</select>
+
+	<update id="updateDeptAncestors">
+		update sys_dept set ancestors = #{ancestors} where dept_id = #{deptId}
+	</update>
 
 </mapper> 

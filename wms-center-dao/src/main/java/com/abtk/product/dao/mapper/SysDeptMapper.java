@@ -119,9 +119,25 @@ public interface SysDeptMapper
 
     /**
      * 删除部门管理信息
-     * 
+     *
      * @param deptId 部门ID
      * @return 结果
      */
     public int deleteDeptById(Long deptId);
+
+    /**
+     * 获取最近一次插入的部门ID
+     *
+     * @return 最近插入的ID
+     */
+    public Long selectLastInsertId();
+
+    /**
+     * 更新部门祖籍列表
+     *
+     * @param deptId 部门ID
+     * @param ancestors 祖籍列表
+     * @return 结果
+     */
+    public int updateDeptAncestors(@Param("deptId") Long deptId, @Param("ancestors") String ancestors);
 }
