@@ -56,6 +56,14 @@ public class TableMetaResponse extends BaseResponse {
     @Schema(description = "是否树形: 0-否 1-是")
     private Integer isTree;
 
+    @Excel(name = "显示可选框", readConverterExp = "0=否,1=是")
+    @Schema(description = "是否显示可选框: 0-否 1-是")
+    private Integer showCheckbox;
+
+    @Excel(name = "显示序号", readConverterExp = "0=否,1=是")
+    @Schema(description = "是否显示序号列: 0-否 1-是")
+    private Integer showIndex;
+
     @Excel(name = "状态", readConverterExp = "0=禁用,1=启用")
     @Schema(description = "状态: 0-禁用 1-启用")
     private Integer status;

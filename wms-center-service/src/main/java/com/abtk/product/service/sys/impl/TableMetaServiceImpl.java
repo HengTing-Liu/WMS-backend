@@ -64,6 +64,12 @@ public class TableMetaServiceImpl implements TableMetaService {
         if (tableMeta.getIsTree() == null) {
             tableMeta.setIsTree(0);
         }
+        if (tableMeta.getShowCheckbox() == null) {
+            tableMeta.setShowCheckbox(0);
+        }
+        if (tableMeta.getShowIndex() == null) {
+            tableMeta.setShowIndex(1);
+        }
         if (tableMeta.getStatus() == null) {
             tableMeta.setStatus(1);
         }

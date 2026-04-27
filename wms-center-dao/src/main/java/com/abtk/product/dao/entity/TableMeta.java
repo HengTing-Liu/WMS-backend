@@ -42,6 +42,12 @@ public class TableMeta extends BaseEntity {
     /** 是否树形表: 0-否 1-是 */
     private Integer isTree;
 
+    /** 是否显示可选框: 0-否 1-是 */
+    private Integer showCheckbox;
+
+    /** 是否显示序号列: 0-否 1-是 */
+    private Integer showIndex;
+
     /** 状态: 0-禁用 1-启用 */
     private Integer status;
 

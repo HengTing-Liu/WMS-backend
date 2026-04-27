@@ -14,6 +14,8 @@
         <result property="permissionCode" column="permission_code"/>
         <result property="pageSize" column="page_size"/>
         <result property="isTree" column="is_tree"/>
+        <result property="showCheckbox" column="show_checkbox"/>
+        <result property="showIndex" column="show_index"/>
         <result property="status" column="status"/>
         <result property="remarks" column="remarks"/>
         <result property="createBy" column="create_by"/>
@@ -59,10 +61,10 @@
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sys_table_meta (
             table_code, table_name, module, entity_class, service_class,
-            permission_code, page_size, is_tree, status, remarks, create_by, create_time
+            permission_code, page_size, is_tree, show_checkbox, show_index, status, remarks, create_by, create_time
         ) VALUES (
             #{tableCode}, #{tableName}, #{module}, #{entityClass}, #{serviceClass},
-            #{permissionCode}, #{pageSize}, #{isTree}, #{status}, #{remarks},
+            #{permissionCode}, #{pageSize}, #{isTree}, #{showCheckbox}, #{showIndex}, #{status}, #{remarks},
             #{createBy}, NOW()
         )
     </insert>
@@ -76,6 +78,8 @@
             permission_code = #{permissionCode},
             page_size = #{pageSize},
             is_tree = #{isTree},
+            show_checkbox = #{showCheckbox},
+            show_index = #{showIndex},
             status = #{status},
             remarks = #{remarks},
             update_by = #{updateBy},

@@ -42,6 +42,12 @@ public class TableMetaRequest extends BaseRequest {
     @Schema(description = "是否树形表: 0-否 1-是")
     private Integer isTree = 0;
 
+    @Schema(description = "是否显示可选框: 0-否 1-是")
+    private Integer showCheckbox = 0;
+
+    @Schema(description = "是否显示序号列: 0-否 1-是")
+    private Integer showIndex = 1;
+
     @Schema(description = "状态(0-禁用,1-启用)")
     private Integer status = 1;
 
