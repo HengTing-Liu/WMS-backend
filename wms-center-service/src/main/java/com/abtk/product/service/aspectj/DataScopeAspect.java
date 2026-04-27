@@ -136,25 +136,26 @@ public class DataScopeAspect
             }
             else if (DATA_SCOPE_DEPT.equals(dataScope))
             {
-                // 校验deptId为数字
-                if (StringUtils.isNumeric(user.getDeptId().toString()))
+                String curDeptId = user.getDeptId();
+                if (curDeptId != null && StringUtils.isNumeric(curDeptId))
                 {
-                    sqlString.append(StringUtils.format(" OR {}.dept_id = {} ", deptAlias, user.getDeptId()));
+                    sqlString.append(StringUtils.format(" OR {}.dept_id = {} ", deptAlias, curDeptId));
                 }
             }
             else if (DATA_SCOPE_DEPT_AND_CHILD.equals(dataScope))
             {
-                // 校验deptId为数字
-                if (StringUtils.isNumeric(user.getDeptId().toString()))
+                String curDeptId = user.getDeptId();
+                if (curDeptId != null && StringUtils.isNumeric(curDeptId))
                 {
-                    sqlString.append(StringUtils.format(" OR {}.dept_id IN ( SELECT dept_id FROM sys_dept WHERE dept_id = {} or find_in_set( {} , ancestors ) )", deptAlias, user.getDeptId(), user.getDeptId()));
+                    sqlString.append(StringUtils.format(" OR {}.dept_id IN ( SELECT dept_id FROM sys_dept WHERE dept_id = {} or find_in_set( {} , ancestors ) )", deptAlias, curDeptId, curDeptId));
                 }
             }
             else if (DATA_SCOPE_SELF.equals(dataScope))
             {
-                if (StringUtils.isNotBlank(userAlias) && StringUtils.isNumeric(user.getUserId().toString()))
+                if (StringUtils.isNotBlank(userAlias) && user.getUserId() != null && StringUtils.isNumeric(user.getUserId().toString()))
                 {
-                    sqlString.append(StringUtils.format(" OR {}.user_id = {} ", userAlias, user.getUserId()));
+                    // sys_user 主键列为 id（非 user_id）
+                    sqlString.append(StringUtils.format(" OR {}.id = {} ", userAlias, user.getUserId()));
                 }
                 else
                 {

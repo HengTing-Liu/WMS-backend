@@ -27,56 +27,56 @@ public interface SysDeptMapper
      * @param deptCheckStrictly 部门树选择项是否关联显示
      * @return 选中部门列表
      */
-    public List<Long> selectDeptListByRoleId(@Param("roleId") Long roleId, @Param("deptCheckStrictly") boolean deptCheckStrictly);
+    public List<String> selectDeptListByRoleId(@Param("roleId") Long roleId, @Param("deptCheckStrictly") boolean deptCheckStrictly);
 
     /**
-     * 根据部门ID查询信息
+     * 根据部门编码查询信息
      * 
-     * @param deptId 部门ID
+     * @param deptId 部门编码
      * @return 部门信息
      */
-    public SysDept selectDeptById(Long deptId);
+    public SysDept selectDeptById(String deptId);
 
     /**
-     * 根据ID查询所有子部门
+     * 根据编码查询所有子部门
      * 
-     * @param deptId 部门ID
+     * @param deptId 部门编码
      * @return 部门列表
      */
-    public List<SysDept> selectChildrenDeptById(Long deptId);
+    public List<SysDept> selectChildrenDeptById(String deptId);
 
     /**
-     * 根据ID查询所有子部门（正常状态）
+     * 根据编码查询所有子部门（正常状态）
      * 
-     * @param deptId 部门ID
+     * @param deptId 部门编码
      * @return 子部门数
      */
-    public int selectNormalChildrenDeptById(Long deptId);
+    public int selectNormalChildrenDeptById(String deptId);
 
     /**
      * 是否存在子节点
      * 
-     * @param deptId 部门ID
+     * @param deptId 部门编码
      * @return 结果
      */
-    public int hasChildByDeptId(Long deptId);
+    public int hasChildByDeptId(String deptId);
 
     /**
      * 查询部门是否存在用户
      * 
-     * @param deptId 部门ID
+     * @param deptId 部门编码
      * @return 结果
      */
-    public int checkDeptExistUser(Long deptId);
+    public int checkDeptExistUser(String deptId);
 
     /**
      * 校验部门名称是否唯一
      * 
      * @param deptName 部门名称
-     * @param parentId 父部门ID
+     * @param parentId 父部门编码
      * @return 结果
      */
-    public SysDept checkDeptNameUnique(@Param("deptName") String deptName, @Param("parentId") Long parentId);
+    public SysDept checkDeptNameUnique(@Param("deptName") String deptName, @Param("parentId") String parentId);
 
     /**
      * 新增部门信息
@@ -105,9 +105,9 @@ public interface SysDeptMapper
     /**
      * 修改所在部门正常状态
      * 
-     * @param deptIds 部门ID组
+     * @param deptIds 部门编码组
      */
-    public void updateDeptStatusNormal(Long[] deptIds);
+    public void updateDeptStatusNormal(String[] deptIds);
 
     /**
      * 修改子元素关系
@@ -120,24 +120,24 @@ public interface SysDeptMapper
     /**
      * 删除部门管理信息
      *
-     * @param deptId 部门ID
+     * @param deptId 部门编码
      * @return 结果
      */
-    public int deleteDeptById(Long deptId);
+    public int deleteDeptById(String deptId);
 
     /**
-     * 获取最近一次插入的部门ID
+     * 获取最近一次插入的部门编码
      *
-     * @return 最近插入的ID
+     * @return 最近插入的编码
      */
-    public Long selectLastInsertId();
+    public String selectLastInsertId();
 
     /**
      * 更新部门祖籍列表
      *
-     * @param deptId 部门ID
+     * @param deptId 部门编码
      * @param ancestors 祖籍列表
      * @return 结果
      */
-    public int updateDeptAncestors(@Param("deptId") Long deptId, @Param("ancestors") String ancestors);
+    public int updateDeptAncestors(@Param("deptId") String deptId, @Param("ancestors") String ancestors);
 }

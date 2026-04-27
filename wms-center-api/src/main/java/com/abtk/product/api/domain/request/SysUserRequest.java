@@ -4,6 +4,8 @@ import com.abtk.product.common.annotation.Excel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  *
  *
@@ -19,11 +21,6 @@ public class SysUserRequest extends BaseRequest {
     @Excel(name = "用户序号", type = Excel.Type.EXPORT, cellType = Excel.ColumnType.NUMERIC, prompt = "用户编号")
     @Schema(description = "用户唯一标识", example = "1001")
     private Long userId;
-
-    /** 部门ID */
-    @Excel(name = "部门编号", type = Excel.Type.IMPORT)
-    @Schema(description = "所属部门ID", example = "101")
-    private Long deptId;
 
     /** 用户账号 */
     @Excel(name = "登录名称")
@@ -49,15 +46,20 @@ public class SysUserRequest extends BaseRequest {
     @Schema(description = "手机号码", example = "13800138000")
     private String phonenumber;
 
-    /** 用户性别 */
-    @Excel(name = "用户性别", readConverterExp = "0=男,1=女,2=未知")
-    @Schema(description = "性别：0=男，1=女，2=未知", allowableValues = {"0", "1", "2"}, example = "0")
-    private String sex;
-
     /** 账号状态（0正常 1停用） */
     @Excel(name = "账号状态", readConverterExp = "0=正常,1=停用")
     @Schema(description = "账号状态：0=正常，1=停用", allowableValues = {"0", "1"}, example = "0")
     private String status;
+
+    @Schema(description = "入职日期")
+    private Date entryDate;
+
+    @Schema(description = "离职日期")
+    private Date leaveDate;
+
+    /** 部门编码（与 sys_user.dept_code / sys_dept.dept_code 对应；已移除 sys_user.dept_id） */
+    @Schema(description = "部门编码 dept_code", example = "D001")
+    private String deptCode;
 
     /** 角色组（仅用于请求） */
     @Schema(description = "分配的角色ID列表", accessMode = Schema.AccessMode.WRITE_ONLY, example = "[1, 2, 3]")

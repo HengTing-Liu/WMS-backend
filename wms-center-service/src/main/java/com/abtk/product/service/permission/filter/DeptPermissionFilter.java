@@ -142,22 +142,22 @@ public class DeptPermissionFilter implements DataPermissionFilter {
     /**
      * 构建本部门条件
      */
-    private String buildDeptCondition(String fieldName, Long deptId) {
-        if (deptId == null || !isNumeric(deptId.toString())) {
+    private String buildDeptCondition(String fieldName, String deptId) {
+        if (deptId == null || !isNumeric(deptId)) {
             return fieldName + " = 0";
         }
         return fieldName + " = " + deptId;
     }
-    
+
     /**
      * 构建本部门及以下条件
      */
-    private String buildDeptAndChildCondition(String fieldName, Long deptId) {
-        if (deptId == null || !isNumeric(deptId.toString())) {
+    private String buildDeptAndChildCondition(String fieldName, String deptId) {
+        if (deptId == null || !isNumeric(deptId)) {
             return fieldName + " = 0";
         }
         // 使用find_in_set查询部门及以下
-        return fieldName + " IN (SELECT dept_id FROM sys_dept WHERE dept_id = " + deptId + 
+        return fieldName + " IN (SELECT dept_id FROM sys_dept WHERE dept_id = " + deptId +
                 " OR FIND_IN_SET(" + deptId + ", ancestors))";
     }
     

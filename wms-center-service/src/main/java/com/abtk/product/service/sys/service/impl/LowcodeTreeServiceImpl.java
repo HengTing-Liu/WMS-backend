@@ -52,7 +52,58 @@ public class LowcodeTreeServiceImpl implements LowcodeTreeService {
     }
 
     private String getPkColumn(String tableCode) {
+        // 动态检测主键列名
+        try {
+            List<Map<String, Object>> columns = dynamicMapper.selectTableColumns(tableCode);
+            for (Map<String, Object> col : columns) {
+                Object key = col.get("column_key");
+                if (key != null && "PRI".equals(key.toString())) {
+                    Object name = col.get("column_name");
+                    if (name != null) {
+                        return name.toString();
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
         return DEFAULT_PK_COLUMN;
+    }
+
+    /**
+     * 将 snake_case 键名转换为 camelCase
+     */
+    private Map<String, Object> convertKeysToCamelCase(Map<String, Object> map) {
+        if (map == null) return null;
+        Map<String, Object> result = new LinkedHashMap<>();
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            result.put(snakeToCamel(entry.getKey()), entry.getValue());
+        }
+        return result;
+    }
+
+    /**
+     * 将 List 中的所有 Map 的键名转换为 camelCase
+     */
+    private List<Map<String, Object>> convertListKeysToCamelCase(List<Map<String, Object>> list) {
+        if (list == null) return Collections.emptyList();
+        return list.stream()
+                .map(this::convertKeysToCamelCase)
+                .collect(Collectors.toList());
+    }
+
+    private String snakeToCamel(String snake) {
+        if (snake == null || !snake.contains("_")) return snake;
+        StringBuilder sb = new StringBuilder();
+        boolean upperNext = false;
+        for (char c : snake.toCharArray()) {
+            if (c == '_') {
+                upperNext = true;
+            } else {
+                sb.append(upperNext ? Character.toUpperCase(c) : c);
+                upperNext = false;
+            }
+        }
+        return sb.toString();
     }
 
     private String getStatusColumn(String tableCode) {
@@ -106,6 +157,9 @@ public class LowcodeTreeServiceImpl implements LowcodeTreeService {
         List<Map<String, Object>> list = lowcodeMapper.selectByParent(tableCode, deleteColumn, parentColumn, parentValue);
         PageInfo<Map<String, Object>> pageInfo = new PageInfo<>(list);
 
+        // 转换为 camelCase 键名
+        list = convertListKeysToCamelCase(list);
+
         TableDataInfo dataTable = new TableDataInfo();
         dataTable.setRows(list);
         dataTable.setTotal(pageInfo.getTotal());
@@ -119,6 +173,9 @@ public class LowcodeTreeServiceImpl implements LowcodeTreeService {
 
         String deleteColumn = getDeleteColumn(tableCode);
         List<Map<String, Object>> list = lowcodeMapper.selectTreeAll(tableCode, deleteColumn, parentColumn);
+
+        // 转换为 camelCase 键名
+        list = convertListKeysToCamelCase(list);
 
         if (params != null && !params.isEmpty()) {
             Map<String, Object> searchParams = new LinkedHashMap<>();

@@ -12,7 +12,7 @@ WHERE perms LIKE '%warehouse%'
 ORDER BY menu_id;
 
 -- 3) which users/roles currently have add/export perms
-SELECT u.user_name, r.role_name, m.menu_name, m.perms
+SELECT u.login_name, r.role_name, m.menu_name, m.perms
 FROM sys_user u
 JOIN sys_user_role ur ON u.user_id = ur.user_id
 JOIN sys_role r ON ur.role_id = r.role_id
@@ -24,4 +24,4 @@ WHERE m.perms IN (
   'base:warehouse:add',
   'base:warehouse:export'
 )
-ORDER BY u.user_name, r.role_name, m.perms;
+ORDER BY u.login_name, r.role_name, m.perms;

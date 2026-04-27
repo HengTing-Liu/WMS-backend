@@ -142,8 +142,10 @@ public class MetaController extends BaseController {
         return R.ok(data);
     }
 
-    @Operation(summary = "获取表单分组元数据", description = "根据表标识获取表单分组元数据列表")
-    @RequiresPermissions("system:meta:table:query")
+    /**
+     * 表单分组列表（低代码树表/表单页运行时拉取，与 column/schema、operation/list 一致：仅需登录）
+     */
+    @Operation(summary = "获取表单分组元数据", description = "根据表标识获取表单分组元数据列表，低代码动态渲染专用")
     @GetMapping("/group/list/{tableCode}")
     public R<List<FormGroupMeta>> listFormGroupMeta(@PathVariable String tableCode) {
         return R.ok(metaService.getFormGroupMetaList(tableCode));

@@ -19,14 +19,17 @@ public class SysDept extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
-    /** 部门ID */
-    private Long deptId;
+    /** 部门编码(主键) */
+    private String deptId;
 
-    /** 父部门ID */
-    private Long parentId;
+    /** 父部门编码 */
+    private String parentId;
 
     /** 祖级列表 */
     private String ancestors;
+
+    /** 部门编码 */
+    private String deptCode;
 
     /** 部门名称 */
     private String deptName;
@@ -64,22 +67,22 @@ public class SysDept extends BaseEntity
     /** 用户数量（与部门绑定的在职用户） */
     private Long userCount;
 
-    public Long getDeptId()
+    public String getDeptId()
     {
         return deptId;
     }
 
-    public void setDeptId(Long deptId)
+    public void setDeptId(String deptId)
     {
         this.deptId = deptId;
     }
 
-    public Long getParentId()
+    public String getParentId()
     {
         return parentId;
     }
 
-    public void setParentId(Long parentId)
+    public void setParentId(String parentId)
     {
         this.parentId = parentId;
     }
@@ -92,6 +95,16 @@ public class SysDept extends BaseEntity
     public void setAncestors(String ancestors)
     {
         this.ancestors = ancestors;
+    }
+
+    public String getDeptCode()
+    {
+        return deptCode;
+    }
+
+    public void setDeptCode(String deptCode)
+    {
+        this.deptCode = deptCode;
     }
 
     @NotBlank(message = "部门名称不能为空")
@@ -226,6 +239,7 @@ public class SysDept extends BaseEntity
             .append("deptId", getDeptId())
             .append("parentId", getParentId())
             .append("ancestors", getAncestors())
+            .append("deptCode", getDeptCode())
             .append("deptName", getDeptName())
             .append("orderNum", getOrderNum())
             .append("leader", getLeader())

@@ -38,32 +38,30 @@ INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, dic
 ('sys_user', 'email', '用户邮箱', 'string', 'input', '', 1, 1, 1, 0, 0, 150, 6, 1, 'system', NOW()),
 -- 手机号码
 ('sys_user', 'phonenumber', '手机号码', 'string', 'input', '', 1, 1, 1, 0, 0, 120, 7, 1, 'system', NOW()),
--- 用户性别
-('sys_user', 'sex', '用户性别', 'int', 'select', 'sys_user_sex', 1, 1, 1, 0, 0, 80, 8, 1, 'system', NOW()),
 -- 头像地址
-('sys_user', 'avatar', '头像', 'string', 'input', '', 0, 1, 0, 0, 0, 200, 9, 1, 'system', NOW()),
+('sys_user', 'avatar', '头像', 'string', 'input', '', 0, 1, 0, 0, 0, 200, 8, 1, 'system', NOW()),
 -- 密码（不在表单中显示）
-('sys_user', 'password', '密码', 'string', 'password', '', 0, 0, 0, 0, 0, NULL, 10, 0, 'system', NOW()),
+('sys_user', 'password', '密码', 'string', 'password', '', 0, 0, 0, 0, 0, NULL, 9, 0, 'system', NOW()),
 -- 账号状态
-('sys_user', 'status', '状态', 'string', 'select', 'sys_normal_disable', 1, 1, 1, 0, 1, 80, 11, 1, 'system', NOW()),
+('sys_user', 'status', '状态', 'string', 'select', 'sys_normal_disable', 1, 1, 1, 0, 1, 80, 10, 1, 'system', NOW()),
 -- 删除标志（不在列表/表单显示）
-('sys_user', 'isDeleted', '删除标志', 'string', 'number', '', 0, 0, 0, 0, 0, NULL, 12, 0, 'system', NOW()),
+('sys_user', 'isDeleted', '删除标志', 'string', 'number', '', 0, 0, 0, 0, 0, NULL, 11, 0, 'system', NOW()),
 -- 最后登录IP
-('sys_user', 'loginIp', '最后登录IP', 'string', 'input', '', 0, 0, 0, 0, 0, 150, 13, 1, 'system', NOW()),
+('sys_user', 'loginIp', '最后登录IP', 'string', 'input', '', 0, 0, 0, 0, 0, 150, 12, 1, 'system', NOW()),
 -- 最后登录时间
-('sys_user', 'loginDate', '最后登录时间', 'datetime', 'datetime', '', 0, 0, 0, 0, 0, 160, 14, 1, 'system', NOW()),
+('sys_user', 'loginDate', '最后登录时间', 'datetime', 'datetime', '', 0, 0, 0, 0, 0, 160, 13, 1, 'system', NOW()),
 -- 密码更新时间
-('sys_user', 'pwdUpdateDate', '密码更新时间', 'datetime', 'datetime', '', 0, 0, 0, 0, 0, 160, 15, 1, 'system', NOW()),
+('sys_user', 'pwdUpdateDate', '密码更新时间', 'datetime', 'datetime', '', 0, 0, 0, 0, 0, 160, 14, 1, 'system', NOW()),
 -- 创建者
-('sys_user', 'createBy', '创建者', 'string', 'input', '', 0, 0, 0, 0, 0, 100, 16, 1, 'system', NOW()),
+('sys_user', 'createBy', '创建者', 'string', 'input', '', 0, 0, 0, 0, 0, 100, 15, 1, 'system', NOW()),
 -- 创建时间
-('sys_user', 'createTime', '创建时间', 'datetime', 'datetime', '', 1, 0, 1, 1, 0, 160, 17, 1, 'system', NOW()),
+('sys_user', 'createTime', '创建时间', 'datetime', 'datetime', '', 1, 0, 1, 1, 0, 160, 16, 1, 'system', NOW()),
 -- 更新者
-('sys_user', 'updateBy', '更新者', 'string', 'input', '', 0, 0, 0, 0, 0, 100, 18, 1, 'system', NOW()),
+('sys_user', 'updateBy', '更新者', 'string', 'input', '', 0, 0, 0, 0, 0, 100, 17, 1, 'system', NOW()),
 -- 更新时间
-('sys_user', 'updateTime', '更新时间', 'datetime', 'datetime', '', 0, 0, 0, 1, 0, 160, 19, 1, 'system', NOW()),
+('sys_user', 'updateTime', '更新时间', 'datetime', 'datetime', '', 0, 0, 0, 1, 0, 160, 18, 1, 'system', NOW()),
 -- 备注
-('sys_user', 'remarks', '备注', 'string', 'textarea', '', 0, 1, 0, 0, 0, NULL, 20, 1, 'system', NOW())
+('sys_user', 'remarks', '备注', 'string', 'textarea', '', 0, 1, 0, 0, 0, NULL, 19, 1, 'system', NOW())
 ON DUPLICATE KEY UPDATE 
     title = VALUES(title),
     data_type = VALUES(data_type),

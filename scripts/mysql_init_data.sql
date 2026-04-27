@@ -134,23 +134,23 @@ VALUES (103, '库存管理', 100, 3, '/inventory', '#', '1', '0', 'C', '0', '0',
 
 -- 插入超级管理员（admin）
 -- 密码：admin123（请根据实际加密方式替换）
-INSERT INTO sys_user (user_id, dept_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, is_deleted, login_ip, login_date, create_by, create_time, remark) 
+INSERT INTO sys_user (user_id, dept_id, login_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, is_deleted, login_ip, login_date, create_by, create_time, remark) 
 VALUES (1, 1, 'admin', '系统管理员', '00', 'admin@wms.com', '13800138000', '0', '', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EO', '0', '0', '127.0.0.1', NOW(), 'system', NOW(), '系统管理员');
 
 -- 插入仓库经理
-INSERT INTO sys_user (user_id, dept_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, is_deleted, create_by, create_time, remark) 
+INSERT INTO sys_user (user_id, dept_id, login_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, is_deleted, create_by, create_time, remark) 
 VALUES (2, 2, 'warehouse', '仓库经理', '00', 'warehouse@wms.com', '13800138001', '0', '', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EO', '0', '0', 'system', NOW(), '仓库经理');
 
 -- 插入入库专员
-INSERT INTO sys_user (user_id, dept_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, is_deleted, create_by, create_time, remark) 
+INSERT INTO sys_user (user_id, dept_id, login_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, is_deleted, create_by, create_time, remark) 
 VALUES (3, 6, 'inbound', '入库专员', '00', 'inbound@wms.com', '13800138005', '0', '', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EO', '0', '0', 'system', NOW(), '入库专员');
 
 -- 插入出库专员
-INSERT INTO sys_user (user_id, dept_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, is_deleted, create_by, create_time, remark) 
+INSERT INTO sys_user (user_id, dept_id, login_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, is_deleted, create_by, create_time, remark) 
 VALUES (4, 7, 'outbound', '出库专员', '00', 'outbound@wms.com', '13800138006', '0', '', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EO', '0', '0', 'system', NOW(), '出库专员');
 
 -- 插入库存管理员
-INSERT INTO sys_user (user_id, dept_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, is_deleted, create_by, create_time, remark) 
+INSERT INTO sys_user (user_id, dept_id, login_name, nick_name, user_type, email, phonenumber, sex, avatar, password, status, is_deleted, create_by, create_time, remark) 
 VALUES (5, 8, 'inventory', '库存管理员', '00', 'inventory@wms.com', '13800138007', '0', '', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EO', '0', '0', 'system', NOW(), '库存管理员');
 
 -- ========================================================

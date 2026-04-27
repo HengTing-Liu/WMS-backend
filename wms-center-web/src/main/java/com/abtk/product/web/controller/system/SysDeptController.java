@@ -56,10 +56,10 @@ public class SysDeptController extends BaseController
      */
     @RequiresPermissions("system:dept:list")
     @GetMapping("/list/exclude/{deptId}")
-    public R<List<SysDept>> excludeChild(@PathVariable(value = "deptId", required = false) Long deptId)
+    public R<List<SysDept>> excludeChild(@PathVariable(value = "deptId", required = false) String deptId)
     {
         List<SysDept> depts = deptService.selectDeptList(new SysDept());
-        depts.removeIf(d -> d.getDeptId().intValue() == deptId || ArrayUtils.contains(StringUtils.split(d.getAncestors(), ","), deptId + ""));
+        depts.removeIf(d -> StringUtils.equals(d.getDeptId(), deptId) || ArrayUtils.contains(StringUtils.split(d.getAncestors(), ","), deptId));
         return R.ok(depts);
     }
 
@@ -68,7 +68,7 @@ public class SysDeptController extends BaseController
      */
     @RequiresPermissions("system:dept:query")
     @GetMapping(value = "/{deptId}")
-    public R<SysDept> getInfo(@PathVariable Long deptId)
+    public R<SysDept> getInfo(@PathVariable String deptId)
     {
         deptService.checkDeptDataScope(deptId);
         return R.ok(deptService.selectDeptById(deptId));
@@ -98,7 +98,7 @@ public class SysDeptController extends BaseController
     @PutMapping("/edit")
     public R<String> edit(@Validated @RequestBody SysDept dept)
     {
-        Long deptId = dept.getDeptId();
+        String deptId = dept.getDeptId();
         deptService.checkDeptDataScope(deptId);
         if (!deptService.checkDeptNameUnique(dept))
         {
@@ -135,7 +135,7 @@ public class SysDeptController extends BaseController
     @RequiresPermissions("system:dept:delete")
     @Log(title = "部门管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{deptId}")
-    public R<String> remove(@PathVariable Long deptId)
+    public R<String> remove(@PathVariable String deptId)
     {
         if (deptService.checkDeptExistUser(deptId))
         {

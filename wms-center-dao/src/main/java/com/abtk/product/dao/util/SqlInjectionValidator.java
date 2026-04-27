@@ -36,9 +36,9 @@ public class SqlInjectionValidator {
     private static final Set<String> ALLOWED_FIELDS = new HashSet<>(Arrays.asList(
             // 通用字段
             "id", "create_time", "create_by", "update_time", "update_by",
-            "is_deleted", "del_flag", "status", "remarks", "sort", "order_num",
+            "is_deleted", "del_flag", "status", "remarks", "sort", "order_num", "entry_date",
             // 业务字段
-            "user_id", "user_name", "nick_name", "email", "phonenumber", "sex",
+            "user_id", "user_name", "login_name", "nick_name", "code", "email", "phonenumber", "leave_date",
             "dept_id", "role_id", "role_name", "parent_id", "dept_name",
             "warehouse_id", "warehouse_code", "warehouse_name",
             "area_id", "area_code", "area_name",

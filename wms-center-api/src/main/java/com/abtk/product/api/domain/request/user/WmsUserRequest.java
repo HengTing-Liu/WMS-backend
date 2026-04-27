@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.Date;
 
 /**
  * 用户管理请求入参
@@ -26,12 +27,6 @@ public class WmsUserRequest extends BaseRequest {
      */
     @Schema(description = "主键ID")
     private Long userId;
-
-    /**
-     * 部门ID
-     */
-    @Schema(description = "部门ID")
-    private Long deptId;
 
     /**
      * 用户账号（登录名）
@@ -64,12 +59,6 @@ public class WmsUserRequest extends BaseRequest {
     private String phonenumber;
 
     /**
-     * 用户性别：0=男，1=女，2=未知
-     */
-    @Schema(description = "用户性别：0=男，1=女，2=未知")
-    private String sex;
-
-    /**
      * 头像地址
      */
     @Schema(description = "头像地址")
@@ -86,6 +75,9 @@ public class WmsUserRequest extends BaseRequest {
      */
     @Schema(description = "账号状态：0=正常，1=停用")
     private String status;
+
+    @Schema(description = "离职日期")
+    private Date leaveDate;
 
     /**
      * 默认首页

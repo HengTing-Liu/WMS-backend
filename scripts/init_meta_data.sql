@@ -29,7 +29,7 @@ ON DUPLICATE KEY UPDATE
     update_time = NOW();
 
 -- 1.2 字段元数据（sys_warehouse 实际列名）
-INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, show_in_list, show_in_form, searchable, is_sortable, required, width, sort_order, status, create_by, created_at, column_name)
+INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, show_in_list, show_in_form, searchable, is_sortable, required, width, sort_order, status, create_by, create_time, column_name)
 VALUES
 -- 主键（隐藏）
 ('sys_warehouse', 'id', '主键ID', 'bigint', 'number', 0, 0, 0, 0, 0, NULL, 0, 1, 'system', NOW(), 'id'),
@@ -86,7 +86,7 @@ ON DUPLICATE KEY UPDATE
     sort_order = VALUES(sort_order),
     column_name = VALUES(column_name),
     status = VALUES(status),
-    updated_at = NOW();
+    update_time = NOW();
 
 -- 1.3 操作按钮配置
 INSERT INTO sys_table_operation (table_code, operation_code, operation_name, operation_type, icon, permission, position, sort_order, status, is_enabled)
@@ -124,7 +124,7 @@ ON DUPLICATE KEY UPDATE
     update_time = NOW();
 
 -- 2.2 字段元数据（sys_warehouse_receiver 实际列名）
-INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, show_in_list, show_in_form, searchable, is_sortable, required, width, sort_order, status, create_by, created_at, column_name)
+INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, show_in_list, show_in_form, searchable, is_sortable, required, width, sort_order, status, create_by, create_time, column_name)
 VALUES
 -- 主键（隐藏）
 ('sys_warehouse_receiver', 'id', '主键ID', 'bigint', 'number', 0, 0, 0, 0, 0, NULL, 0, 1, 'system', NOW(), 'id'),
@@ -173,7 +173,7 @@ ON DUPLICATE KEY UPDATE
     sort_order = VALUES(sort_order),
     column_name = VALUES(column_name),
     status = VALUES(status),
-    updated_at = NOW();
+    update_time = NOW();
 
 -- 2.3 操作按钮配置
 INSERT INTO sys_table_operation (table_code, operation_code, operation_name, operation_type, icon, permission, position, sort_order, status, is_enabled)
@@ -211,45 +211,30 @@ ON DUPLICATE KEY UPDATE
     remark = VALUES(remark),
     update_time = NOW();
 
--- 3.2 字段元数据（sys_user 核心字段）
-INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, show_in_list, show_in_form, searchable, is_sortable, required, width, sort_order, status, create_by, created_at, column_name)
+-- 3.2 字段元数据（与 SysUser / SysUserMapper 一致：主键 id、部门 dept_code、工号表列 code 对应实体 nickName；已不含 user_type/sex 等未映射列）
+INSERT INTO sys_column_meta (table_code, field, title, data_type, form_type, show_in_list, show_in_form, searchable, is_sortable, required, width, sort_order, status, create_by, create_time, column_name)
 VALUES
--- 用户ID（隐藏）
-('sys_user', 'userId', '用户ID', 'bigint', 'number', 0, 0, 0, 0, 0, NULL, 0, 1, 'system', NOW(), 'user_id'),
--- 部门ID（隐藏）
-('sys_user', 'deptId', '部门ID', 'bigint', 'number', 0, 0, 0, 0, 0, NULL, 1, 1, 'system', NOW(), 'dept_id'),
--- 用户名
-('sys_user', 'userName', '用户名', 'string', 'input', 1, 1, 1, 1, 1, 120, 2, 1, 'system', NOW(), 'user_name'),
--- 昵称
-('sys_user', 'nickName', '昵称', 'string', 'input', 1, 1, 1, 0, 1, 120, 3, 1, 'system', NOW(), 'nick_name'),
--- 用户类型
-('sys_user', 'userType', '用户类型', 'string', 'select', 1, 1, 1, 0, 0, 100, 4, 1, 'system', NOW(), 'user_type'),
--- 邮箱
+('sys_user', 'userId', '用户ID', 'bigint', 'number', 0, 0, 0, 0, 0, NULL, 0, 1, 'system', NOW(), 'id'),
+('sys_user', 'deptCode', '部门编码', 'string', 'input', 1, 1, 1, 0, 0, 150, 1, 1, 'system', NOW(), 'dept_code'),
+('sys_user', 'userName', '登录名', 'string', 'input', 1, 1, 1, 1, 1, 150, 2, 1, 'system', NOW(), 'login_name'),
+('sys_user', 'name', '真实姓名', 'string', 'input', 1, 1, 1, 0, 0, 120, 3, 1, 'system', NOW(), 'name'),
+('sys_user', 'nickName', '工号', 'string', 'input', 1, 1, 1, 0, 1, 120, 4, 1, 'system', NOW(), 'code'),
 ('sys_user', 'email', '邮箱', 'string', 'input', 1, 1, 1, 0, 0, 150, 5, 1, 'system', NOW(), 'email'),
--- 手机号
 ('sys_user', 'phonenumber', '手机号', 'string', 'input', 1, 1, 1, 0, 0, 120, 6, 1, 'system', NOW(), 'phonenumber'),
--- 性别
-('sys_user', 'sex', '性别', 'string', 'select', 1, 1, 0, 0, 0, 80, 7, 1, 'system', NOW(), 'sex'),
--- 头像（隐藏）
-('sys_user', 'avatar', '头像', 'string', 'input', 0, 0, 0, 0, 0, NULL, 8, 1, 'system', NOW(), 'avatar'),
--- 状态
-('sys_user', 'status', '状态', 'string', 'switch', 1, 1, 1, 0, 1, 80, 9, 1, 'system', NOW(), 'status'),
--- 最后登录IP
-('sys_user', 'loginIp', '最后登录IP', 'string', 'input', 1, 0, 0, 0, 0, 150, 10, 1, 'system', NOW(), 'login_ip'),
--- 最后登录时间
-('sys_user', 'loginDate', '最后登录时间', 'datetime', 'datetime', 1, 0, 0, 1, 0, 160, 11, 1, 'system', NOW(), 'login_date'),
--- 创建者（隐藏）
-('sys_user', 'createBy', '创建者', 'string', 'input', 0, 0, 0, 0, 0, 100, 12, 1, 'system', NOW(), 'create_by'),
--- 创建时间
-('sys_user', 'createTime', '创建时间', 'datetime', 'datetime', 1, 0, 0, 1, 0, 160, 13, 1, 'system', NOW(), 'create_time'),
--- 更新者（隐藏）
-('sys_user', 'updateBy', '更新者', 'string', 'input', 0, 0, 0, 0, 0, 100, 14, 1, 'system', NOW(), 'update_by'),
--- 更新时间（隐藏）
-('sys_user', 'updateTime', '更新时间', 'datetime', 'datetime', 0, 0, 0, 1, 0, 160, 15, 1, 'system', NOW(), 'update_time'),
--- 备注
-('sys_user', 'remarks', '备注', 'string', 'textarea', 0, 1, 0, 0, 0, NULL, 16, 1, 'system', NOW(), 'remarks'),
--- 删除标志（隐藏）
-('sys_user', 'isDeleted', '删除标志', 'string', 'input', 0, 0, 0, 0, 0, NULL, 17, 1, 'system', NOW(), 'is_deleted')
+('sys_user', 'password', '密码', 'string', 'input', 0, 0, 0, 0, 0, NULL, 7, 1, 'system', NOW(), 'password'),
+('sys_user', 'status', '状态', 'string', 'switch', 1, 1, 1, 0, 1, 80, 8, 1, 'system', NOW(), 'status'),
+('sys_user', 'entryDate', '入职日期', 'date', 'date', 1, 1, 1, 0, 0, 120, 9, 1, 'system', NOW(), 'entry_date'),
+('sys_user', 'leaveDate', '离职日期', 'date', 'date', 1, 1, 0, 0, 0, 120, 10, 1, 'system', NOW(), 'leave_date'),
+('sys_user', 'avatar', '头像', 'string', 'input', 0, 0, 0, 0, 0, NULL, 11, 1, 'system', NOW(), 'avatar'),
+('sys_user', 'loginIp', '最后登录IP', 'string', 'input', 1, 0, 0, 0, 0, 150, 12, 1, 'system', NOW(), 'login_ip'),
+('sys_user', 'loginDate', '最后登录时间', 'datetime', 'datetime', 1, 0, 0, 1, 0, 160, 13, 1, 'system', NOW(), 'login_date'),
+('sys_user', 'pwdUpdateDate', '密码最后更新时间', 'datetime', 'datetime', 0, 0, 0, 0, 0, 160, 14, 1, 'system', NOW(), 'pwd_update_date'),
+('sys_user', 'createBy', '创建者', 'string', 'input', 0, 0, 0, 0, 0, 100, 15, 1, 'system', NOW(), 'create_by'),
+('sys_user', 'createTime', '创建时间', 'datetime', 'datetime', 1, 0, 0, 1, 0, 160, 16, 1, 'system', NOW(), 'create_time'),
+('sys_user', 'updateBy', '更新者', 'string', 'input', 0, 0, 0, 0, 0, 100, 17, 1, 'system', NOW(), 'update_by'),
+('sys_user', 'updateTime', '更新时间', 'datetime', 'datetime', 0, 0, 0, 1, 0, 160, 18, 1, 'system', NOW(), 'update_time'),
+('sys_user', 'remarks', '备注', 'string', 'textarea', 0, 1, 0, 0, 0, NULL, 19, 1, 'system', NOW(), 'remarks'),
+('sys_user', 'isDeleted', '删除标志', 'string', 'input', 0, 0, 0, 0, 0, NULL, 20, 1, 'system', NOW(), 'is_deleted')
 ON DUPLICATE KEY UPDATE
     title = VALUES(title),
     data_type = VALUES(data_type),
@@ -263,7 +248,22 @@ ON DUPLICATE KEY UPDATE
     sort_order = VALUES(sort_order),
     column_name = VALUES(column_name),
     status = VALUES(status),
-    updated_at = NOW();
+    update_time = NOW();
+
+-- 3.3 sys_user 操作按钮（与低代码内置 key：create / export / row_edit / row_delete / toggle 一致）
+INSERT INTO sys_table_operation (table_code, operation_code, operation_name, operation_type, icon, permission, position, sort_order, status, is_enabled)
+VALUES
+('sys_user', 'create', '新增', 'button', 'PlusOutlined', 'system:user:add', 'toolbar', 1, 1, 1),
+('sys_user', 'export', '导出', 'button', 'DownloadOutlined', 'system:user:export', 'toolbar', 2, 1, 1),
+('sys_user', 'row_edit', '编辑', 'link', 'EditOutlined', 'system:user:edit', 'row', 1, 1, 1),
+('sys_user', 'row_delete', '删除', 'link', 'DeleteOutlined', 'system:user:delete', 'row', 2, 1, 1),
+('sys_user', 'toggle', '启用/停用', 'link', 'material-symbols:toggle-on', 'system:user:edit', 'row', 3, 1, 1)
+ON DUPLICATE KEY UPDATE
+    operation_name = VALUES(operation_name),
+    icon = VALUES(icon),
+    permission = VALUES(permission),
+    position = VALUES(position),
+    sort_order = VALUES(sort_order);
 
 -- ============================================
 -- 初始化完成

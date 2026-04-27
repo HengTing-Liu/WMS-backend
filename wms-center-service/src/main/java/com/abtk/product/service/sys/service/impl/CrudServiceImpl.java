@@ -47,7 +47,9 @@ public class CrudServiceImpl implements CrudService {
     private static final String SYS_USER_TABLE = "sys_user";
 
     /** sys_user 婵炴垶鎸搁…鐑藉极椤撱垹绀嗘俊銈傚亾闁?*/
-    private static final String SYS_USER_PK = "user_id";
+    private static final String SYS_USER_PK = "id";
+
+    private static final String SYS_DEPT_TABLE = "sys_dept";
 
     /** 婵帗绋掗…鍫ヮ敇婵犳碍鐒婚柡鍕箳鐢棝鏌涢幒鏂库枅婵炲懎閰ｅ畷姘旈埀顒勫箖閺囥垺鏅柛顐ｇ矌閻熸捇鏌涢幒鎾崇闁搞倕閰ｅ浠嬫偂鎼达絿顢呴梺鎸庣☉婵傛梻绮畝鍕瀬闁绘鐗嗙粊锕傚箹鐎涙ɑ灏柛顭戜邯瀹曘儱顓奸崼顐ｇ秷闂佽偐鍘ч崯鈺冪博閹绢喗鍤婇弶鍫濆⒔缁€?*/
     private static final String DEFAULT_DELETE_COLUMN = "is_deleted";
@@ -239,6 +241,10 @@ public class CrudServiceImpl implements CrudService {
                     separatorParams, deleteColumn, dataScope);
         } else {
             rawList = dynamicMapper.selectAll(tableCode, filteredParams, queryModes, deleteColumn, dataScope);
+        }
+        rawList = dedupeRowsByPrimaryKey(rawList, getPkColumn(tableCode));
+        if (SYS_DEPT_TABLE.equals(tableCode)) {
+            rawList = dedupeRowsByDeptCode(rawList);
         }
         List<Map<String, Object>> normalized = new ArrayList<>();
         for (Map<String, Object> row : rawList) {
@@ -508,7 +514,8 @@ public class CrudServiceImpl implements CrudService {
         SqlInjectionValidator.validateTable(tableCode);
         String sqlField = toSqlFieldName(field);
         SqlInjectionValidator.validateField(sqlField);
-        Long count = dynamicMapper.checkUnique(tableCode, sqlField, value, excludeId);
+        String pkColumn = getPkColumn(tableCode);
+        Long count = dynamicMapper.checkUnique(tableCode, sqlField, value, excludeId, pkColumn);
         return count == 0;
     }
 
@@ -583,6 +590,11 @@ public class CrudServiceImpl implements CrudService {
             }
         }
 
+        dataList = dedupeRowsByPrimaryKey(dataList, getPkColumn(tableCode));
+        if (SYS_DEPT_TABLE.equals(tableCode)) {
+            dataList = dedupeRowsByDeptCode(dataList);
+        }
+
         if (exportIdFilter != null && !exportIdFilter.isEmpty()) {
             Set<Long> allowed = new HashSet<>(exportIdFilter);
             String pkColumn = getPkColumn(tableCode);
@@ -624,6 +636,111 @@ public class CrudServiceImpl implements CrudService {
         result.put("dataList", normalizedDataList);
         result.put("columns", exportableColumns);
         return result;
+    }
+
+    /**
+     * 低代码 listAll / export：若 joined 查询或历史 SQL 导致同一主键多行，按主键保留首次出现的行。
+     */
+    private List<Map<String, Object>> dedupeRowsByPrimaryKey(List<Map<String, Object>> rows, String pkColumn) {
+        if (rows == null || rows.isEmpty() || pkColumn == null || rows.size() == 1) {
+            return rows;
+        }
+        Map<String, Map<String, Object>> seen = new LinkedHashMap<>();
+        List<Map<String, Object>> withoutPk = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            Object pkVal = resolvePkValueFromRow(row, pkColumn);
+            if (pkVal == null) {
+                withoutPk.add(row);
+                continue;
+            }
+            seen.putIfAbsent(String.valueOf(pkVal), row);
+        }
+        if (seen.isEmpty()) {
+            return rows;
+        }
+        if (seen.size() + withoutPk.size() == rows.size()) {
+            return rows;
+        }
+        log.warn("Deduped lowcode rows for pk {}: {} -> {}", pkColumn, rows.size(), seen.size() + withoutPk.size());
+        List<Map<String, Object>> out = new ArrayList<>(seen.values());
+        out.addAll(withoutPk);
+        return out;
+    }
+
+    private Object resolvePkValueFromRow(Map<String, Object> row, String pkColumn) {
+        if (row == null) {
+            return null;
+        }
+        Object v = row.get(pkColumn);
+        if (v != null) {
+            return v;
+        }
+        v = row.get(pkColumn.toLowerCase(Locale.ROOT));
+        if (v != null) {
+            return v;
+        }
+        v = row.get(pkColumn.toUpperCase(Locale.ROOT));
+        if (v != null) {
+            return v;
+        }
+        String camel = sqlFieldToCamelCase(pkColumn);
+        v = row.get(camel);
+        if (v != null) {
+            return v;
+        }
+        if (!"id".equalsIgnoreCase(pkColumn)) {
+            v = row.get("id");
+        }
+        return v;
+    }
+
+    /**
+     * 部门表业务上 dept_code 唯一；若 joined 查询等导致同一编码多行，保留首行。
+     */
+    private List<Map<String, Object>> dedupeRowsByDeptCode(List<Map<String, Object>> rows) {
+        if (rows == null || rows.size() <= 1) {
+            return rows;
+        }
+        Map<String, Map<String, Object>> byCode = new LinkedHashMap<>();
+        List<Map<String, Object>> withoutCode = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            Object code = resolveDeptCodeFromRow(row);
+            if (code == null) {
+                withoutCode.add(row);
+                continue;
+            }
+            String key = String.valueOf(code).trim();
+            if (key.isEmpty()) {
+                withoutCode.add(row);
+                continue;
+            }
+            byCode.putIfAbsent(key, row);
+        }
+        if (byCode.isEmpty()) {
+            return rows;
+        }
+        if (byCode.size() + withoutCode.size() == rows.size()) {
+            return rows;
+        }
+        log.warn("Deduped {} rows by dept_code: {} -> {}", SYS_DEPT_TABLE, rows.size(), byCode.size() + withoutCode.size());
+        List<Map<String, Object>> out = new ArrayList<>(byCode.values());
+        out.addAll(withoutCode);
+        return out;
+    }
+
+    private Object resolveDeptCodeFromRow(Map<String, Object> row) {
+        if (row == null) {
+            return null;
+        }
+        Object v = row.get("dept_code");
+        if (v != null) {
+            return v;
+        }
+        v = row.get("DEPT_CODE");
+        if (v != null) {
+            return v;
+        }
+        return row.get("deptCode");
     }
 
     /**

@@ -30,14 +30,15 @@ public class SysUser extends BaseEntity
     @Schema(description = "用户唯一标识", example = "1001")
     private Long userId;
 
-    /** 部门ID */
-    @Excel(name = "部门编号", type = Type.IMPORT)
-    private Long deptId;
-
     /** 用户账号 */
     @Excel(name = "登录名称")
     @Schema(description = "用户名称", example = "ry")
     private String userName;
+
+    /** 真实姓名 */
+    @Excel(name = "真实姓名")
+    @Schema(description = "真实姓名", example = "张三")
+    private String name;
 
     /** 用户昵称 */
     @Excel(name = "用户名称")
@@ -51,10 +52,6 @@ public class SysUser extends BaseEntity
     @Excel(name = "手机号码", cellType = ColumnType.TEXT)
     private String phonenumber;
 
-    /** 用户性别 */
-    @Excel(name = "用户性别", readConverterExp = "0=男,1=女,2=未知")
-    private String sex;
-
     /** 用户头像 */
     private String avatar;
 
@@ -64,6 +61,16 @@ public class SysUser extends BaseEntity
     /** 账号状态（0正常 1停用） */
     @Excel(name = "账号状态", readConverterExp = "0=正常,1=停用")
     private String status;
+
+    /** 入职日期 */
+    @Excel(name = "入职日期", width = 20, dateFormat = "yyyy-MM-dd", type = Type.EXPORT)
+    @Schema(description = "入职日期")
+    private Date entryDate;
+
+    /** 离职日期 */
+    @Excel(name = "离职日期", width = 20, dateFormat = "yyyy-MM-dd", type = Type.EXPORT)
+    @Schema(description = "离职日期")
+    private Date leaveDate;
 
     /** 删除标志（0代表存在 2代表删除） */
     private String isDeleted;
@@ -85,6 +92,12 @@ public class SysUser extends BaseEntity
         @Excel(name = "部门负责人", targetAttr = "leader", type = Type.EXPORT)
     })
     private SysDept dept;
+
+    /** 部门编码（sys_user.dept_code，与 {@link #deptId} 同步） */
+    private String deptCode;
+
+    /** 部门编码（历史命名，与 {@link #deptCode} 同步） */
+    private String deptId;
 
     /** 角色对象 */
     private List<SysRole> roles;
@@ -131,16 +144,6 @@ public class SysUser extends BaseEntity
         return UserConstants.isAdmin(userId);
     }
 
-    public Long getDeptId()
-    {
-        return deptId;
-    }
-
-    public void setDeptId(Long deptId)
-    {
-        this.deptId = deptId;
-    }
-
     @Xss(message = "用户昵称不能包含脚本字符")
     @Size(min = 0, max = 30, message = "用户昵称长度不能超过30个字符")
     public String getNickName()
@@ -166,6 +169,16 @@ public class SysUser extends BaseEntity
         this.userName = userName;
     }
 
+    public String getName()
+    {
+        return name;
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
     @Email(message = "邮箱格式不正确")
     @Size(min = 0, max = 50, message = "邮箱长度不能超过50个字符")
     public String getEmail()
@@ -187,16 +200,6 @@ public class SysUser extends BaseEntity
     public void setPhonenumber(String phonenumber)
     {
         this.phonenumber = phonenumber;
-    }
-
-    public String getSex()
-    {
-        return sex;
-    }
-
-    public void setSex(String sex)
-    {
-        this.sex = sex;
     }
 
     public String getAvatar()
@@ -227,6 +230,26 @@ public class SysUser extends BaseEntity
     public void setStatus(String status)
     {
         this.status = status;
+    }
+
+    public Date getEntryDate()
+    {
+        return entryDate;
+    }
+
+    public void setEntryDate(Date entryDate)
+    {
+        this.entryDate = entryDate;
+    }
+
+    public Date getLeaveDate()
+    {
+        return leaveDate;
+    }
+
+    public void setLeaveDate(Date leaveDate)
+    {
+        this.leaveDate = leaveDate;
     }
 
     public String getIsDeleted()
@@ -279,6 +302,28 @@ public class SysUser extends BaseEntity
         this.dept = dept;
     }
 
+    public String getDeptCode()
+    {
+        return deptCode != null ? deptCode : deptId;
+    }
+
+    public void setDeptCode(String deptCode)
+    {
+        this.deptCode = deptCode;
+        this.deptId = deptCode;
+    }
+
+    public String getDeptId()
+    {
+        return deptId != null ? deptId : deptCode;
+    }
+
+    public void setDeptId(String deptId)
+    {
+        this.deptId = deptId;
+        this.deptCode = deptId;
+    }
+
     public List<SysRole> getRoles()
     {
         return roles;
@@ -329,19 +374,20 @@ public class SysUser extends BaseEntity
         this.defaultPage = defaultPage;
     }
 
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("userId", getUserId())
-            .append("deptId", getDeptId())
             .append("userName", getUserName())
             .append("nickName", getNickName())
             .append("email", getEmail())
             .append("phonenumber", getPhonenumber())
-            .append("sex", getSex())
             .append("avatar", getAvatar())
             .append("password", getPassword())
             .append("status", getStatus())
+            .append("entryDate", getEntryDate())
+            .append("leaveDate", getLeaveDate())
             .append("isDeleted", getIsDeleted())
             .append("loginIp", getLoginIp())
             .append("loginDate", getLoginDate())
@@ -351,6 +397,7 @@ public class SysUser extends BaseEntity
             .append("updateBy", getUpdateBy())
             .append("updateTime", getUpdateTime())
             .append("remarks", getRemarks())
+            .append("deptCode", getDeptCode())
             .append("dept", getDept())
             .toString();
     }

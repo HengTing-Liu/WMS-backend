@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import javax.validation.Validator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -67,9 +68,6 @@ public class SysUserBiz extends AbstractBiz {
     private ISysRoleService roleService;
 
     @Autowired
-    private SysDeptBiz sysDeptBiz;
-
-    @Autowired
     private SysRoleBiz sysRoleBiz;
 
     @Autowired
@@ -84,7 +82,7 @@ public class SysUserBiz extends AbstractBiz {
         Set<String> roles = permissionService.getRolePermission(user);
         // 权限集合
         Set<String> permissions = permissionService.getMenuPermission(user);
-        if (!loginUser.getPermissions().equals(permissions)) {
+        if (!Objects.equals(loginUser.getPermissions(), permissions)) {
             loginUser.setPermissions(permissions);
             tokenService.refreshToken(loginUser);
         }
@@ -92,6 +90,7 @@ public class SysUserBiz extends AbstractBiz {
         vo.setUserId(String.valueOf(loginUser.getUserid()));
         vo.setRoles(roles);
         vo.setUsername(loginUser.getUsername());
+        vo.setRealName(loginUser.getSysUser().getName());
         vo.setAvatar(loginUser.getSysUser().getAvatar());
         vo.setHomePath(loginUser.getDefaultPage());
         vo.setDesc(loginUser.getSysUser().getRemarks());
@@ -197,7 +196,6 @@ public class SysUserBiz extends AbstractBiz {
      * @time: 2026/2/12 11:25
      */
     public R<Long> add(SysUserRequest sysUserRequest) {
-        sysDeptBiz.checkDeptDataScope(sysUserRequest.getDeptId());
         sysRoleBiz.checkRoleDataScope(sysUserRequest.getRoleIds());
         SysUser user = UserConverter.INSTANCE.requestToSysUser(sysUserRequest);
         if (!sysUserService.checkUserNameUnique(user)) {
@@ -227,7 +225,6 @@ public class SysUserBiz extends AbstractBiz {
         SysUser user = UserConverter.INSTANCE.requestToSysUser(sysUserRequest);
         sysUserService.checkUserAllowed(user);
         checkUserDataScope(user.getUserId());
-        sysDeptBiz.checkDeptDataScope(user.getDeptId());
         sysRoleBiz.checkRoleDataScope(user.getRoleIds());
         if (!sysUserService.checkUserNameUnique(user)) {
             return R.fail("修改用户'" + user.getUserName() + "'失败，登录账号已存在");
@@ -320,7 +317,6 @@ public class SysUserBiz extends AbstractBiz {
                 SysUser u = sysUserService.selectUserByUserName(user.getUserName());
                 if (StringUtils.isNull(u)) {
                     BeanValidators.validateWithException(validator, user);
-                    sysDeptBiz.checkDeptDataScope(user.getDeptId());
                     String password = configService.selectConfigByKey("sys.user.initPassword");
                     user.setPassword(SecurityUtils.encryptPassword(password));
                     user.setCreateBy(operName);
@@ -331,7 +327,6 @@ public class SysUserBiz extends AbstractBiz {
                     BeanValidators.validateWithException(validator, user);
                     sysUserService.checkUserAllowed(u);
                     checkUserDataScope(u.getUserId());
-                    sysDeptBiz.checkDeptDataScope(user.getDeptId());
                     user.setUserId(u.getUserId());
                     user.setUpdateBy(operName);
                     sysUserService.updateUser(user);

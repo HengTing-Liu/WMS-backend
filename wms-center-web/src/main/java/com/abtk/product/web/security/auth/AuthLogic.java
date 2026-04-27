@@ -7,6 +7,7 @@ import com.abtk.product.common.exception.auth.NotPermissionException;
 import com.abtk.product.common.exception.auth.NotRoleException;
 import com.abtk.product.common.utils.SpringUtils;
 import com.abtk.product.common.utils.StringUtils;
+import com.abtk.product.dao.entity.SysUser;
 import com.abtk.product.service.domain.LoginUser;
 import com.abtk.product.service.security.TokenService;
 import com.abtk.product.service.security.utils.SecurityUtils;
@@ -351,6 +352,50 @@ public class AuthLogic
     }
 
     /**
+     * 超级管理员/内置 admin 账号在权限集合异常（如迁移后无角色菜单）时仍可通过接口级 @RequiresPermissions，
+     * 与 {@link com.abtk.product.service.system.impl.SysUserPermissionServiceImpl#getMenuPermission} 注入 *:*:* 的策略一致。
+     */
+    private boolean hasSuperAdminPrivilege()
+    {
+        try
+        {
+            Set<String> roles = getRoleList();
+            if (roles != null)
+            {
+                for (String r : roles)
+                {
+                    if (StringUtils.hasText(r) && SUPER_ADMIN.equals(r))
+                    {
+                        return true;
+                    }
+                }
+            }
+            LoginUser loginUser = SecurityUtils.getLoginUser();
+            if (loginUser != null)
+            {
+                if (loginUser.getSysUser() != null && SysUser.isAdmin(loginUser.getSysUser().getUserId()))
+                {
+                    return true;
+                }
+                if (StringUtils.hasText(loginUser.getUsername())
+                        && "admin".equalsIgnoreCase(loginUser.getUsername().trim()))
+                {
+                    return true;
+                }
+            }
+            Long uid = SecurityUtils.getUserId();
+            if (SysUser.isAdmin(uid))
+            {
+                return true;
+            }
+        }
+        catch (Exception ignored)
+        {
+        }
+        return false;
+    }
+
+    /**
      * 判断是否包含权限
      * 
      * @param authorities 权限列表
@@ -359,6 +404,14 @@ public class AuthLogic
      */
     public boolean hasPermi(Collection<String> authorities, String permission)
     {
+        if (hasSuperAdminPrivilege())
+        {
+            return true;
+        }
+        if (authorities == null || authorities.isEmpty())
+        {
+            return false;
+        }
         return authorities.stream().filter(StringUtils::hasText)
                 .anyMatch(x -> ALL_PERMISSION.equals(x) || PatternMatchUtils.simpleMatch(x, permission));
     }
@@ -372,6 +425,14 @@ public class AuthLogic
      */
     public boolean hasRole(Collection<String> roles, String role)
     {
+        if (hasSuperAdminPrivilege())
+        {
+            return true;
+        }
+        if (roles == null || roles.isEmpty())
+        {
+            return false;
+        }
         return roles.stream().filter(StringUtils::hasText)
                 .anyMatch(x -> SUPER_ADMIN.equals(x) || PatternMatchUtils.simpleMatch(x, role));
     }

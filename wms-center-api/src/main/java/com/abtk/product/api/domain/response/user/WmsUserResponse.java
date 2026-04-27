@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Date;
+
 /**
  * 用户管理响应出参
  *
@@ -23,12 +25,6 @@ public class WmsUserResponse extends BaseResponse {
      */
     @Schema(description = "主键ID")
     private Long userId;
-
-    /**
-     * 部门ID
-     */
-    @Schema(description = "部门ID")
-    private Long deptId;
 
     /**
      * 部门名称
@@ -61,12 +57,6 @@ public class WmsUserResponse extends BaseResponse {
     private String phonenumber;
 
     /**
-     * 用户性别：0=男，1=女，2=未知
-     */
-    @Schema(description = "用户性别：0=男，1=女，2=未知")
-    private String sex;
-
-    /**
      * 头像地址
      */
     @Schema(description = "头像地址")
@@ -77,6 +67,9 @@ public class WmsUserResponse extends BaseResponse {
      */
     @Schema(description = "账号状态：0=正常，1=停用")
     private String status;
+
+    @Schema(description = "离职日期")
+    private Date leaveDate;
 
     /**
      * 最后登录IP

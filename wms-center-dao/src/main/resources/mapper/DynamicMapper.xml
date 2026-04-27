@@ -92,7 +92,7 @@
 
     <!-- 根据ID查询 -->
     <select id="selectById" resultType="java.util.Map">
-        SELECT * FROM ${tableCode} WHERE id = #{id}
+        SELECT * FROM ${tableCode} WHERE ${pkColumn} = #{id}
     </select>
 
     <!-- 根据自定义主键列查询 -->
@@ -176,7 +176,7 @@
         FROM ${tableCode}
         WHERE ${field} = #{value}
         <if test="excludeId != null">
-            AND id != #{excludeId}
+            AND ${pkColumn} != #{excludeId}
         </if>
     </select>
 
@@ -261,7 +261,7 @@
     </sql>
 
     <select id="selectListJoined" resultType="java.util.Map">
-        SELECT <include refid="lookupSelectColumns"/>
+        SELECT DISTINCT <include refid="lookupSelectColumns"/>
         FROM ${tableCode} m
         <include refid="lookupJoinClauses"/>
         WHERE m.${deleteColumn} = 0
@@ -273,7 +273,7 @@
     </select>
 
     <select id="selectAllJoined" resultType="java.util.Map">
-        SELECT <include refid="lookupSelectColumns"/>
+        SELECT DISTINCT <include refid="lookupSelectColumns"/>
         FROM ${tableCode} m
         <include refid="lookupJoinClauses"/>
         WHERE m.${deleteColumn} = 0

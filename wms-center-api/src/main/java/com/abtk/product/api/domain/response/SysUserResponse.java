@@ -4,6 +4,8 @@ import com.abtk.product.common.annotation.Excel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  *
  *
@@ -20,20 +22,24 @@ public class SysUserResponse extends BaseResponse {
     @Schema(description = "用户唯一标识", example = "1001")
     private Long userId;
 
-    /** 部门ID */
-    @Excel(name = "部门编号", type = Excel.Type.IMPORT)
-    @Schema(description = "所属部门ID", example = "101")
-    private Long deptId;
-
     /** 部门名称 */
     @Excel(name = "部门名称", type = Excel.Type.IMPORT)
     @Schema(description = "所属部门名称", example = "研发部")
     private String deptName;
 
+    /** 部门编码（与 sys_user.dept_code 一致） */
+    @Schema(description = "部门编码 dept_code", example = "D001")
+    private String deptCode;
+
     /** 用户账号 */
     @Excel(name = "登录名称")
     @Schema(description = "登录用户名（唯一）", example = "admin")
     private String userName;
+
+    /** 工号（与 sys_user.code 一致，实体中对应 nickName） */
+    @Excel(name = "工号")
+    @Schema(description = "工号，对应表字段 code", example = "E1001")
+    private String code;
 
     /** 用户昵称 */
     @Excel(name = "用户名称")
@@ -50,15 +56,16 @@ public class SysUserResponse extends BaseResponse {
     @Schema(description = "手机号码", example = "13800138000")
     private String phonenumber;
 
-    /** 用户性别 */
-    @Excel(name = "用户性别", readConverterExp = "0=男,1=女,2=未知")
-    @Schema(description = "性别：0=男，1=女，2=未知", allowableValues = {"0", "1", "2"}, example = "0")
-    private String sex;
-
     /** 账号状态（0正常 1停用） */
     @Excel(name = "账号状态", readConverterExp = "0=正常,1=停用")
     @Schema(description = "账号状态：0=正常，1=停用", allowableValues = {"0", "1"}, example = "0")
     private String status;
+
+    @Schema(description = "入职日期")
+    private Date entryDate;
+
+    @Schema(description = "离职日期")
+    private Date leaveDate;
 
     /** 角色ID（通常用于查询条件） */
     @Schema(description = "指定角色ID（用于筛选）", example = "1")

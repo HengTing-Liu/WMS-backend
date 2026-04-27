@@ -45,8 +45,10 @@ public interface DynamicMapper {
     /**
      * 根据ID查询
      * @param tableCode 表名（必须通过 SqlInjectionValidator.validateTable 校验）
+     * @param pkColumn 主键列名（必须通过 SqlInjectionValidator.validateFieldFormat 校验）
+     * @param id 主键值
      */
-    Map<String, Object> selectById(@Param("tableCode") String tableCode, @Param("id") Long id);
+    Map<String, Object> selectById(@Param("tableCode") String tableCode, @Param("pkColumn") String pkColumn, @Param("id") Long id);
 
     /**
      * 根据自定义主键列查询
@@ -170,8 +172,9 @@ public interface DynamicMapper {
      * @param field 字段名（必须通过 SqlInjectionValidator.validateField 校验）
      * @param value 字段值
      * @param excludeId 排除的ID（用于编辑时排除自身）
+     * @param pkColumn 主键列名（用于排除自身，Service层提供）
      */
-    Long checkUnique(@Param("tableCode") String tableCode, @Param("field") String field, @Param("value") String value, @Param("excludeId") Long excludeId);
+    Long checkUnique(@Param("tableCode") String tableCode, @Param("field") String field, @Param("value") String value, @Param("excludeId") Long excludeId, @Param("pkColumn") String pkColumn);
 
     /**
      * 查询最后插入的ID

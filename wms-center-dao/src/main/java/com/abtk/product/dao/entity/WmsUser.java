@@ -31,13 +31,6 @@ public class WmsUser extends BaseEntity implements Serializable {
     private Long userId;
 
     /**
-     * 部门ID
-     */
-    @Excel(name = "部门编号", type = Type.IMPORT)
-    @Schema(description = "部门ID")
-    private Long deptId;
-
-    /**
      * 用户账号（登录名）
      */
     @Excel(name = "登录名称")
@@ -66,13 +59,6 @@ public class WmsUser extends BaseEntity implements Serializable {
     private String phonenumber;
 
     /**
-     * 用户性别：0=男，1=女，2=未知
-     */
-    @Excel(name = "用户性别", readConverterExp = "0=男,1=女,2=未知")
-    @Schema(description = "用户性别：0=男，1=女，2=未知")
-    private String sex;
-
-    /**
      * 头像地址
      */
     @Schema(description = "头像地址")
@@ -90,6 +76,20 @@ public class WmsUser extends BaseEntity implements Serializable {
     @Excel(name = "账号状态", readConverterExp = "0=正常,1=停用")
     @Schema(description = "账号状态：0=正常，1=停用")
     private String status;
+
+    /**
+     * 入职日期
+     */
+    @Excel(name = "入职日期", width = 20, dateFormat = "yyyy-MM-dd", type = Type.EXPORT)
+    @Schema(description = "入职日期")
+    private Date entryDate;
+
+    /**
+     * 离职日期
+     */
+    @Excel(name = "离职日期", width = 20, dateFormat = "yyyy-MM-dd", type = Type.EXPORT)
+    @Schema(description = "离职日期")
+    private Date leaveDate;
 
     /**
      * 删除标志（0代表存在，2代表删除）

@@ -39,7 +39,7 @@ public class SysDeptBiz {
         return sysDeptService.buildDeptTreeSelect(depts);
     }
 
-    public void checkDeptDataScope(Long deptId){
+    public void checkDeptDataScope(String deptId){
 
         if (!SysUser.isAdmin(SecurityUtils.getUserId()) && StringUtils.isNotNull(deptId))
         {

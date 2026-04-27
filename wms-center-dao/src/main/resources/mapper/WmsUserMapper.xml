@@ -3,16 +3,15 @@
 <mapper namespace="com.abtk.product.dao.mapper.user.WmsUserMapper">
 
     <resultMap type="com.abtk.product.dao.entity.WmsUser" id="WmsUserMap">
-        <result property="userId" column="user_id" jdbcType="BIGINT"/>
-        <result property="deptId" column="dept_id" jdbcType="BIGINT"/>
-        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
-        <result property="nickName" column="nick_name" jdbcType="VARCHAR"/>
+        <result property="userId" column="id" jdbcType="BIGINT"/>
+        <result property="userName" column="login_name" jdbcType="VARCHAR"/>
+        <result property="nickName" column="code" jdbcType="VARCHAR"/>
         <result property="email" column="email" jdbcType="VARCHAR"/>
         <result property="phonenumber" column="phonenumber" jdbcType="VARCHAR"/>
-        <result property="sex" column="sex" jdbcType="VARCHAR"/>
-        <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
         <result property="password" column="password" jdbcType="VARCHAR"/>
         <result property="status" column="status" jdbcType="VARCHAR"/>
+        <result property="entryDate" column="entry_date" jdbcType="DATE"/>
+        <result property="leaveDate" column="leave_date" jdbcType="DATE"/>
         <result property="delFlag" column="is_deleted" jdbcType="VARCHAR"/>
         <result property="loginIp" column="login_ip" jdbcType="VARCHAR"/>
         <result property="loginDate" column="login_date" jdbcType="TIMESTAMP"/>
@@ -26,8 +25,8 @@
 
     <!-- 鍩虹鍒?-->
     <sql id="Base_Column_List">
-        user_id, dept_id, user_name, nick_name, email, phonenumber, sex, avatar,
-        status, is_deleted, login_ip, login_date, pwd_update_date,
+        id, login_name, code, email, phonenumber, avatar,
+        status, entry_date, leave_date, is_deleted, login_ip, login_date, pwd_update_date,
         remarks, create_by, create_time, update_by, update_time
     </sql>
 
@@ -36,7 +35,7 @@
         select
         <include refid="Base_Column_List"/>
         from sys_user
-        where user_id = #{userId} and is_deleted = '0'
+        where id = #{userId} and is_deleted = '0'
     </select>
 
     <!-- 鏌ヨ鎸囧畾琛屾暟鎹?-->
@@ -47,13 +46,13 @@
         <where>
             is_deleted = '0'
             <if test="userId != null">
-                and user_id = #{userId}
+                and id = #{userId}
             </if>
             <if test="userName != null and userName != ''">
-                and user_name like concat('%', #{userName}, '%')
+                and login_name like concat('%', #{userName}, '%')
             </if>
             <if test="nickName != null and nickName != ''">
-                and nick_name like concat('%', #{nickName}, '%')
+                and code like concat('%', #{nickName}, '%')
             </if>
             <if test="status != null and status != ''">
                 and status = #{status}
@@ -61,11 +60,8 @@
             <if test="phonenumber != null and phonenumber != ''">
                 and phonenumber like concat('%', #{phonenumber}, '%')
             </if>
-            <if test="deptId != null">
-                and dept_id = #{deptId}
-            </if>
         </where>
-        order by user_id asc
+        order by id asc
     </select>
 
     <!-- 缁熻鎬昏鏁?-->
@@ -74,13 +70,13 @@
         <where>
             is_deleted = '0'
             <if test="userId != null">
-                and user_id = #{userId}
+                and id = #{userId}
             </if>
             <if test="userName != null and userName != ''">
-                and user_name like concat('%', #{userName}, '%')
+                and login_name like concat('%', #{userName}, '%')
             </if>
             <if test="nickName != null and nickName != ''">
-                and nick_name like concat('%', #{nickName}, '%')
+                and code like concat('%', #{nickName}, '%')
             </if>
             <if test="status != null and status != ''">
                 and status = #{status}
@@ -88,23 +84,16 @@
             <if test="phonenumber != null and phonenumber != ''">
                 and phonenumber like concat('%', #{phonenumber}, '%')
             </if>
-            <if test="deptId != null">
-                and dept_id = #{deptId}
-            </if>
         </where>
     </select>
 
     <!-- 鏂板 -->
     <insert id="insert" keyProperty="userId" useGeneratedKeys="true">
         insert into sys_user(
-            dept_id, user_name, nick_name, email, phonenumber, sex, avatar,
-            password, status, is_deleted, remarks,
+            login_name, code, email, phonenumber,
+            password, status, entry_date, leave_date, is_deleted, remarks,
             create_by, create_time, update_by, update_time
         ) values (
-            <choose>
-                <when test="deptId != null">#{deptId}</when>
-                <otherwise>null</otherwise>
-            </choose>,
             #{userName}, #{nickName},
             <choose>
                 <when test="email != null and email != ''">#{email}</when>
@@ -115,20 +104,20 @@
                 <otherwise>null</otherwise>
             </choose>,
             <choose>
-                <when test="sex != null and sex != ''">#{sex}</when>
-                <otherwise>'0'</otherwise>
-            </choose>,
-            <choose>
-                <when test="avatar != null and avatar != ''">#{avatar}</when>
-                <otherwise>null</otherwise>
-            </choose>,
-            <choose>
                 <when test="password != null and password != ''">#{password}</when>
                 <otherwise>null</otherwise>
             </choose>,
             <choose>
                 <when test="status != null and status != ''">#{status}</when>
                 <otherwise>'0'</otherwise>
+            </choose>,
+            <choose>
+                <when test="entryDate != null">#{entryDate}</when>
+                <otherwise>null</otherwise>
+            </choose>,
+            <choose>
+                <when test="leaveDate != null">#{leaveDate}</when>
+                <otherwise>null</otherwise>
             </choose>,
             '0',
             <choose>
@@ -143,11 +132,8 @@
     <update id="update">
         update sys_user
         <set>
-            <if test="deptId != null">
-                dept_id = #{deptId},
-            </if>
             <if test="nickName != null and nickName != ''">
-                nick_name = #{nickName},
+                code = #{nickName},
             </if>
             <if test="email != null">
                 email = #{email},
@@ -155,17 +141,17 @@
             <if test="phonenumber != null">
                 phonenumber = #{phonenumber},
             </if>
-            <if test="sex != null and sex != ''">
-                sex = #{sex},
-            </if>
-            <if test="avatar != null and avatar != ''">
-                avatar = #{avatar},
-            </if>
             <if test="password != null and password != ''">
                 password = #{password},
             </if>
             <if test="status != null and status != ''">
                 status = #{status},
+            </if>
+            <if test="entryDate != null">
+                entry_date = #{entryDate},
+            </if>
+            <if test="leaveDate != null">
+                leave_date = #{leaveDate},
             </if>
             <if test="remarks != null">
                 remarks = #{remarks},
@@ -175,7 +161,7 @@
             </if>
             update_time = now()
         </set>
-        where user_id = #{userId}
+        where id = #{userId}
     </update>
 
     <!-- 閫昏緫鍒犻櫎 -->
@@ -184,7 +170,7 @@
         set is_deleted = '2',
             update_by = #{username},
             update_time = now()
-        where user_id = #{userId}
+        where id = #{userId}
     </update>
 
     <!-- 鍒囨崲鐘舵€?-->
@@ -192,7 +178,7 @@
         update sys_user
         set status = #{status},
             update_time = now()
-        where user_id = #{userId} and is_deleted = '0'
+        where id = #{userId} and is_deleted = '0'
     </update>
 
     <!-- 鏌ヨ鎵€鏈夛紙涓嶅垎椤碉級 -->
@@ -201,7 +187,7 @@
         <include refid="Base_Column_List"/>
         from sys_user
         where is_deleted = '0'
-        order by user_id asc
+        order by id asc
     </select>
 
     <!-- 鏍￠獙鐢ㄦ埛鍚嶅敮涓€鎬?-->
@@ -209,7 +195,7 @@
         select
         <include refid="Base_Column_List"/>
         from sys_user
-        where user_name = #{userName} and is_deleted = '0'
+        where login_name = #{userName} and is_deleted = '0'
         limit 1
     </select>
 

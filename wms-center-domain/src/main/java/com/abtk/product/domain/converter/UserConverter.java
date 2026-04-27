@@ -22,6 +22,8 @@ public interface  UserConverter {
     SysUser requestToSysUser(SysUserRequest vo);
 
     @Mapping(source = "dept.deptName", target = "deptName")
+    @Mapping(source = "dept.deptCode", target = "deptCode")
+    @Mapping(source = "nickName", target = "code")
     SysUserResponse sysUserToResponse(SysUser sysUser);
 
 }
