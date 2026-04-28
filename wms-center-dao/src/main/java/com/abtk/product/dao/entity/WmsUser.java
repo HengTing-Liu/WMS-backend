@@ -45,6 +45,12 @@ public class WmsUser extends BaseEntity implements Serializable {
     private String nickName;
 
     /**
+     * 职位
+     */
+    @Schema(description = "职位")
+    private String jobTitle;
+
+    /**
      * 用户邮箱
      */
     @Excel(name = "用户邮箱")

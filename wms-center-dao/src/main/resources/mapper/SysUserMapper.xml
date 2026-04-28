@@ -9,6 +9,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="userName"      column="login_name"       />
         <result property="name"         column="name"             />
         <result property="nickName"      column="code"       />
+        <result property="jobTitle"     column="job_title"        />
         <result property="email"         column="email"           />
         <result property="phonenumber"   column="phonenumber"     />
         <result property="password"      column="password"        />
@@ -50,7 +51,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 	
 	<sql id="selectUserVo">
-        select u.id, u.dept_code as user_dept_code, u.login_name, u.name, u.code, u.email, u.phonenumber, u.password, u.status, u.entry_date, u.leave_date, u.is_deleted, u.login_ip, u.login_date, u.pwd_update_date, u.create_by, u.create_time, u.remarks,
+        select u.id, u.dept_code as user_dept_code, u.login_name, u.name, u.code, u.job_title, u.email, u.phonenumber, u.password, u.status, u.entry_date, u.leave_date, u.is_deleted, u.login_ip, u.login_date, u.pwd_update_date, u.create_by, u.create_time, u.remarks,
         d.dept_code, d.parent_id, d.ancestors, d.dept_name, d.order_num, d.leader, d.status as dept_status,
         r.id, r.role_name, r.role_key, r.role_sort, r.data_scope, r.status as role_status
         from sys_user u
@@ -60,7 +61,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </sql>
     
     <select id="selectUserList" parameterType="SysUser" resultMap="SysUserResult">
-		select u.id, u.dept_code as user_dept_code, u.login_name, u.name, u.code, u.email, u.phonenumber, u.status, u.entry_date, u.leave_date, u.is_deleted, u.login_ip, u.login_date, u.create_by, u.create_time, u.remarks, d.dept_code, d.dept_name, d.leader from sys_user u
+		select u.id, u.dept_code as user_dept_code, u.login_name, u.name, u.code, u.job_title, u.email, u.phonenumber, u.status, u.entry_date, u.leave_date, u.is_deleted, u.login_ip, u.login_date, u.create_by, u.create_time, u.remarks, d.dept_code, d.dept_name, d.leader from sys_user u
 		left join sys_dept d on u.dept_code = d.dept_code
 		where u.is_deleted = '0'
 		<if test="userId != null and userId != 0">
@@ -149,6 +150,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="userName != null and userName != ''">login_name,</if>
  			<if test="name != null and name != ''">name,</if>
  			<if test="nickName != null and nickName != ''">code,</if>
+ 			<if test="jobTitle != null and jobTitle != ''">job_title,</if>
  			<if test="email != null and email != ''">email,</if>
 			<if test="phonenumber != null and phonenumber != ''">phonenumber,</if>
 			<if test="password != null and password != ''">password,</if>
@@ -165,6 +167,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="userName != null and userName != ''">#{userName},</if>
  			<if test="name != null and name != ''">#{name},</if>
  			<if test="nickName != null and nickName != ''">#{nickName},</if>
+ 			<if test="jobTitle != null and jobTitle != ''">#{jobTitle},</if>
  			<if test="email != null and email != ''">#{email},</if>
 			<if test="phonenumber != null and phonenumber != ''">#{phonenumber},</if>
 			<if test="password != null and password != ''">#{password},</if>
@@ -184,6 +187,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="userName != null and userName != ''">login_name = #{userName},</if>
  			<if test="deptCode != null">dept_code = #{deptCode},</if>
  			<if test="nickName != null and nickName != ''">code = #{nickName},</if>
+ 			<if test="jobTitle != null and jobTitle != ''">job_title = #{jobTitle},</if>
 			<if test="name != null and name != ''">name = #{name},</if>
  			<if test="email != null ">email = #{email},</if>
  			<if test="phonenumber != null ">phonenumber = #{phonenumber},</if>

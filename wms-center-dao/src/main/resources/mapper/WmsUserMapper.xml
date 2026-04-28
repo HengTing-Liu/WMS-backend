@@ -6,6 +6,7 @@
         <result property="userId" column="id" jdbcType="BIGINT"/>
         <result property="userName" column="login_name" jdbcType="VARCHAR"/>
         <result property="nickName" column="code" jdbcType="VARCHAR"/>
+        <result property="jobTitle" column="job_title" jdbcType="VARCHAR"/>
         <result property="email" column="email" jdbcType="VARCHAR"/>
         <result property="phonenumber" column="phonenumber" jdbcType="VARCHAR"/>
         <result property="password" column="password" jdbcType="VARCHAR"/>
@@ -25,7 +26,7 @@
 
     <!-- 鍩虹鍒?-->
     <sql id="Base_Column_List">
-        id, login_name, code, email, phonenumber, avatar,
+        id, login_name, code, job_title, email, phonenumber, avatar,
         status, entry_date, leave_date, is_deleted, login_ip, login_date, pwd_update_date,
         remarks, create_by, create_time, update_by, update_time
     </sql>
@@ -90,11 +91,15 @@
     <!-- 鏂板 -->
     <insert id="insert" keyProperty="userId" useGeneratedKeys="true">
         insert into sys_user(
-            login_name, code, email, phonenumber,
+            login_name, code, job_title, email, phonenumber,
             password, status, entry_date, leave_date, is_deleted, remarks,
             create_by, create_time, update_by, update_time
         ) values (
             #{userName}, #{nickName},
+            <choose>
+                <when test="jobTitle != null and jobTitle != ''">#{jobTitle}</when>
+                <otherwise>null</otherwise>
+            </choose>,
             <choose>
                 <when test="email != null and email != ''">#{email}</when>
                 <otherwise>null</otherwise>
@@ -134,6 +139,9 @@
         <set>
             <if test="nickName != null and nickName != ''">
                 code = #{nickName},
+            </if>
+            <if test="jobTitle != null and jobTitle != ''">
+                job_title = #{jobTitle},
             </if>
             <if test="email != null">
                 email = #{email},

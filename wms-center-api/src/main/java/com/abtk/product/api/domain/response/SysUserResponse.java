@@ -46,6 +46,9 @@ public class SysUserResponse extends BaseResponse {
     @Schema(description = "用户显示名称/昵称", example = "系统管理员")
     private String nickName;
 
+    @Schema(description = "职位")
+    private String jobTitle;
+
     /** 用户邮箱 */
     @Excel(name = "用户邮箱")
     @Schema(description = "用户邮箱地址", example = "admin@example.com")

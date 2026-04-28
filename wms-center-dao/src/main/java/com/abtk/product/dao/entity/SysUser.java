@@ -44,6 +44,10 @@ public class SysUser extends BaseEntity
     @Excel(name = "用户名称")
     private String nickName;
 
+    /** 职位 */
+    @Schema(description = "职位")
+    private String jobTitle;
+
     /** 用户邮箱 */
     @Excel(name = "用户邮箱")
     private String email;
@@ -154,6 +158,16 @@ public class SysUser extends BaseEntity
     public void setNickName(String nickName)
     {
         this.nickName = nickName;
+    }
+
+    public String getJobTitle()
+    {
+        return jobTitle;
+    }
+
+    public void setJobTitle(String jobTitle)
+    {
+        this.jobTitle = jobTitle;
     }
 
     @Xss(message = "用户账号不能包含脚本字符")
@@ -381,6 +395,7 @@ public class SysUser extends BaseEntity
             .append("userId", getUserId())
             .append("userName", getUserName())
             .append("nickName", getNickName())
+            .append("jobTitle", getJobTitle())
             .append("email", getEmail())
             .append("phonenumber", getPhonenumber())
             .append("avatar", getAvatar())
