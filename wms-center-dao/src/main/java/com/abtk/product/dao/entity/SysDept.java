@@ -19,6 +19,9 @@ public class SysDept extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
+    /** 数据库自增主键 */
+    private Long id;
+
     /** 部门编码(主键) */
     private String deptId;
 
@@ -66,6 +69,16 @@ public class SysDept extends BaseEntity
 
     /** 用户数量（与部门绑定的在职用户） */
     private Long userCount;
+
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
+    }
 
     public String getDeptId()
     {
@@ -236,6 +249,7 @@ public class SysDept extends BaseEntity
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
+            .append("id", getId())
             .append("deptId", getDeptId())
             .append("parentId", getParentId())
             .append("ancestors", getAncestors())

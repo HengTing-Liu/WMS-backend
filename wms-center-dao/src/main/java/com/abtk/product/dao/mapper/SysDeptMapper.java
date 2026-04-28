@@ -140,4 +140,12 @@ public interface SysDeptMapper
      * @return 结果
      */
     public int updateDeptAncestors(@Param("deptId") String deptId, @Param("ancestors") String ancestors);
+
+    /**
+     * 根据 dept_code_fullpath 前缀查询所有匹配的部门编码
+     *
+     * @param prefix dept_code_fullpath 前缀
+     * @return 部门编码列表
+     */
+    public List<String> selectDeptCodesByFullPathPrefix(@Param("prefix") String prefix);
 }

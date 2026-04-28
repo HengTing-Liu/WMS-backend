@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -6,6 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 	<resultMap type="SysDept" id="SysDeptResult">
 		<id     property="deptId"     column="dept_code"   />
+		<result property="id"         column="id"          />
 		<result property="parentId"   column="parent_id"   />
 		<result property="ancestors"  column="ancestors"   />
 		<result property="deptCode"   column="dept_code"   />
@@ -27,7 +28,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	</resultMap>
 	
 	<sql id="selectDeptVo">
-        select d.dept_code, d.parent_id, d.ancestors, d.dept_code, d.dept_name, d.dept_full_path, d.dept_category, d.order_num, d.leader, d.phone, d.email, d.status, d.is_deleted, d.create_by, d.create_time,
+        select d.id, d.dept_code, d.parent_id, d.ancestors, d.dept_code, d.dept_name, d.dept_full_path, d.dept_category, d.order_num, d.leader, d.phone, d.email, d.status, d.is_deleted, d.create_by, d.create_time,
                (select count(1) from sys_user u where u.dept_code = d.dept_code and u.is_deleted = '0') as user_count
         from sys_dept d
     </sql>
@@ -183,5 +184,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<update id="updateDeptAncestors">
 		update sys_dept set ancestors = #{ancestors} where dept_code = #{deptId}
 	</update>
+
+	<select id="selectDeptCodesByFullPathPrefix" resultType="String">
+		SELECT dept_code FROM sys_dept
+		WHERE is_deleted = '0' AND dept_code_fullpath LIKE CONCAT(#{prefix}, '%')
+	</select>
 
 </mapper> 

@@ -86,6 +86,9 @@ public class CrudServiceImpl implements CrudService {
     @Autowired
     private SysSerialNumberMapper sysSerialNumberMapper;
 
+    @Autowired
+    private com.abtk.product.dao.mapper.SysDeptMapper sysDeptMapper;
+
     /**
      * 闂佸吋鍎抽崲鑼躲亹閸モ晜鍋橀柕濞у嫮鏆犻梻渚囧亝濡叉帞娆㈤锕€绀嗛柣妯肩帛閻濈喖鏌涢幒鎿冩當闁?
      * @param tableCode 闁荤偞绋忛崝宥夋偉閿濆洦瀚?
@@ -150,6 +153,9 @@ public class CrudServiceImpl implements CrudService {
         Map<String, String> queryModes = buildSafeQueryModes(rawQueryModes, filteredParams.keySet());
         // 闂佽桨鑳舵晶妤€鐣垫笟鈧鍫曞礃椤旂瓔鈧瑦绻涙径鍫濆闁告瑥妫濋弫宥夊醇閵忥紕鍑介梺瑙勪航閸庝即骞堥妸鈺佺哗?filteredParams闂佹寧绋戦張顒勫极閻愬搫绀?dataScope raw SQL 闂佺粯顨呭ú锕傤敊瀹€鍕櫖?
         CrudPermissionUtil.injectDataScope(filteredParams);
+
+        // 闁轰胶澧介悘浣猴拷闁哄啫鍎抽崲鑼躲亹閸ヮ剚鐒婚柡鍕箳鐢棝鏌涢幒鏂库枅婵炲懎閰ｅ畷姘旈埀顒勫箖閺囥垺鏅柛顐ｇ矌閻熸捇鏌涢幒鎾崇闁搞倕閰ｅ浠嬫偂鎼达絿顢呴梺鎸庣☉婵傛梻绮畝鍕瀬闁绘鐗嗙粊锕傚箹鐎涙ɑ灏柛顭戜邯瀹曘儱顓奸崼顐ｇ秷闂佽偐鍘ч崯鈺冪博閹绢喗鍤婇弶鍫濆⒔缁€?dept_code_tree 濠电偛顦崝宀勫矗閸℃稑鏋侀柣妤€鐗嗙粊锕傛煛婢跺﹤鏆ｆ俊顐ｅ箻濡繈濡存径鎰櫖闁?
+        expandDeptCodeTreeIfNeeded(tableCode, filteredParams, queryModes);
 
         // Lookup 虚拟列路由分支（WMS-LOWCODE-LOOKUP）
         List<LookupColumn> lookups = lookupSqlBuilder.buildForTable(tableCode);
@@ -226,6 +232,7 @@ public class CrudServiceImpl implements CrudService {
         }
         Map<String, String> queryModes = buildSafeQueryModes(rawQueryModes, filteredParams.keySet());
         CrudPermissionUtil.injectDataScope(filteredParams);
+        expandDeptCodeTreeIfNeeded(tableCode, filteredParams, queryModes);
         String deleteColumn = getDeleteColumn(tableCode);
         String dataScope = (String) filteredParams.remove("dataScope");
 
@@ -636,6 +643,28 @@ public class CrudServiceImpl implements CrudService {
         result.put("dataList", normalizedDataList);
         result.put("columns", exportableColumns);
         return result;
+    }
+
+    /**
+     * 闁轰胶澧介悘浣猴拷闁哄啫鍎抽崲鑼躲亹閸ヮ剚鐒婚柡鍕箳鐢棝鏌涢幒鏂库枅婵炲懎閰ｅ畷姘旈埀顒勫箖閺囥垺鏅柛顐ｇ矌閻熸捇鏌涢幒鎾崇闁搞倕閰ｅ浠嬫偂鎼达絿顢呴梺鎸庣☉婵傛梻绮畝鍕瀬闁绘鐗嗙粊锕傚箹鐎涙ɑ灏柛顭戜邯瀹曘儱顓奸崼顐ｇ秷闂佽偐鍘ч崯鈺冪博閹绢喗鍤婇弶鍫濆⒔缁€?dept_code_tree 濠电偛顦崝宀勫矗閸℃稑鏋侀柣妤€鐗嗙粊锕傛煛婢跺﹤鏆ｆ俊顐ｅ箻濡繈濡存径鎰櫖闁?
+     * 婵炴挻鑹鹃鍛淬€? sys_user 闁哄啫鍎抽崲鑼躲亹閸モ晜鍋橀柕濞у嫮鏆犻柣鏂款殠濞?dept_code_tree 濠电偛顦崝宀勫矗閸℃稑鍌ㄩ柣鏂款殠濞?sys_dept.dept_code_fullpath LIKE 闁搞儜鍋撻悽鐢告媼閹绢喗娈戦柛顭戜邯瀹曘儱顓奸崼顐ｇ秷闂佽偐鍘ч崯鈺冪博閹绢喗鍤婇弶鍫濆⒔缁€?dept_code 婵炲濮寸花鑲╃箔閸涙潙绀嗛柟鐑樻煥濞堢娀寮堕悜鍡楀幐閻犳劗鍠愰妵娆撴偂鎼粹剝些闂佹寧绋戦悧鍛箔?
+     */
+    private void expandDeptCodeTreeIfNeeded(String tableCode, Map<String, Object> filteredParams, Map<String, String> queryModes) {
+        if (!SYS_USER_TABLE.equals(tableCode)) {
+            return;
+        }
+        Object treeRoot = filteredParams.remove("dept_code_tree");
+        if (treeRoot == null || "".equals(treeRoot)) {
+            return;
+        }
+        String rootCode = String.valueOf(treeRoot).trim();
+        // 婵炴挻鑹鹃鍛淬€? sys_dept 闁哄啫鍎抽崲鑼躲亹閸モ晜鍋橀柕濞у嫮鏆犻柣鏂款殠濞?dept_code_fullpath 濠电偛顦崝宀勫矗閸℃稑鍌ㄩ柣鏂款殠濞?rootCode 闁搞儜鍋撻悽鐢告媼閹绢喗娈戦柛顭戜邯瀹曘儱顓奸崼顐ｇ秷闂佽偐鍘ч崯鈺冪博閹绢喗鍤婇弶鍫濆⒔缁€?dept_code
+        List<String> deptCodes = sysDeptMapper.selectDeptCodesByFullPathPrefix(rootCode);
+        if (deptCodes == null || deptCodes.isEmpty()) {
+            deptCodes = java.util.Collections.singletonList(rootCode);
+        }
+        filteredParams.put("dept_code", deptCodes);
+        queryModes.put("dept_code", QUERY_MODE_EQ);
     }
 
     /**

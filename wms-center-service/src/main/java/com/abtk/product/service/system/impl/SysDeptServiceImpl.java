@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -77,11 +78,20 @@ public class SysDeptServiceImpl implements ISysDeptService
     public List<SysDept> buildDeptTree(List<SysDept> depts)
     {
         List<SysDept> returnList = new ArrayList<SysDept>();
-        List<String> tempList = depts.stream().map(SysDept::getDeptId).collect(Collectors.toList());
+        List<Long> tempList = depts.stream().map(SysDept::getId).filter(Objects::nonNull).collect(Collectors.toList());
         for (SysDept dept : depts)
         {
+            Long parentId = null;
+            try
+            {
+                parentId = Long.valueOf(dept.getParentId());
+            }
+            catch (NumberFormatException e)
+            {
+                parentId = null;
+            }
             // 如果是顶级节点, 遍历该父节点的所有子节点
-            if (!tempList.contains(dept.getParentId()))
+            if (dept.getId() == null || (parentId != null && !tempList.contains(parentId)))
             {
                 recursionFn(depts, dept);
                 returnList.add(dept);
@@ -460,7 +470,8 @@ public class SysDeptServiceImpl implements ISysDeptService
         while (it.hasNext())
         {
             SysDept n = (SysDept) it.next();
-            if (StringUtils.isNotNull(n.getParentId()) && StringUtils.equals(n.getParentId(), t.getDeptId()))
+            if (StringUtils.isNotNull(n.getParentId()) && t.getId() != null
+                    && StringUtils.equals(n.getParentId(), String.valueOf(t.getId())))
             {
                 tlist.add(n);
             }

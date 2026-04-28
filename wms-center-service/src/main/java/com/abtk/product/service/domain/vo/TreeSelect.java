@@ -25,6 +25,9 @@ public class TreeSelect implements Serializable
     /** 节点名称 */
     private String label;
 
+    /** 部门编码 */
+    private String deptCode;
+
     /** 节点禁用 */
     private boolean disabled = false;
 
@@ -40,6 +43,7 @@ public class TreeSelect implements Serializable
     public TreeSelect(SysDept dept)
     {
         this.id = dept.getDeptId();
+        this.deptCode = dept.getDeptCode();
         this.label = dept.getDeptName();
         this.disabled = StringUtils.equals(UserConstants.DEPT_DISABLE, dept.getStatus());
         this.children = dept.getChildren().stream().map(TreeSelect::new).collect(Collectors.toList());
@@ -70,6 +74,16 @@ public class TreeSelect implements Serializable
     public void setLabel(String label)
     {
         this.label = label;
+    }
+
+    public String getDeptCode()
+    {
+        return deptCode;
+    }
+
+    public void setDeptCode(String deptCode)
+    {
+        this.deptCode = deptCode;
     }
 
     public boolean isDisabled()
