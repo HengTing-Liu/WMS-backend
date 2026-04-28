@@ -25,6 +25,7 @@ public class ColumnMetaRequest implements Serializable {
     private Integer showInImport;
     private Integer searchable;
     private Integer sortable;
+    private Integer unique;
     private Integer required;
     private Integer width;
     private Integer sortOrder;

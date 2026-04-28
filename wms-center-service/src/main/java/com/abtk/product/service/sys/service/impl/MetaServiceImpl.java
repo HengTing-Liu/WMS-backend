@@ -427,6 +427,7 @@ public class MetaServiceImpl implements MetaService {
                 .isSearchable(col.getSearchable() != null && col.getSearchable() == 1)
                 .isVisible(col.getShowInList() != null && col.getShowInList() == 1)
                 .isSortable(col.getSortable() != null && col.getSortable() == 1)
+                .isUnique(col.getUnique() != null && col.getUnique() == 1)
                 .isRequired(col.getRequired() != null && col.getRequired() == 1)
                 .width(col.getWidth())
                 .sortOrder(col.getSortOrder())

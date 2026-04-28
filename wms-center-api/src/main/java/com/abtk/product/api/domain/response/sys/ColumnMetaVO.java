@@ -36,6 +36,9 @@ public class ColumnMetaVO {
     @Schema(description = "是否可排序")
     private Boolean isSortable;
 
+    @Schema(description = "是否唯一")
+    private Boolean isUnique;
+
     @Schema(description = "是否必填")
     private Boolean isRequired;
 

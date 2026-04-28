@@ -47,6 +47,9 @@ public class ColumnMeta extends BaseEntity {
     /** 可排序: 0-否 1-是 */
     private Integer sortable;
 
+    /** 是否唯一: 0-否 1-是 */
+    private Integer unique;
+
     /** 必填: 0-否 1-是 */
     private Integer required;
 

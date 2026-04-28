@@ -18,6 +18,7 @@
         <result property="showInImport" column="show_in_import"/>
         <result property="searchable" column="searchable"/>
         <result property="sortable" column="is_sortable"/>
+        <result property="unique" column="is_unique"/>
         <result property="required" column="required"/>
         <result property="width" column="width"/>
         <result property="sortOrder" column="sort_order"/>
@@ -54,7 +55,7 @@
 
     <select id="selectByTableCode" resultMap="ColumnMetaResult">
         SELECT id, table_code, field, title, data_type, form_type, dict_type,
-               show_in_list, show_in_form, show_in_export, show_in_import, searchable, is_sortable,
+               show_in_list, show_in_form, show_in_export, show_in_import, searchable, is_sortable, is_unique,
                required, width, sort_order, remarks, status, rules_json, placeholder,
                component_props, data_source, api_url, label_field, value_field, col_span, is_readonly, edit_readonly,
                section_key, section_title, section_order, section_type, section_open,
@@ -70,7 +71,7 @@
     <!-- 列集合须与 selectByTableCode 对齐，否则按 id 详情会缺 col_span / 只读等字段（列表能显示、编辑页为空） -->
     <select id="selectById" resultMap="ColumnMetaResult">
         SELECT id, table_code, field, title, data_type, form_type, dict_type,
-               show_in_list, show_in_form, show_in_export, show_in_import, searchable, is_sortable,
+               show_in_list, show_in_form, show_in_export, show_in_import, searchable, is_sortable, is_unique,
                required, width, sort_order, remarks, status, rules_json, placeholder,
                component_props, data_source, api_url, label_field, value_field, col_span, is_readonly, edit_readonly,
                section_key, section_title, section_order, section_type, section_open,
@@ -85,7 +86,7 @@
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO sys_column_meta (
             table_code, field, title, data_type, form_type, dict_type,
-            show_in_list, show_in_form, show_in_export, show_in_import, searchable, is_sortable,
+            show_in_list, show_in_form, show_in_export, show_in_import, searchable, is_sortable, is_unique,
             required, width, sort_order, remarks, status, rules_json, placeholder,
             component_props, data_source, api_url, label_field, value_field, col_span, is_readonly, edit_readonly,
             section_key, section_title, section_order, section_type, section_open,
@@ -95,7 +96,7 @@
             create_by, create_time, update_by, update_time
         ) VALUES (
             #{tableCode}, #{field}, #{title}, #{dataType}, #{formType}, #{dictType},
-            #{showInList}, #{showInForm}, #{showInExport}, #{showInImport}, #{searchable}, #{sortable},
+            #{showInList}, #{showInForm}, #{showInExport}, #{showInImport}, #{searchable}, #{sortable}, #{unique},
             #{required}, #{width}, #{sortOrder}, #{remarks}, #{status}, #{rulesJson}, #{placeholder},
             #{componentProps}, #{dataSource}, #{apiUrl}, #{labelField}, #{valueField}, #{colSpan}, #{readonly}, #{editReadonly},
             #{sectionKey}, #{sectionTitle}, #{sectionOrder}, #{sectionType}, #{sectionOpen},
@@ -120,6 +121,7 @@
             show_in_import = #{showInImport},
             searchable = #{searchable},
             is_sortable = #{sortable},
+            is_unique = #{unique},
             required = #{required},
             width = #{width},
             sort_order = #{sortOrder},
