@@ -32,6 +32,11 @@ public class LowcodeTreeServiceImpl implements LowcodeTreeService {
             Arrays.asList("pageNum", "pageSize", "orderByColumn", "isAsc")
     );
 
+    /** 仓库主数据表：删除前需按 warehouse_code 检查 inv_location 绑定数 */
+    private static final Set<String> WAREHOUSE_MASTER_TABLE_CODES = new HashSet<>(
+            Arrays.asList("inv_warehouse", "wms_warehouse")
+    );
+
     @Autowired
     private LowcodeMapper lowcodeMapper;
 
@@ -316,13 +321,37 @@ public class LowcodeTreeServiceImpl implements LowcodeTreeService {
         }
 
         List<OccupancyCheckVO.OccupancyItem> occupiedItems = new ArrayList<>();
-        Long childCount = lowcodeMapper.countByParent(tableCode, deleteColumn, DEFAULT_PARENT_COLUMN, id);
-        if (childCount != null && childCount > 0) {
-            occupiedItems.add(OccupancyCheckVO.OccupancyItem.builder()
-                    .refTable(tableCode)
-                    .refTableName("子节点")
-                    .count(childCount)
-                    .build());
+
+        // 仓库档案：按库位档案 inv_location.warehouse_code 统计绑定数量（非树形 parent_id）
+        if (WAREHOUSE_MASTER_TABLE_CODES.contains(tableCode) && record != null) {
+            Object codeObj = record.get("warehouse_code");
+            if (codeObj != null) {
+                String whCode = String.valueOf(codeObj).trim();
+                if (!whCode.isEmpty()) {
+                    Long locCount = lowcodeMapper.countInvLocationByWarehouseCode(whCode);
+                    if (locCount != null && locCount > 0) {
+                        occupiedItems.add(OccupancyCheckVO.OccupancyItem.builder()
+                                .refTable("inv_location")
+                                .refTableName("库位档案")
+                                .count(locCount)
+                                .build());
+                    }
+                }
+            }
+        }
+
+        // 只有树形表（is_tree = 1）才有 parent_id 子节点关联，非树形表不查子节点
+        TableMeta tableMeta = tableMetaMapper.selectByTableCode(tableCode);
+        boolean isTree = tableMeta != null && "1".equals(String.valueOf(tableMeta.getIsTree()));
+        if (isTree) {
+            Long childCount = lowcodeMapper.countByParent(tableCode, deleteColumn, DEFAULT_PARENT_COLUMN, id);
+            if (childCount != null && childCount > 0) {
+                occupiedItems.add(OccupancyCheckVO.OccupancyItem.builder()
+                        .refTable(tableCode)
+                        .refTableName("子节点")
+                        .count(childCount)
+                        .build());
+            }
         }
 
         boolean deletable = occupiedItems.isEmpty();

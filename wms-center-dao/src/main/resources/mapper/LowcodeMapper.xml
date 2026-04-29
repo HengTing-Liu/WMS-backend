@@ -82,4 +82,11 @@
         SELECT node_id FROM tree_nodes
     </select>
 
+    <!-- 删除仓库前：统计 inv_location 中 warehouse_code 绑定数量 -->
+    <select id="countInvLocationByWarehouseCode" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM inv_location
+        WHERE warehouse_code = #{warehouseCode}
+          AND is_deleted = 0
+    </select>
+
 </mapper>

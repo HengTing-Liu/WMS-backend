@@ -94,4 +94,10 @@ public interface LowcodeMapper {
             @Param("deleteColumn") String deleteColumn,
             @Param("parentColumn") String parentColumn,
             @Param("nodeId") Long nodeId);
+
+    /**
+     * 统计库位档案（inv_location）中绑定指定仓库编码的有效记录数（未逻辑删除）。
+     * 用于删除仓库档案前占用检查。
+     */
+    Long countInvLocationByWarehouseCode(@Param("warehouseCode") String warehouseCode);
 }

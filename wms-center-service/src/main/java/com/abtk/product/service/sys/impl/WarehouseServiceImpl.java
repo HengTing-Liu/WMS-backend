@@ -4,7 +4,9 @@ import com.abtk.product.common.permission.annotation.DataScope;
 import com.abtk.product.common.exception.ServiceException;
 import com.abtk.product.common.utils.StringUtils;
 import com.abtk.product.dao.entity.Warehouse;
+import com.abtk.product.dao.entity.WmsLocation;
 import com.abtk.product.dao.mapper.WarehouseMapper;
+import com.abtk.product.dao.mapper.WmsLocationMapper;
 import com.abtk.product.service.sys.service.WarehouseService;
 import com.abtk.product.service.security.utils.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,9 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Autowired
     private WarehouseMapper warehouseMapper;
+
+    @Autowired
+    private WmsLocationMapper wmsLocationMapper;
 
     @Override
     @DataScope(deptAlias = "sw", warehouseAlias = "sw", enableDept = true, enableWarehouse = true)
@@ -90,6 +95,16 @@ public class WarehouseServiceImpl implements WarehouseService {
         Warehouse exist = warehouseMapper.selectById(id);
         if (exist == null) {
             throw new ServiceException("仓库不存在");
+        }
+
+        // 检查是否有关联的库位数据
+        if (StringUtils.isNotEmpty(exist.getWarehouseCode())) {
+            WmsLocation locationCondition = new WmsLocation();
+            locationCondition.setWarehouseCode(exist.getWarehouseCode());
+            long locationCount = wmsLocationMapper.count(locationCondition);
+            if (locationCount > 0) {
+                throw new ServiceException("该仓库已绑定" + locationCount + "个库位，不允许删除");
+            }
         }
 
         int rows = warehouseMapper.deleteById(id);
