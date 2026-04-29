@@ -187,7 +187,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
 	<select id="selectDeptCodesByFullPathPrefix" resultType="String">
 		SELECT dept_code FROM sys_dept
-		WHERE is_deleted = '0' AND dept_code_fullpath LIKE CONCAT(#{prefix}, '%')
+		WHERE is_deleted = '0'
+		  AND (dept_code = #{prefix}
+		       OR FIND_IN_SET(#{prefix}, REPLACE(dept_code_fullpath, '-', ',')) > 0)
 	</select>
 
 </mapper> 
